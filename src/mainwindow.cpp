@@ -56,7 +56,7 @@ void MainWindow::openFolder()
     }
     setLastOpenedDirectory(directory);
     QFileSystemModel* model = new QFileSystemModel(this);
-    model->setNameFilters(QStringList() << "*.bmp" << "*.bml" << "*.bmo" << "*.xbm");
+    model->setNameFilters(QStringList() << "*.bmp" << "*.bml" << "*.bmo" << "*.xbm" << "*.png");
     QString rootDir = directory;
     model->setRootPath(rootDir);
 
