@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/palettes">
+        <file>pal/fostral.pal</file>
+        <file>pal/fostral1.pal</file>
+        <file>pal/fostral2.pal</file>
+        <file>pal/glorx.pal</file>
+        <file>pal/glorx1.pal</file>
+        <file>pal/glorx2.pal</file>
+
+
+        <file>pal/necross.pal</file>
+        <file>pal/necross1.pal</file>
+        <file>pal/necross2.pal</file>
+        <file>pal/objects.pal</file>
+        <file>pal/xplo.pal</file>
+
+<file>pal/l0_escave.pal</file>
+<file>pal/l1_escave.pal</file>
+<file>pal/l2_escave.pal</file>
+<file>pal/l3_escave.pal</file>
+<file>pal/l4_escave.pal</file>
+<file>pal/l5_escave.pal</file>
+<file>pal/l6_escave.pal</file>
+<file>pal/l7_escave.pal</file>
+
+<file>pal/harmoy_Ark-a-Znoy.pal</file>
+<file>pal/harmoy_Boozeena.pal</file>
+<file>pal/harmoy_Fostral.pal</file>
+<file>pal/harmoy_Glorx.pal</file>
+<file>pal/harmoy_hMok.pal</file>
+<file>pal/harmoy_Khox.pal</file>
+<file>pal/harmoy_Necross.pal</file>
+<file>pal/harmoy_Threall.pal</file>
+<file>pal/harmoy_Weexow.pal</file>
+<file>pal/harmoy_XPLO.pal</file>
+
+    </qresource>
+</RCC>

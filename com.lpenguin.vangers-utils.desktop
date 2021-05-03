@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Vangers Utils
+GenericName=Vangers Resource Explorer
+Comment=Vangers Resource Explorer
+TryExec=vangers-utils-qt
+Exec=vangers-utils-qt %F
+Terminal=false
+Type=Application
+Icon=VangersUtils
+Categories=Graphics;2DGraphics;
+StartupNotify=true
+X-Desktop-File-Install-Version=0.1
