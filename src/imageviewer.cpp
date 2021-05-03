@@ -25,7 +25,8 @@ ImageViewer::ImageViewer(QWidget *parent) :
                  QSharedPointer<vangers::PngImageAccess>::create(),
                  }),
     useTransparentColor(false),
-    transparentColor(0)
+    transparentColor(0),
+    _settings("lpenguin", "Vangers Resource Explorer")
 {
     ui->setupUi(this);
     QObject::connect(ui->paletteViewer, &PaletteViewer::useTransparentColor,
@@ -57,6 +58,7 @@ QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName){
 void ImageViewer::setImage(const QString& filename)
 {
     _image = tryRead(filename);
+    _filename = filename;
     updateImage();
 }
 
@@ -78,7 +80,7 @@ void ImageViewer::exportImage()
     auto filename = QFileDialog::getSaveFileName(
                 this,
                 tr("Save file"),
-                QString(),
+                _filename,
                 filters,
                 &selectedFilter);
 

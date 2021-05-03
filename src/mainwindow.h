@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QSettings>
 #include "image/image.h"
 #include "imageviewer.h"
 
@@ -25,9 +26,8 @@ public slots:
 private slots:
     void imageTabs_closeRequested(int index);
 private:
-    QString getLastOpenedDirectory() const;
-    void setLastOpenedDirectory(QString dir);
     Ui::MainWindow *ui;
     ImageViewer* selectedImageViewer;
+    QSettings settings;
 };
 #endif // MAINWINDOW_H

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSharedPointer>
+#include <QSettings>
 #include "image/image.h"
 #include "image/palette.h"
 
@@ -17,6 +18,7 @@ class ImageViewer : public QWidget
 public:
     explicit ImageViewer(QWidget *parent = nullptr);
     ~ImageViewer();
+
 
     void setImage(const QString& filename);
     void exportImage();
@@ -36,6 +38,8 @@ private:
     void updateImage();
     bool useTransparentColor;
     int transparentColor;
+    QString _filename;
+    QSettings _settings;
 };
 
 #endif // IMAGEVIEWER_H

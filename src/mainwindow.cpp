@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , selectedImageViewer(nullptr)
+    , settings("lpenguin", "Vangers Resource Explorer")
 {
     ui->setupUi(this);
     ui->selectedImageTab->setTabsClosable(true);
@@ -48,13 +49,14 @@ void MainWindow::openFile(QModelIndex index){
 
 void MainWindow::openFolder()
 {
-    QString lastDir = getLastOpenedDirectory();
+    QString lastDir = settings.value("lastDir").toString();
 
     QString directory = QFileDialog::getExistingDirectory(this, "Open Vangers Resource Folder", lastDir);
     if(directory.isNull()){
         return;
     }
-    setLastOpenedDirectory(directory);
+    settings.setValue("lastDir", directory);
+
     QFileSystemModel* model = new QFileSystemModel(this);
     model->setNameFilters(QStringList() << "*.bmp" << "*.bml" << "*.bmo" << "*.xbm" << "*.png");
     QString rootDir = directory;
@@ -83,21 +85,9 @@ void MainWindow::imageTabs_closeRequested(int index)
     }
 }
 
-QString MainWindow::getLastOpenedDirectory() const
-{
-    QSettings settings("lpenguin", "Vangers Resource Explorer");
-    return settings.value("lastDir").toString();
-}
-
-void MainWindow::setLastOpenedDirectory(QString dir)
-{
-    QSettings settings("lpenguin", "Vangers Resource Explorer");
-    settings.setValue("lastDir", dir);
-}
-
 void MainWindow::openFile()
 {
-    QString root = getLastOpenedDirectory();
+    QString root = settings.value("lastFileDir").toString();
 
     auto filename = QFileDialog::getOpenFileName(this, tr("Open file"), root);
     if(filename.isNull() || filename.isEmpty()){
@@ -106,7 +96,7 @@ void MainWindow::openFile()
 
     ImageViewer* viewer = new ImageViewer();
     QFileInfo fInfo(filename);
-    setLastOpenedDirectory(fInfo.dir().path());
+    settings.setValue("lastFileDir", fInfo.dir().path());
 
     ui->selectedImageTab->addTab(viewer, fInfo.fileName());    
     ui->selectedImageTab->setCurrentWidget(viewer);
