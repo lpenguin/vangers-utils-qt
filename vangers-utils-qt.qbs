@@ -20,6 +20,7 @@ QtApplication {
     cpp.includePaths: [product.sourceDirectory, "src"]
 
     files: [
+        "Readme.md",
         "src/imageviewer.ui",
         "src/mainwindow.ui",
         "src/palettegrid.cpp",
