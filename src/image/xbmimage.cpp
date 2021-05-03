@@ -42,7 +42,7 @@ void _encode(const QImage& image, QIODevice& device){
     const int height = image.height();
 
     for(int iy = 0; iy < height; iy++){
-        const uchar* line = data + iy * width;
+        const uchar* line = image.constScanLine(iy);
         int ixStart = -1;
         for(int ix = 0; ix < width; ix++){
             // In empty region
@@ -112,6 +112,15 @@ QSharedPointer<vangers::Image> vangers::XbmImageAccess::read(QFile &device)
 
 void vangers::XbmImageAccess::write(const QSharedPointer<vangers::Image>& image, QFile &device)
 {
+    QByteArray encodedArray;
+    QBuffer encodedBuffer(&encodedArray);
+    encodedBuffer.open(QBuffer::WriteOnly);
+    _encode(*image->image(), encodedBuffer);
+    encodedBuffer.close();
+
+    auto meta = image->meta();
+    meta->insert(vangers::ImageField::Size, encodedArray.size());
     _metaAccess.write(image->meta(), device);
-    _encode(*image->image(), device);
+
+    device.write(encodedArray);
 }

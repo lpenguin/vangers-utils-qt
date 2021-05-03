@@ -41,9 +41,13 @@ QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QFile &device)
 void vangers::BmpImageAccess::write(const QSharedPointer<vangers::Image>& image, QFile& device)
 {
     _metaAccess.write(image->meta(), device);
-    const uchar* data = image->image()->constBits();
-    qsizetype size = image->image()->sizeInBytes();
-    device.write((char*)data, size);
+    auto qimage = image->image();
+    int width = qimage->width();
+    for(int iy = 0; iy < qimage->height(); iy++){
+        const unsigned char* line = qimage->constScanLine(iy);
+        device.write((char*)line, width);
+    }
+
 }
 
 bool vangers::BmpImage1::isValid(const QSharedPointer<ImageMeta>& meta, qsizetype filesize)
