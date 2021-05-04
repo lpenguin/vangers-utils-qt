@@ -12,7 +12,7 @@ PaletteViewer::PaletteViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QStringListModel* palettesModel = new QStringListModel(QDir(":/palettes/pal").entryList(), this);
+    QStringListModel* palettesModel = new QStringListModel(vangers::Palette::paletteNames(), this);
     ui->paletteList->setModel(palettesModel);
     QItemSelectionModel* selectionModel = ui->paletteList->selectionModel();
 

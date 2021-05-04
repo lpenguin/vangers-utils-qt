@@ -134,7 +134,7 @@ void ImageViewer::updateImage()
 //    ui->inageTypeLabel->setText(_image->typeName());
 
     vangers::Palette palette = vangers::Palette(_palette);
-    if(useTransparentColor && transparentColor > 0 && transparentColor < palette.size()){
+    if(useTransparentColor && transparentColor >= 0 && transparentColor < palette.size()){
         palette[transparentColor] = qRgba(0, 0, 0, 0);
     }
     i.setColorTable(palette);
