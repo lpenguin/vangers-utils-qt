@@ -6,6 +6,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QStringListModel>
+#include <QScopedPointer>
+
 #include "image/bmpimage.h"
 #include "image/xbmimage.h"
 #include "image/pngimage.h"
@@ -77,29 +79,31 @@ void ImageViewer::exportImage()
     QString filters = (QStringList() << pngFilter << vbmpFilter << xbmFilter).join(";;");
 
     QString selectedFilter;
+
     auto filename = QFileDialog::getSaveFileName(
                 this,
                 tr("Save file"),
-                _filename,
+                 QFileInfo(_filename).baseName(),
                 filters,
                 &selectedFilter);
 
-    qDebug() << selectedFilter << filename;
-    vangers::AbstractImageAccess* access = nullptr;
+
+    QScopedPointer<vangers::AbstractImageAccess> access {nullptr};
+
     if(selectedFilter == pngFilter){
-        access = new vangers::PngImageAccess();
+        access.reset(new vangers::PngImageAccess());
     }
 
     if(selectedFilter == xbmFilter){
-        access = new vangers::XbmImageAccess();
+        access.reset(new vangers::XbmImageAccess());
     }
 
     if(selectedFilter == vbmpFilter){
         // TODO: don't need to be sucj specific
-        access = new vangers::BmpImage1();
+        access.reset(new vangers::BmpImage1());
     }
 
-    if(access == nullptr){
+    if(access.isNull()){
         return;
     }
 
@@ -107,7 +111,6 @@ void ImageViewer::exportImage()
     file.open(QFile::WriteOnly);
     _image->image()->setColorTable(_palette);
     access->write(_image, file);
-    delete access;
 }
 
 void ImageViewer::handlePaletteChanged(QString paletteName)
