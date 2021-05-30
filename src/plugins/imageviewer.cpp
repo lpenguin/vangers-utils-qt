@@ -12,9 +12,23 @@
 #include "image/xbmimage.h"
 #include "image/pngimage.h"
 
+const ResourceType ImageViewerPlugin::PngType = {
+    .name = "PNG image",
+    .extensions = {"*.png"}
+};
 
-ImageViewer::ImageViewer(QWidget *parent) :
-    QWidget(parent),
+const ResourceType ImageViewerPlugin::XbmType = {
+    .name = "Vangers XBM image",
+    .extensions = {"*.xbm"}
+};
+
+const ResourceType ImageViewerPlugin::vBmpType = {
+    .name = "Vangers BMP image",
+    .extensions = {"*.bmp", "*.bmo", "*.bml"}
+};
+
+ImageViewer::ImageViewer(ImageViewerPlugin* plugin, QWidget *parent) :
+    ResourceViewer(plugin, parent),
     ui(new Ui::ImageViewer),
     _image(nullptr),
     _palette(vangers::Palette::grayscale()),
@@ -31,7 +45,7 @@ ImageViewer::ImageViewer(QWidget *parent) :
     _settings("lpenguin", "Vangers Resource Explorer")
 {
     ui->setupUi(this);
-    QObject::connect(ui->paletteViewer, &PaletteViewer::useTransparentColor,
+    QObject::connect(ui->paletteViewer, &PaletteView::useTransparentColor,
                      this, &ImageViewer::palette_useTransparentColor);
     _palette = vangers::Palette::read(ui->paletteViewer->currentPalette());
 }
@@ -57,7 +71,7 @@ QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName){
 }
 
 
-void ImageViewer::setImage(const QString& filename)
+void ImageViewer::importResource(const QString& filename, const ResourceType& resourceType)
 {
     _image = tryRead(filename);
     _filename = filename;
@@ -70,35 +84,20 @@ void ImageViewer::setPalette(const vangers::Palette palette)
     updateImage();
 }
 
-void ImageViewer::exportImage()
+void ImageViewer::exportResource(const QString& filename, const ResourceType& resourceType)
 {
-    QString vbmpFilter = "Vangers BMP (*.bmp *bmo)";
-    QString pngFilter = "PNG-8 (*.png)";
-    QString xbmFilter = "Vangers XBM (*.xbm)";
-
-    QString filters = (QStringList() << pngFilter << vbmpFilter << xbmFilter).join(";;");
-
-    QString selectedFilter;
-
-    auto filename = QFileDialog::getSaveFileName(
-                this,
-                tr("Save file"),
-                 QFileInfo(_filename).baseName(),
-                filters,
-                &selectedFilter);
-
 
     QScopedPointer<vangers::AbstractImageAccess> access {nullptr};
 
-    if(selectedFilter == pngFilter){
+    if(resourceType.name == ImageViewerPlugin::PngType.name){
         access.reset(new vangers::PngImageAccess());
     }
 
-    if(selectedFilter == xbmFilter){
+    if(resourceType.name == ImageViewerPlugin::XbmType.name){
         access.reset(new vangers::XbmImageAccess());
     }
 
-    if(selectedFilter == vbmpFilter){
+    if(resourceType.name == ImageViewerPlugin::vBmpType.name){
         // TODO: don't need to be sucj specific
         access.reset(new vangers::BmpImage1());
     }
@@ -111,6 +110,11 @@ void ImageViewer::exportImage()
     file.open(QFile::WriteOnly);
     _image->image()->setColorTable(_palette);
     access->write(_image, file);
+}
+
+QString ImageViewer::currentFile() const
+{
+    return _filename;
 }
 
 void ImageViewer::handlePaletteChanged(QString paletteName)
@@ -165,4 +169,19 @@ void ImageViewer::updateImage()
     }
 
     repaint();
+}
+
+QList<ResourceType> ImageViewerPlugin::supportedImportTypes() const
+{
+    return {vBmpType, XbmType, PngType};
+}
+
+QList<ResourceType> ImageViewerPlugin::supportedExportTypes() const
+{
+    return {vBmpType, XbmType, PngType};
+}
+
+ResourceViewer* ImageViewerPlugin::makeResourceViewer(QWidget* parent)
+{
+    return new ImageViewer(this, parent);
 }

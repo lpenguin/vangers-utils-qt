@@ -1,14 +1,14 @@
-#include "paletteviewer.h"
-#include "ui_paletteviewer.h"
+#include "paletteview.h"
+#include "ui_paletteview.h"
 #include "image/palette.h"
 
 #include <QDir>
 #include <qstringlistmodel.h>
 #include <QDebug>
 
-PaletteViewer::PaletteViewer(QWidget *parent) :
+PaletteView::PaletteView(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::PaletteViewer)
+    ui(new Ui::PaletteView)
 {
     ui->setupUi(this);
 
@@ -16,15 +16,15 @@ PaletteViewer::PaletteViewer(QWidget *parent) :
     ui->paletteList->setModel(palettesModel);
     QItemSelectionModel* selectionModel = ui->paletteList->selectionModel();
 
-    QObject::connect(selectionModel, &QItemSelectionModel::currentChanged, this, &PaletteViewer::palette_currentChanged);
+    QObject::connect(selectionModel, &QItemSelectionModel::currentChanged, this, &PaletteView::palette_currentChanged);
     ui->paletteList->setCurrentIndex(palettesModel->index(0));
 
-    QObject::connect(ui->paletteGrid, &PaletteGrid::colorSelected, this, &PaletteViewer::paletteGrid_colorSelected);
-    QObject::connect(ui->useTransparentCheckbox, &QCheckBox::clicked, this, &PaletteViewer::transparentCheckbox_clicked);
+    QObject::connect(ui->paletteGrid, &PaletteGrid::colorSelected, this, &PaletteView::paletteGrid_colorSelected);
+    QObject::connect(ui->useTransparentCheckbox, &QCheckBox::clicked, this, &PaletteView::transparentCheckbox_clicked);
 
 }
 
-void PaletteViewer::palette_currentChanged(const QModelIndex &current, const QModelIndex &)
+void PaletteView::palette_currentChanged(const QModelIndex &current, const QModelIndex &)
 {
     QString paletteName = ui->paletteList->model()->data(current).toString();
     vangers::Palette pal = vangers::Palette::read(paletteName);
@@ -32,7 +32,7 @@ void PaletteViewer::palette_currentChanged(const QModelIndex &current, const QMo
     emit paletteChanged(paletteName);
 }
 
-void PaletteViewer::paletteGrid_colorSelected(int colorIndex)
+void PaletteView::paletteGrid_colorSelected(int colorIndex)
 {
     ui->transparentEditor->setText(QString("%1").arg(colorIndex));
     if(ui->useTransparentCheckbox->isChecked()){
@@ -41,18 +41,18 @@ void PaletteViewer::paletteGrid_colorSelected(int colorIndex)
 
 }
 
-void PaletteViewer::transparentCheckbox_clicked(bool value)
+void PaletteView::transparentCheckbox_clicked(bool value)
 {
     emit useTransparentColor(value, ui->transparentEditor->text().toInt());
 }
 
 
-PaletteViewer::~PaletteViewer()
+PaletteView::~PaletteView()
 {
     delete ui;
 }
 
-QString PaletteViewer::currentPalette() const
+QString PaletteView::currentPalette() const
 {
     return ui->paletteList->model()->data(ui->paletteList->currentIndex()).toString();
 }

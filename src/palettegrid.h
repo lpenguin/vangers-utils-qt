@@ -17,6 +17,10 @@ public:
     ~PaletteGrid();
 
     void setPalette(const vangers::Palette& palette);
+
+    const vangers::Palette& vangersPalette() const {
+        return _palette;
+    }
 private:
     vangers::Palette _palette;
 protected:

@@ -3,6 +3,8 @@
 #include <QDir>
 #include <QFile>
 #include <QVector3D>
+#include <QStandardPaths>
+#include <QDebug>
 
 const int  FIRE_COLOR_FIRST = 192;
 const int  FIRE_COLOR_BITS = 5;
@@ -24,10 +26,23 @@ vangers::Palette vangers::Palette::read(QIODevice &device)
 
 }
 
-vangers::Palette vangers::Palette::read(const QString &paletteName)
+vangers::Palette  vangers::Palette::read(const QString &paletteName)
 {
     if(paletteName == "~fire"){
         return vangers::Palette::fireball(fire(), 0);
+    }
+
+    if(paletteName.startsWith("custom/")){
+        QDir dataLocation = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("custom");
+        auto paletteFile = dataLocation.filePath(paletteName.mid(QString("custom/").length()));
+        qDebug() << paletteFile;
+        QFileInfo info(paletteFile);
+        if(!info.exists()){
+            return {};
+        }
+        QFile f(paletteFile);
+        f.open(QFile::ReadOnly);
+        return read(f);
     }
 
     QFile f(QString(":/palettes/pal/") + paletteName);
@@ -35,10 +50,43 @@ vangers::Palette vangers::Palette::read(const QString &paletteName)
     return read(f);
 }
 
+void vangers::Palette::store(const vangers::Palette& palette, const QString& name)
+{
+    QDir dataLocation = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("custom");
+    qDebug() << dataLocation;
+    if(!dataLocation.exists()){
+        qDebug() << dataLocation.mkpath(".");
+    }
+
+    QString path = dataLocation.filePath(name);
+    QFile f(path);
+    f.open(QFile::WriteOnly);
+    store(palette, f);
+}
+
+void vangers::Palette::store(const vangers::Palette& palette, QIODevice& device)
+{
+    for(auto& color: palette){
+        char data[3];
+        data[0] = qRed(color) / 4;
+        data[1] = qGreen(color) / 4;
+        data[2] = qBlue(color) / 4;
+        device.write(data, 3);
+    }
+}
+
 QStringList vangers::Palette::paletteNames()
 {
     QStringList result = QDir(":/palettes/pal").entryList();
     result << "~fire";
+
+    QDir dataLocation = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("custom");
+    if(dataLocation.exists()){
+        for(auto& entry: dataLocation.entryList(QDir::Files)){
+            result << "custom/"+entry;
+        }
+
+    }
     return result;
 }
 

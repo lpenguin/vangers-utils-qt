@@ -5,7 +5,9 @@
 #include <QModelIndex>
 #include <QSettings>
 #include "image/image.h"
-#include "imageviewer.h"
+#include "plugins/imageviewer.h"
+#include "plugins/paletteviewer.h"
+#include "resourceviewer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,9 +27,13 @@ public slots:
     void openFolder();
 private slots:
     void imageTabs_closeRequested(int index);
+    void onCustomContextMenu(const QPoint & point);
 private:
+    QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, ResourceType& outType);
     Ui::MainWindow *ui;
-    ImageViewer* selectedImageViewer;
+
+    ResourceViewer* selectedResourceViewer;
     QSettings settings;
+    QList<QSharedPointer<ResourceViewerPlugin>> _plugins;
 };
 #endif // MAINWINDOW_H

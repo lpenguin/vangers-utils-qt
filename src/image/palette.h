@@ -14,8 +14,9 @@ namespace vangers {
         static Palette grayscale();
         static Palette fire();
         static Palette fireball(const Palette &basePalette, unsigned char baseColor = 0);
-    private:
         static Palette read(QIODevice& device);
+        static void store(const Palette& palette, const QString& name);
+        static void store(const Palette& palette, QIODevice& device);
     };
 
 }

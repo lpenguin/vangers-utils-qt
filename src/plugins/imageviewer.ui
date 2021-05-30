@@ -62,7 +62,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="PaletteViewer" name="paletteViewer" native="true">
+     <widget class="PaletteView" name="paletteViewer" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -88,9 +88,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PaletteViewer</class>
+   <class>PaletteView</class>
    <extends>QWidget</extends>
-   <header>paletteviewer.h</header>
+   <header>paletteview.h</header>
    <container>1</container>
    <slots>
     <signal>paletteChanged(QString)</signal>
