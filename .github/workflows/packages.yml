@@ -6,10 +6,11 @@ on:
   push:
     tags:
     - '*'
-
+    branches:
+    - 'actions'
 env:
   QT_VERSION: 5.15.2
-  QTCREATOR_VERSION: 4.14.2
+  QTCREATOR_VERSION: 4.15.1
   VANGERS_UTILS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
   VANGERS_UTILS_SNAPSHOT: ${{ !startsWith(github.ref, 'refs/tags/v') }}
 
