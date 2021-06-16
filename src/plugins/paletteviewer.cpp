@@ -72,8 +72,9 @@ void PaletteViewer::importResource(const QString& filePath, const ResourceType& 
     if(resourceType.name == PaletteViewerPlugin::PngType.name){
         QImage image(filePath);
         vangers::Palette pal;
-        for(int ix = 0; ix < image.width(); ix ++){
-            for(int iy = 0; iy < image.height(); iy++){
+
+        for(int iy = 0; iy < image.height(); iy++){
+            for(int ix = 0; ix < image.width(); ix ++){
                 pal << image.pixel(ix, iy);
             }
         }
