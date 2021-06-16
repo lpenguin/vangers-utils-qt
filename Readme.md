@@ -8,6 +8,10 @@ This project aims to give the ability to view, export/import of various Vangers 
 * XBM (*.xbm) - 8bit image with transparency.
 * PNG + meta.txt - 8bit PNG with embedded palette and meta info for editing purposes.
 
+### Palette
+* PAL (*.pal) - Vangers palette file
+* PNG (*.png) - PNG encoded palette
+
 #### Image Meta
 Vangers image files contain auxilary information about image size, frames count, image offset, etc.
 The number and type of parameter is specifica to the concrete image.
@@ -34,3 +38,8 @@ Size:uint32 = 25152
 8. Save it as PNG with default settings
 9. Open the new PNG in the Vangers Utils (you might need to close the old PNG in the viewer)
 10. Export it as BMP or XBM
+
+
+#### Adding a custom palette
+You can add a custom palette to the palettes list. Open a *.pal or a *.png (PNG Palette) file and click "Add to palettes button". 
+The custom palette will appear at the end of the list with prefix `custom/`. Now you can open an image and switch the palette to the new custom one.
