@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QItemSelection>
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QSettings>
@@ -28,6 +29,7 @@ public slots:
 private slots:
     void imageTabs_closeRequested(int index);
     void onCustomContextMenu(const QPoint & point);
+    void onDirectorySelectionChanged(QItemSelection selected, QItemSelection deselected);
 private:
     QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, ResourceType& outType);
     Ui::MainWindow *ui;
