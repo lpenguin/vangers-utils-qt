@@ -79,7 +79,7 @@ vangers::XbmImageAccess::XbmImageAccess():_metaAccess({
 
 }
 
-QSharedPointer<vangers::Image> vangers::XbmImageAccess::read(QFile &device)
+QSharedPointer<vangers::Image> vangers::XbmImageAccess::read(QIODevice &device)
 {
     auto meta = _metaAccess.read(device);
 
@@ -110,7 +110,7 @@ QSharedPointer<vangers::Image> vangers::XbmImageAccess::read(QFile &device)
 
 
 
-void vangers::XbmImageAccess::write(const QSharedPointer<vangers::Image>& image, QFile &device)
+void vangers::XbmImageAccess::write(const QSharedPointer<vangers::Image>& image, QIODevice &device)
 {
     QByteArray encodedArray;
     QBuffer encodedBuffer(&encodedArray);

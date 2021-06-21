@@ -71,11 +71,15 @@ QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName){
 }
 
 
-void ImageViewer::importResource(const QString& filename, const ResourceType& resourceType)
+bool ImageViewer::importResource(const QString& filename, const ResourceType& resourceType)
 {
     _image = tryRead(filename);
+    if(_image.isNull()){
+        return false;
+    }
     _filename = filename;
     updateImage();
+    return true;
 }
 
 void ImageViewer::setPalette(const vangers::Palette palette)

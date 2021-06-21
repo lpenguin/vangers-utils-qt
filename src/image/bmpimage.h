@@ -16,8 +16,8 @@ class BmpImageAccess: public AbstractImageAccess
 public:
     BmpImageAccess(ImageMetaFormat format): _metaAccess(format){}
 
-    QSharedPointer<Image> read(QFile& file) override;
-    void write(const QSharedPointer<Image>& image, QFile& file) override;
+    QSharedPointer<Image> read(QIODevice& file) override;
+    void write(const QSharedPointer<Image>& image, QIODevice& file) override;
 
     virtual bool isValid(const QSharedPointer<ImageMeta>& meta, qsizetype filesize) = 0;
 private:

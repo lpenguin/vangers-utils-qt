@@ -9,8 +9,8 @@ class XbmImageAccess: public AbstractImageAccess
 public:
     XbmImageAccess();
 
-    QSharedPointer<Image> read(QFile& file) override;
-    void write(const QSharedPointer<Image>& image, QFile& file) override;
+    QSharedPointer<Image> read(QIODevice& file) override;
+    void write(const QSharedPointer<Image>& image, QIODevice& file) override;
 private:
     BinaryImageMetaAccess _metaAccess;
 };

@@ -6,9 +6,8 @@
 #include <QModelIndex>
 #include <QSettings>
 #include "image/image.h"
-#include "plugins/imageviewer.h"
-#include "plugins/paletteviewer.h"
-#include "resourceviewer.h"
+#include "plugins/image/imageviewer.h"
+#include "plugins/palette/paletteviewer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
