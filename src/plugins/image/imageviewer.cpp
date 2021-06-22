@@ -10,11 +10,16 @@
 
 #include "image/bmpimage.h"
 #include "image/xbmimage.h"
-#include "image/pngimage.h"
+#include "image/qtimageaccess.h"
 
 const ResourceType ImageViewerPlugin::PngType = {
     .name = "PNG image",
     .extensions = {"*.png"}
+};
+
+const ResourceType ImageViewerPlugin::TiffType = {
+    .name = "TIFF image",
+    .extensions = {"*.tiff", "*.tif"}
 };
 
 const ResourceType ImageViewerPlugin::XbmType = {
@@ -33,12 +38,10 @@ ImageViewer::ImageViewer(ImageViewerPlugin* plugin, QWidget *parent) :
     _image(nullptr),
     _palette(vangers::Palette::grayscale()),
     _accesses({
-                 QSharedPointer<vangers::BmpImage1>::create(),
-                 QSharedPointer<vangers::BmpImage2>::create(),
-                 QSharedPointer<vangers::BmpImage3>::create(),
-                 QSharedPointer<vangers::BmpImage4>::create(),
-                 QSharedPointer<vangers::XbmImageAccess>::create(),
-                 QSharedPointer<vangers::PngImageAccess>::create(),
+                 {ImageViewerPlugin::vBmpType.name, QSharedPointer<vangers::BmpImageAccess>::create()},
+                 {ImageViewerPlugin::XbmType.name, QSharedPointer<vangers::XbmImageAccess>::create()},
+                 {ImageViewerPlugin::PngType.name, QSharedPointer<vangers::QtImageAccess>::create("png")},
+                 {ImageViewerPlugin::TiffType.name, QSharedPointer<vangers::QtImageAccess>::create("tiff")},
                  }),
     useTransparentColor(false),
     transparentColor(0),
@@ -55,25 +58,29 @@ ImageViewer::~ImageViewer()
     delete ui;
 }
 
-QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName){
+QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName, const ResourceType& resourceType){
     QFile f(fileName);
     f.open(QFile::ReadOnly);
 
-    for(auto& access: _accesses){
-        auto image = access->read(f);
-        f.seek(0);
-        if(!image.isNull()){
-            return image;
-        }
+    if(!_accesses.contains(resourceType.name)){
+        return {};
     }
-    qWarning() << "Cannot find a sutable reader for"<<fileName;
-    return QSharedPointer<vangers::Image>();
+
+    auto access = _accesses[resourceType.name];
+    auto image = access->read(f);
+
+    if(image.isNull()){
+        qWarning() << "Cannot find a sutable reader for"<<fileName;
+        return {};
+    }
+
+    return image;
 }
 
 
 bool ImageViewer::importResource(const QString& filename, const ResourceType& resourceType)
 {
-    _image = tryRead(filename);
+    _image = tryRead(filename, resourceType);
     if(_image.isNull()){
         return false;
     }
@@ -90,21 +97,11 @@ void ImageViewer::setPalette(const vangers::Palette palette)
 
 void ImageViewer::exportResource(const QString& filename, const ResourceType& resourceType)
 {
-
-    QScopedPointer<vangers::AbstractImageAccess> access {nullptr};
-
-    if(resourceType.name == ImageViewerPlugin::PngType.name){
-        access.reset(new vangers::PngImageAccess());
+    if(!_accesses.contains(resourceType.name)){
+        return;
     }
 
-    if(resourceType.name == ImageViewerPlugin::XbmType.name){
-        access.reset(new vangers::XbmImageAccess());
-    }
-
-    if(resourceType.name == ImageViewerPlugin::vBmpType.name){
-        // TODO: don't need to be sucj specific
-        access.reset(new vangers::BmpImage1());
-    }
+    auto access = _accesses[resourceType.name];
 
     if(access.isNull()){
         return;
@@ -177,12 +174,12 @@ void ImageViewer::updateImage()
 
 QList<ResourceType> ImageViewerPlugin::supportedImportTypes() const
 {
-    return {vBmpType, XbmType, PngType};
+    return {vBmpType, XbmType, PngType, TiffType};
 }
 
 QList<ResourceType> ImageViewerPlugin::supportedExportTypes() const
 {
-    return {vBmpType, XbmType, PngType};
+    return {vBmpType, XbmType, PngType, TiffType};
 }
 
 ResourceViewer* ImageViewerPlugin::makeResourceViewer(QWidget* parent)

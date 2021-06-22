@@ -21,6 +21,8 @@ QtApplication {
 
     files: [
         "Readme.md",
+        "src/image/qtimageaccess.cpp",
+        "src/image/qtimageaccess.h",
         "src/mainwindow.ui",
         "src/palettegrid.cpp",
         "src/palettegrid.h",
@@ -35,8 +37,6 @@ QtApplication {
         "src/image/image.h",
         "src/image/palette.cpp",
         "src/image/palette.h",
-        "src/image/pngimage.cpp",
-        "src/image/pngimage.h",
         "src/image/xbmimage.cpp",
         "src/image/xbmimage.h",
         "src/main.cpp",

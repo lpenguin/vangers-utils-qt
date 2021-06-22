@@ -17,6 +17,7 @@ public:
     static const ResourceType PngType;
     static const ResourceType XbmType;
     static const ResourceType vBmpType;
+    static const ResourceType TiffType;
 
     explicit ImageViewerPlugin(QObject *parent = nullptr)
         : ResourceViewerPlugin(parent) {}
@@ -51,9 +52,9 @@ private:
     QSharedPointer<vangers::Image> _image;
     vangers::Palette _palette;
     QList<QWidget*> _metaFields;
-    QList<QSharedPointer<vangers::AbstractImageAccess>> _accesses;
+    QMap<QString, QSharedPointer<vangers::AbstractImageAccess>> _accesses;
 
-    QSharedPointer<vangers::Image> tryRead(const QString& fileName);
+    QSharedPointer<vangers::Image> tryRead(const QString& fileName, const ResourceType &resourceType);
     void setPalette(const vangers::Palette palette);
     void updateImage();
     bool useTransparentColor;

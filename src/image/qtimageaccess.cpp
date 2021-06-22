@@ -1,9 +1,7 @@
-#include "pngimage.h"
+#include "qtimageaccess.h"
 
 #include <QFileInfo>
-
-
-QSharedPointer<vangers::Image> vangers::PngImageAccess::read(QIODevice &device)
+QSharedPointer<vangers::Image> vangers::QtImageAccess::read(QIODevice &device)
 {
     try {
         QFile& file = dynamic_cast<QFile&>(device);
@@ -26,7 +24,7 @@ QSharedPointer<vangers::Image> vangers::PngImageAccess::read(QIODevice &device)
 
         auto meta = _metaAccess.read(metaFile);
         auto image = QSharedPointer<QImage>::create();
-        image->load(&file, "png");
+        image->load(&file, _format.toLocal8Bit().data());
         // TODO: check for png8
         return QSharedPointer<vangers::Image>::create(image, meta);
     }  catch (std::bad_cast) {
@@ -35,7 +33,7 @@ QSharedPointer<vangers::Image> vangers::PngImageAccess::read(QIODevice &device)
 
 }
 
-void vangers::PngImageAccess::write(const QSharedPointer<vangers::Image> &image, QIODevice &device)
+void vangers::QtImageAccess::write(const QSharedPointer<vangers::Image> &image, QIODevice &device)
 {
     try {
         QFile& file = dynamic_cast<QFile&>(device);
@@ -44,7 +42,7 @@ void vangers::PngImageAccess::write(const QSharedPointer<vangers::Image> &image,
         metaFile.open(QFile::WriteOnly);
         _metaAccess.write(image->meta(), metaFile);
 
-        image->image()->save(&file, "png");
+        image->image()->save(&file, _format.toLocal8Bit().data());
     }  catch (std::bad_cast) {
 
     }
