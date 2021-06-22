@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QSharedPointer>
 
+#include <plugins/resourceaccess.h>
+
 
 namespace vangers {
 
@@ -57,11 +59,7 @@ private:
     ImageMetaFormat _format;
 };
 
-class AbstractImageMetaAccess {
-public:
-    virtual QSharedPointer<ImageMeta> read(QIODevice &device) = 0;
-    virtual void write(const QSharedPointer<ImageMeta>& meta, QIODevice& device) = 0;
-    virtual ~AbstractImageMetaAccess() {}
+class AbstractImageMetaAccess: public AbstractResourceAccess<ImageMeta> {
 };
 
 class BinaryImageMetaAccess: public AbstractImageMetaAccess {
@@ -99,11 +97,7 @@ protected:
     QSharedPointer<ImageMeta> _meta;
 };
 
-class AbstractImageAccess {
-public:
-    virtual QSharedPointer<Image> read(QFile& file) = 0;
-    virtual void write(const QSharedPointer<Image>& image, QFile& file) = 0;
-    virtual ~AbstractImageAccess() {}
+class AbstractImageAccess: public AbstractResourceAccess<Image> {
 };
 
 

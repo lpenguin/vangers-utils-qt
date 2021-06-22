@@ -6,7 +6,7 @@
 #include <QSettings>
 #include "image/image.h"
 #include "image/palette.h"
-#include "resourceviewer.h"
+#include "plugins/resourceviewer.h"
 
 namespace Ui {
 class ImageViewer;
@@ -39,7 +39,7 @@ public:
     ~ImageViewer();
 
 
-    void importResource(const QString& filename, const ResourceType& resourceType) override;
+    bool importResource(const QString& filename, const ResourceType& resourceType) override;
     void exportResource(const QString& filename, const ResourceType& resourceType) override;
     QString currentFile() const override;
 public slots:

@@ -5,7 +5,7 @@
 
 
 
-QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QFile &device)
+QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QIODevice &device)
 {
     char buffer[256];
     device.read(buffer, 256);
@@ -38,7 +38,7 @@ QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QFile &device)
     return QSharedPointer<vangers::Image>::create(image, meta);
 }
 
-void vangers::BmpImageAccess::write(const QSharedPointer<vangers::Image>& image, QFile& device)
+void vangers::BmpImageAccess::write(const QSharedPointer<vangers::Image>& image, QIODevice& device)
 {
     _metaAccess.write(image->meta(), device);
     auto qimage = image->image();

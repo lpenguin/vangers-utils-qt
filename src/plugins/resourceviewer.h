@@ -17,7 +17,7 @@ class ResourceViewer : public QWidget
 public:
     explicit ResourceViewer(ResourceViewerPlugin* plugin, QWidget *parent = nullptr);
     virtual ~ResourceViewer(){}
-    virtual void importResource(const QString& filePath, const ResourceType& resourceType) = 0;
+    virtual bool importResource(const QString& filePath, const ResourceType& resourceType) = 0;
     virtual void exportResource(const QString& filePath, const ResourceType& resourceType) = 0;
     virtual QString currentFile() const = 0;
     ResourceViewerPlugin* plugin() const;

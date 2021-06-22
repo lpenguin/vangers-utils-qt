@@ -1,8 +1,14 @@
 #ifndef PALETTEVIEWER_H
 #define PALETTEVIEWER_H
 
-#include "resourceviewer.h"
+#include <QMap>
 
+#include "plugins/resourceviewer.h"
+#include "plugins/palette/microsoftpalaccess.h"
+#include "plugins/palette/vangerspaletteaccess.h"
+#include "plugins/palette/pngpaletteaccess.h"
+
+using namespace vangers;
 namespace Ui {
     class PaletteViewer;
 }
@@ -16,7 +22,7 @@ public:
 public:
     explicit PaletteViewer(ResourceViewerPlugin* plugin, QWidget *parent = nullptr);
 
-    void importResource(const QString& filePath, const ResourceType& resourceType) override;
+    bool importResource(const QString& filePath, const ResourceType& resourceType) override;
     void exportResource(const QString& filePath, const ResourceType& resourceType) override;
     QString currentFile() const override;
 
@@ -24,7 +30,7 @@ public slots:
     void importButton_click();
 private:
     QString _currentFile;
-
+    static const QMap<QString, QSharedPointer<AbstractResourceAccess<Palette>>> accesses;
 private:
     Ui::PaletteViewer *ui;
 };
@@ -36,6 +42,7 @@ class PaletteViewerPlugin: public ResourceViewerPlugin {
 public:
     static const ResourceType PalType;
     static const ResourceType PngType;
+    static const ResourceType MicrosoftPalType;
 
     explicit PaletteViewerPlugin(QObject* parent = nullptr)
         : ResourceViewerPlugin(parent) {}

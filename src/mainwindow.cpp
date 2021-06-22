@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QMenu>
 
+#include <QItemSelectionModel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -92,6 +93,10 @@ void MainWindow::openFolder()
     QString rootDir = directory;
     model->setRootPath(rootDir);
 
+    if(ui->directoryTreeView->selectionModel() != nullptr){
+        QObject::disconnect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
+    }
+
     ui->directoryTreeView->setModel(model);
     ui->directoryTreeView->setRootIndex(model->index(rootDir));
 //    ui->directoryTreeView->hideColumn(1);
@@ -99,6 +104,8 @@ void MainWindow::openFolder()
     ui->directoryTreeView->hideColumn(3);
     ui->directoryTreeView->setColumnWidth(0, 300);
     ui->directoryTreeView->show();
+    QObject::connect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
+
 
 }
 
@@ -144,6 +151,21 @@ void MainWindow::onCustomContextMenu(const QPoint& point)
         contextMenu->exec(ui->directoryTreeView->viewport()->mapToGlobal(point));
     }
 #endif
+}
+
+void MainWindow::onDirectorySelectionChanged(QItemSelection selected, QItemSelection deselected)
+{
+     if(selected.size() == 0){
+        return;
+    }
+
+    auto indexes = selected[0].indexes();
+    if(indexes.size() == 0){
+        return;
+    }
+
+    QModelIndex index = indexes[0];
+    openFile(index);
 }
 
 QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString& filename, ResourceType& outType)
