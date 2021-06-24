@@ -7,10 +7,13 @@ This project aims to give the ability to view, export/import of various Vangers 
 * BMP (*.bmp, *.bmo) - 8bit image or sequence of images without transparency.
 * XBM (*.xbm) - 8bit image with transparency.
 * PNG + meta.txt - 8bit PNG with embedded palette and meta info for editing purposes.
+* TIFF + meta.txt - 8bit TIFF with embedded palette and meta info for editing purposes.
 
 ### Palette
 * PAL (*.pal) - Vangers palette file
+* Microsoft Palette (*.pal) - Microsoft RIFF palette
 * PNG (*.png) - PNG encoded palette
+
 
 #### Image Meta
 Vangers image files contain auxilary information about image size, frames count, image offset, etc.
