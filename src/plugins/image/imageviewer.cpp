@@ -7,7 +7,9 @@
 #include <QLineEdit>
 #include <QStringListModel>
 #include <QScopedPointer>
+#include <QGraphicsPixmapItem>
 
+#include "graphicsviewzoom.h"
 #include "image/bmpimage.h"
 #include "image/xbmimage.h"
 #include "image/qtimageaccess.h"
@@ -50,6 +52,8 @@ ImageViewer::ImageViewer(ImageViewerPlugin* plugin, QWidget *parent) :
     ui->setupUi(this);
     QObject::connect(ui->paletteViewer, &PaletteView::useTransparentColor,
                      this, &ImageViewer::palette_useTransparentColor);
+    auto* gz = new GraphicsViewZoom(ui->imageWidget);
+    gz->set_modifiers(Qt::NoModifier);
     _palette = vangers::Palette::read(ui->paletteViewer->currentPalette());
 }
 
@@ -148,7 +152,8 @@ void ImageViewer::updateImage()
     i.setColorTable(palette);
 
     QPixmap pixmap = QPixmap::fromImage(i);
-    scene->addPixmap(pixmap);
+    auto* item = scene->addPixmap(pixmap);
+    item->setTransformationMode(Qt::SmoothTransformation);
     qDebug() << i.rect() << _image->image()->rect() << _image->image();
     scene->setSceneRect(i.rect());
     ui->imageWidget->setScene(scene);

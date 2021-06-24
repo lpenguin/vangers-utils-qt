@@ -21,6 +21,8 @@ QtApplication {
 
     files: [
         "Readme.md",
+        "src/graphicsviewzoom.cpp",
+        "src/graphicsviewzoom.h",
         "src/image/qtimageaccess.cpp",
         "src/image/qtimageaccess.h",
         "src/mainwindow.ui",

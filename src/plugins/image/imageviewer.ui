@@ -26,6 +26,12 @@
        </property>
        <item>
         <widget class="QGraphicsView" name="imageWidget">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
          <property name="backgroundBrush">
           <brush brushstyle="Dense1Pattern">
            <color alpha="255">
