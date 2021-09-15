@@ -19,7 +19,8 @@ vangers::Palette vangers::Palette::read(QIODevice &device)
 {
     Palette result;
     auto data = device.readAll();
-    for(int i = 0; i < data.size(); i += 3){
+    int size = qMin(768, data.size());
+    for(int i = 0; i < size; i += 3){
         result.append(qRgb(data[i], data[i+1], data[i+2]) * 4);
     }
     return result;
