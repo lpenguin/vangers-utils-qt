@@ -39,8 +39,8 @@ class BinaryImageMetaAccess;
 
 class ImageMeta : public QMap<ImageField, quint32>{
 public:
-    ImageMeta() {}
-    ImageMeta(const ImageMetaFormat& format):_format(format) {}
+    ImageMeta():_hasEmbeddedPalette(false) {}
+    ImageMeta(const ImageMetaFormat& format):_format(format),_hasEmbeddedPalette(false) {}
 
     void insertField(vangers::ImageField field, vangers::FieldType type, quint32 value) {
         insert(field, value);
@@ -55,8 +55,16 @@ public:
         return _format;
     }
 
+    bool hasEmbeddedPalette() const {
+        return _hasEmbeddedPalette;
+    }
+
+    void setHasEmbeddedPalette(bool value){
+        _hasEmbeddedPalette = value;
+    }
 private:
     ImageMetaFormat _format;
+    bool _hasEmbeddedPalette;
 };
 
 class AbstractImageMetaAccess: public AbstractResourceAccess<ImageMeta> {
@@ -82,7 +90,11 @@ public:
 class Image
 {
 public:
-    Image(const QSharedPointer<QImage>& image, const QSharedPointer<ImageMeta>& meta): _image(image), _meta(meta){}
+    Image(const QSharedPointer<QImage>& image,
+          const QSharedPointer<ImageMeta>& meta):
+        _image(image),
+        _meta(meta)
+    {}
 
     QSharedPointer<QImage> image() const{
         return _image;
@@ -90,6 +102,10 @@ public:
 
     QSharedPointer<ImageMeta> meta() const {
         return _meta;
+    }
+
+    bool hasEmbeddedPalette() const {
+        return _meta->hasEmbeddedPalette();
     }
 
 protected:

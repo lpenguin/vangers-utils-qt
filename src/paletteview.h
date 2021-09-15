@@ -15,6 +15,7 @@ public:
     explicit PaletteView(QWidget *parent = nullptr);
     ~PaletteView();
     QString currentPalette() const;
+    void setEnabled(bool enabled);
 signals:
     void paletteChanged(QString paletteName);
     void useTransparentColor(bool use, int index);

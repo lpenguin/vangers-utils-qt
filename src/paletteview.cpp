@@ -56,3 +56,8 @@ QString PaletteView::currentPalette() const
 {
     return ui->paletteList->model()->data(ui->paletteList->currentIndex()).toString();
 }
+
+void PaletteView::setEnabled(bool enabled)
+{
+    ui->paletteList->setEnabled(enabled);
+}

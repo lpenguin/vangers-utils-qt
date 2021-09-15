@@ -1,6 +1,8 @@
 #include "image.h"
 #include "binaryio.h"
 
+const QString HAS_EMBEDDED_PALETTE_FIELD("HasEmbeddedPalette");
+
 QDebug operator <<(QDebug debug, vangers::ImageField field)
 {
     return debug << toString(field);
@@ -91,11 +93,15 @@ QString vangers::toString(vangers::ImageField field)
 QSharedPointer<vangers::ImageMeta> vangers::IniImageMetaAccess::read(QIODevice &device)
 {
     auto meta = QSharedPointer<vangers::ImageMeta>::create();
-
+    meta->setHasEmbeddedPalette(false);
     QTextStream st(&device);
     QString line;
 
     while(!(line = st.readLine()).isNull()){
+        if(line == HAS_EMBEDDED_PALETTE_FIELD){
+           meta->setHasEmbeddedPalette(true);
+           continue;
+        }
         auto tokens = line.split(QRegExp("\\s*\\=\\s*"));
         if(tokens.size() != 2){
             return QSharedPointer<vangers::ImageMeta>();
@@ -144,6 +150,9 @@ void vangers::IniImageMetaAccess::write(const QSharedPointer<vangers::ImageMeta>
               .arg(toString(field))
               .arg(toString(type))
               .arg(value);
+    }
+    if(meta->hasEmbeddedPalette()){
+        st << HAS_EMBEDDED_PALETTE_FIELD<< "\r\n";
     }
 }
 

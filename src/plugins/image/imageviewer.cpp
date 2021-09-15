@@ -113,7 +113,10 @@ void ImageViewer::exportResource(const QString& filename, const ResourceType& re
 
     QFile file(filename);
     file.open(QFile::WriteOnly);
-    _image->image()->setColorTable(_palette);
+    if(!_image->hasEmbeddedPalette()){
+        _image->image()->setColorTable(_palette);
+    }
+
     access->write(_image, file);
 }
 
@@ -145,11 +148,17 @@ void ImageViewer::updateImage()
     auto& i = *(_image->image());
 //    ui->inageTypeLabel->setText(_image->typeName());
 
-    vangers::Palette palette = vangers::Palette(_palette);
-    if(useTransparentColor && transparentColor >= 0 && transparentColor < palette.size()){
-        palette[transparentColor] = qRgba(0, 0, 0, 0);
+    if(!_image->hasEmbeddedPalette()){
+        vangers::Palette palette = vangers::Palette(_palette);
+        if(useTransparentColor && transparentColor >= 0 && transparentColor < palette.size()){
+            palette[transparentColor] = qRgba(0, 0, 0, 0);
+        }
+        i.setColorTable(palette);
+        ui->paletteViewer->setEnabled(true);
+    } else {
+        ui->paletteViewer->setEnabled(false);
     }
-    i.setColorTable(palette);
+
 
     QPixmap pixmap = QPixmap::fromImage(i);
     auto* item = scene->addPixmap(pixmap);
