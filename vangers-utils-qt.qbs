@@ -25,6 +25,8 @@ QtApplication {
         "src/graphicsviewzoom.h",
         "src/image/qtimageaccess.cpp",
         "src/image/qtimageaccess.h",
+        "src/image/svsimageaccess.cpp",
+        "src/image/svsimageaccess.h",
         "src/mainwindow.ui",
         "src/palettegrid.cpp",
         "src/palettegrid.h",

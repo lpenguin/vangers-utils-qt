@@ -18,6 +18,7 @@ public:
     static const ResourceType XbmType;
     static const ResourceType vBmpType;
     static const ResourceType TiffType;
+    static const ResourceType SvsType;
 
     explicit ImageViewerPlugin(QObject *parent = nullptr)
         : ResourceViewerPlugin(parent) {}
