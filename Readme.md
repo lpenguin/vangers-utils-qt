@@ -6,6 +6,7 @@ This project aims to give the ability to view, export/import of various Vangers 
 ### Image
 * BMP (*.bmp, *.bmo) - 8bit image or sequence of images without transparency.
 * XBM (*.xbm) - 8bit image with transparency.
+* SVS (*.svs) - 8bit image with embedded plaette. Used for loading screens in the Chain jumps
 * PNG + meta.txt - 8bit PNG with embedded palette and meta info for editing purposes.
 * TIFF + meta.txt - 8bit TIFF with embedded palette and meta info for editing purposes.
 
@@ -28,6 +29,7 @@ BSizeY:uint32 = 600
 SizeX:uint32 = 179
 SizeY:uint32 = 234
 Size:uint32 = 25152
+HasEmbeddedPalette
 ```
 
 ### How to edit the exported PNG-8 file
