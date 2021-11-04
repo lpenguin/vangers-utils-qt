@@ -23,6 +23,8 @@ QtApplication {
         "Readme.md",
         "src/graphicsviewzoom.cpp",
         "src/graphicsviewzoom.h",
+        "src/image/mssimageaccess.cpp",
+        "src/image/mssimageaccess.h",
         "src/image/qtimageaccess.cpp",
         "src/image/qtimageaccess.h",
         "src/image/svsimageaccess.cpp",

@@ -19,7 +19,6 @@ SvsImageAccess::SvsImageAccess():_metaAccess(SvsFormat)
 }
 
 QSharedPointer<QImage> _decode(QBuffer& buffer, const QByteArray& paletteBytes, quint32 width, quint32 height){
-    auto reader = vangers::BinaryReader(&buffer);
     size_t dataSize = width * height * sizeof(uint8_t);
 
     char* imageBytes = new char[dataSize];

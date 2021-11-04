@@ -14,6 +14,7 @@
 #include "image/xbmimage.h"
 #include "image/qtimageaccess.h"
 #include "image/svsimageaccess.h"
+#include "image/mssimageaccess.h"
 
 const ResourceType ImageViewerPlugin::PngType = {
     .name = "PNG image",
@@ -40,6 +41,12 @@ const ResourceType ImageViewerPlugin::SvsType = {
     .extensions = {"*.svs"}
 };
 
+const ResourceType ImageViewerPlugin::MssType = {
+    .name = "Vangers MSS image",
+    .extensions = {"*.mss"}
+};
+
+
 ImageViewer::ImageViewer(ImageViewerPlugin* plugin, QWidget *parent) :
     ResourceViewer(plugin, parent),
     ui(new Ui::ImageViewer),
@@ -51,6 +58,7 @@ ImageViewer::ImageViewer(ImageViewerPlugin* plugin, QWidget *parent) :
                  {ImageViewerPlugin::PngType.name, QSharedPointer<vangers::QtImageAccess>::create("png")},
                  {ImageViewerPlugin::TiffType.name, QSharedPointer<vangers::QtImageAccess>::create("tiff")},
                  {ImageViewerPlugin::SvsType.name, QSharedPointer<vangers::SvsImageAccess>::create()},
+                 {ImageViewerPlugin::MssType.name, QSharedPointer<vangers::MssImageAccess>::create()},
                  }),
     useTransparentColor(false),
     transparentColor(0),
@@ -195,7 +203,7 @@ void ImageViewer::updateImage()
 
 QList<ResourceType> ImageViewerPlugin::supportedImportTypes() const
 {
-    return {vBmpType, XbmType, PngType, TiffType, SvsType};
+    return {vBmpType, XbmType, PngType, TiffType, SvsType, MssType};
 }
 
 QList<ResourceType> ImageViewerPlugin::supportedExportTypes() const

@@ -28,6 +28,7 @@ enum class ImageField {
 
 enum class FieldType {
     uint16,
+    int16,
     uint32,
     int32,
     Invalid

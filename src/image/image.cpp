@@ -19,6 +19,9 @@ QSharedPointer<vangers::ImageMeta> vangers::BinaryImageMetaAccess::read(QIODevic
         auto type = pair.second;
         quint32 data = 0;
         switch (type) {
+            case vangers::FieldType::int16:
+                data = reader.read<qint16>();
+            break;
             case vangers::FieldType::uint16:
                 data = reader.read<quint16>();
             break;
