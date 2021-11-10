@@ -8,6 +8,8 @@
 
 #include <QItemSelectionModel>
 
+#include "plugins/vmap/vmapviewerplugin.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -17,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     _plugins = {
         QSharedPointer<ImageViewerPlugin>::create(this),
         QSharedPointer<PaletteViewerPlugin>::create(this),
+        QSharedPointer<VmapViewerPlugin>::create(this),
     };
 
     ui->setupUi(this);

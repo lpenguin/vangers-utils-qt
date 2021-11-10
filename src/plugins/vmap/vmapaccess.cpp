@@ -1,0 +1,51 @@
+#include "vmapaccess.h"
+#include <QSharedPointer>
+#include <splay/splay.h>
+#include <QSettings>
+#include <binaryio.h>
+#include <span.h>
+
+using namespace vangers;
+
+QSharedPointer<Vmap> VmapAccess::read(QIODevice &device)
+{
+    BinaryReader reader(&device);
+
+    int32_t offsets[_sizeY];
+    int16_t sizes[_sizeY];
+
+    for(int i = 0; i < _sizeY; i++){
+        offsets[i] = reader.read<int32_t>();
+        sizes[i] = reader.read<int16_t>();
+    }
+
+    int totalBytes = _sizeX * _sizeY;
+
+    Splay splay(&device);
+    std::vector<uint8_t> dataHeight(_sizeX);
+    dataHeight.resize(_sizeX);
+    std::vector<uint8_t> dataMeta(_sizeX);
+    dataMeta.resize(_sizeX);
+
+    std::vector<uint8_t> heights;
+    std::vector<uint8_t> metas;
+
+    for(int iRow = 0; iRow < _sizeY; iRow++){
+        if(!device.seek(offsets[iRow])){
+            return {};
+        }
+
+        std::vector<uint8_t> bytes = reader.readArray<uint8_t>(sizes[iRow]);
+        splay.expand(span<uint8_t>{bytes}, dataHeight, dataMeta);
+
+        heights.insert(std::end(heights), std::begin(dataHeight), std::end(dataHeight));
+        metas.insert(std::end(metas), std::begin(dataMeta), std::end(dataMeta));
+    }
+
+    return QSharedPointer<Vmap>::create(_sizeX, _sizeY, heights, metas);
+}
+
+void VmapAccess::write(const QSharedPointer<Vmap> &resource, QIODevice &device)
+{
+
+}

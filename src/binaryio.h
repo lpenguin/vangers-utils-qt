@@ -3,6 +3,7 @@
 
 #include <QIODevice>
 #include <QDebug>
+#include <vector>
 
 namespace vangers {
 
@@ -25,6 +26,18 @@ public:
 
     QByteArray read(quint32 size){
         return _device->read(size);
+    }
+
+    template<typename T>
+    std::vector<T> readArray(quint32 size) {
+        std::vector<T> result(size);
+        result.resize(size);
+        QByteArray bytes = _device->read(size);
+        const char* bytesData = bytes.constData();
+
+        std::copy(bytesData, bytesData + bytes.size(), result.data());
+
+        return result;
     }
 
     template<typename T>

@@ -63,8 +63,18 @@ QtApplication {
         "src/plugins/palette/paletteviewer.cpp",
         "src/plugins/palette/paletteviewer.h",
         "src/plugins/palette/paletteviewer.ui",
+        "src/plugins/vmap/vmap.cpp",
+        "src/plugins/vmap/vmap.h",
+        "src/plugins/vmap/vmapaccess.cpp",
+        "src/plugins/vmap/vmapaccess.h",
+        "src/plugins/vmap/vmapviewer.ui",
+        "src/plugins/vmap/vmapviewerplugin.cpp",
+        "src/plugins/vmap/vmapviewerplugin.h",
         "src/qimagewidget.cpp",
         "src/qimagewidget.h",
+        "src/span.h",
+        "src/splay/splay.cpp",
+        "src/splay/splay.h",
     ]
 
     install: true

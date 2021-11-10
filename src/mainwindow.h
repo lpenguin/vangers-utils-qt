@@ -9,6 +9,7 @@
 #include "plugins/image/imageviewer.h"
 #include "plugins/palette/paletteviewer.h"
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
