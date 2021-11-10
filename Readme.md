@@ -15,10 +15,13 @@ This project aims to give the ability to view, export/import of various Vangers 
 * Microsoft Palette (*.pal) - Microsoft RIFF palette
 * PNG (*.png) - PNG encoded palette
 
+### Levels
+* thechain/*/world.ini - Vangers worlds (import only)
+* height.png, meta.png - Vangers worlds (output only)
 
 #### Image Meta
 Vangers image files contain auxilary information about image size, frames count, image offset, etc.
-The number and type of parameter is specifica to the concrete image.
+The number and type of parameter is specific to the concrete image.
 This meta info can be viewed and edited with .meta.txt file genereated with PNG export. See example below.
 **It is not advised to change the type, order or add/delete parameters.**
 ```
