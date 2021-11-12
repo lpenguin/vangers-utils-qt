@@ -12,6 +12,7 @@
 
 #include <splay/splay.h>
 #include "../../image/palette.h"
+#include "layer/terrainimagelayer.h"
 
 const ResourceType VmapViewerPlugin::VmcType = {
     .name = "Vangers level",
@@ -30,7 +31,7 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
     , _vmap()
     , _heightItem(nullptr)
     , _metaItem(nullptr)
-    , _mask(255)
+	, _layers()
 {
     _ui->setupUi(this);
     auto* gz = new GraphicsViewZoom(_ui->graphicsView);
@@ -42,20 +43,22 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
                      this, &VmapViewer::onMetaToggled);
 
 
-    QObject::connect(_ui->deltaCheckBox, &QCheckBox::toggled,
-                     this, &VmapViewer::onDeltaMaskToggled);
+	_ui->maskCombo->clear();
+	_ui->maskCombo->addItems({
+								 "All",
+								 "Delta",
+								 "Terrain",
+								 "DoubleLevel",
+								 "Shadow",
+							 });
 
-    QObject::connect(_ui->objShadowCheckBox, &QCheckBox::toggled,
-                     this, &VmapViewer::onObjShadowMaskToggled);
+	_layers = {
+		{"Terrain", new TerrainImageLayer(this)}
+	};
 
-    QObject::connect(_ui->terrainCheckBox, &QCheckBox::toggled,
-                     this, &VmapViewer::onTerrainTypeMaskToggled);
+	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
+					 this, SLOT(onMaskTypeChanged(int)));
 
-    QObject::connect(_ui->doubleLevelCheckBox, &QCheckBox::toggled,
-                     this, &VmapViewer::onDoubleLevelMaskToggled);
-
-    QObject::connect(_ui->shadowCheckBox, &QCheckBox::toggled,
-                     this, &VmapViewer::onShadowMaskToggled);
 }
 
 VmapViewer::~VmapViewer()
@@ -73,13 +76,56 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     int sizeX = 1 << mapPowerX;
     int sizeY = 1 << mapPowerY;
 
-    qDebug() << "sizeX, sizeY" << sizeX << sizeY;
+	QStringList beginColorsStrs = settings.value("Rendering Parameters/Begin Colors")
+			.toString()
+			.trimmed()
+			.split(QRegExp("\\s+"));
+
+	if(beginColorsStrs.size() != 8){
+		qWarning() << "Invalid begin colors string" << beginColorsStrs;
+		return {};
+	}
+
+	QStringList endColorsStrs = settings.value("Rendering Parameters/End Colors")
+			.toString()
+			.trimmed()
+			.split(QRegExp("\\s+"));
+
+	if(endColorsStrs.size() != 8){
+		qWarning() << "Invalid end colors string" << endColorsStrs;
+		return {};
+	}
+
+	std::vector<std::pair<int, int>> terrainColorOffsets;
+	for(int i = 0 ; i < beginColorsStrs.size(); i++)
+	{
+		int beginOffset = beginColorsStrs[i].toInt();
+		int endOffset = endColorsStrs[i].toInt();
+		terrainColorOffsets.push_back({beginOffset, endOffset});
+	}
+
+	QFileInfo fileInfo(filename);
+	QDir fileDir(fileInfo.absoluteDir());
+
+	QString paletteName = settings.value("Storage/Palette File").toString();
+	QString paletteFileName = fileDir.filePath(paletteName);
+	QFileInfo paletteFileInfo(paletteFileName);
+	if(!paletteFileInfo.exists()){
+		qWarning() << "Palette doesn't exist" << paletteFileName;
+		return {};
+	}
+
+	QFile paletteFile(paletteFileName);
+	paletteFile.open(QFile::ReadOnly);
+	vangers::Palette pal = vangers::Palette::read(paletteFile);
+	paletteFile.close();
+
 
     QString levelBaseName = settings.value("Storage/File Name").toString();
 
-    QFileInfo fileInfo(filename);
 
-    QString vmcFileName = QDir(fileInfo.absoluteDir()).filePath(levelBaseName + ".vmc");
+
+	QString vmcFileName = QDir(fileDir).filePath(levelBaseName + ".vmc");
     QFileInfo vmcFileInfo = vmcFileName;
 
     if(!vmcFileInfo.exists()){
@@ -93,7 +139,7 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
         return false;
     }
 
-    VmapAccess access(sizeX, sizeY);
+	VmapAccess access(sizeX, sizeY, pal, terrainColorOffsets);
     _vmap = access.read(vmcFile);
 
 //    _ui->graphicsView
@@ -112,7 +158,11 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     }
 
     {
-        uchar* buf = _vmap->meta().data();
+		const auto& meta = _vmap->meta();
+		uchar* buf = new uchar[meta.size()];
+		for(size_t i =0; i < meta.size(); i++){
+			buf[i] = meta[i];
+		}
 
         QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
 
@@ -132,13 +182,8 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     _ui->heightButton->setChecked(true);
     _ui->metaButton->setChecked(false);
 
-    _ui->deltaCheckBox->setChecked(true);
-    _ui->objShadowCheckBox->setChecked(true);
-    _ui->terrainCheckBox->setChecked(true);
-    _ui->doubleLevelCheckBox->setChecked(true);
-    _ui->shadowCheckBox->setChecked(true);
+	_ui->maskCombo->setCurrentIndex(0);
 
-    _mask = 0b11111111;
     return true;
 
 }
@@ -167,16 +212,16 @@ QString VmapViewer::currentFile() const
     return _currentFile;
 }
 
-void VmapViewer::applyMask(uint8_t mask, bool apply)
+void VmapViewer::applyMask(QString layerName)
 {
-    if(apply) {
-        _mask = _mask | mask;
-    } else {
-        _mask = _mask & ~mask;
-    }
-    QSharedPointer<QImage> metaImage = _vmap->metaImage(_mask);
-    QPixmap pixmap = QPixmap::fromImage(*metaImage);
-    _metaItem->setPixmap(pixmap);
+	if(!_layers.contains(layerName)){
+		qWarning() << "No layer definition" << layerName;
+		return;
+	}
+
+	QSharedPointer<QImage> metaImage = _layers[layerName]->getImage(*_vmap);
+	QPixmap pixmap = QPixmap::fromImage(*metaImage);
+	_metaItem->setPixmap(pixmap);
 }
 
 void VmapViewer::onHeightToggled(bool checked)
@@ -194,33 +239,14 @@ void VmapViewer::onMetaToggled(bool checked)
         return;
     }
 
-    _metaItem->setVisible(checked);
+	_metaItem->setVisible(checked);
 }
 
-void VmapViewer::onDeltaMaskToggled(bool checked)
+void VmapViewer::onMaskTypeChanged(int maskIndex)
 {
-    applyMask(DeltaMask, checked);
+	applyMask(_ui->maskCombo->itemText(maskIndex));
 }
 
-void VmapViewer::onObjShadowMaskToggled(bool checked)
-{
-    applyMask(ObjShadowMask, checked);
-}
-
-void VmapViewer::onTerrainTypeMaskToggled(bool checked)
-{
-    applyMask(TerrainTypeMask, checked);
-}
-
-void VmapViewer::onDoubleLevelMaskToggled(bool checked)
-{
-    applyMask(DoubleLevelMask, checked);
-}
-
-void VmapViewer::onShadowMaskToggled(bool checked)
-{
-    applyMask(ShadowMask, checked);
-}
 
 ResourceViewer *VmapViewerPlugin::makeResourceViewer(QWidget *parent)
 {

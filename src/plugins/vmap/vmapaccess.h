@@ -7,9 +7,13 @@
 class VmapAccess: public vangers::AbstractResourceAccess<Vmap>
 {
 public:
-    VmapAccess(int sizeX, int sizeY)
+	VmapAccess(int sizeX, int sizeY,
+			   const vangers::Palette& palette,
+			   const std::vector<std::pair<int, int>>& terrainColorOffsets)
         : _sizeX(sizeX)
         , _sizeY(sizeY)
+		, _palette(palette)
+		, _terrainColorOffsets(terrainColorOffsets)
     {}
 
     QSharedPointer<Vmap> read(QIODevice &device);
@@ -18,6 +22,8 @@ public:
 private:
     int _sizeX;
     int _sizeY;
+	vangers::Palette _palette;
+	std::vector<std::pair<int, int>> _terrainColorOffsets;
 };
 
 #endif // VMAPACCESS_H

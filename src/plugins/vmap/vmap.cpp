@@ -3,14 +3,19 @@
 #include "../../image/palette.h"
 
 
-std::vector<uint8_t>&  Vmap::height()
+Matrix<uint8_t>&  Vmap::height()
 {
     return _height;
 }
 
-std::vector<uint8_t>& Vmap::meta()
+const Matrix<uint8_t> &Vmap::meta() const
 {
-    return _meta;
+	return _meta;
+}
+
+Matrix<uint8_t> &Vmap::meta()
+{
+	return _meta;
 }
 
 QSharedPointer<QImage> Vmap::fromData(uint8_t* data){
@@ -19,9 +24,29 @@ QSharedPointer<QImage> Vmap::fromData(uint8_t* data){
     return image;
 }
 
+int Vmap::sizeY() const
+{
+	return _sizeY;
+}
+
+int Vmap::sizeX() const
+{
+	return _sizeX;
+}
+
+std::vector<std::pair<int, int> > Vmap::terrainColorOffsets() const
+{
+	return _terrainColorOffsets;
+}
+
+vangers::Palette Vmap::palette() const
+{
+	return _palette;
+}
+
 QSharedPointer<QImage> Vmap::heightImage()
 {
-    return fromData(_height.data());
+	return fromData(_height.data());
 }
 
 QSharedPointer<QImage> Vmap::metaImage(uint8_t mask)

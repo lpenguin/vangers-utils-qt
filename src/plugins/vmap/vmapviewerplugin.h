@@ -6,6 +6,7 @@
 #include <plugins/resourceviewer.h>
 
 #include <QGraphicsItem>
+#include "layer/abstractimagelayer.h"
 
 
 namespace Ui {
@@ -58,9 +59,8 @@ private:
     QSharedPointer<Vmap> _vmap;
     QGraphicsItem* _heightItem;
     QGraphicsPixmapItem* _metaItem;
-    uint8_t _mask;
 
-    void applyMask(uint8_t mask, bool apply);
+	void applyMask(QString layerName);
 
     const uint8_t DeltaMask = 0b00000011;
     const uint8_t ObjShadowMask = 0b00000100;
@@ -68,15 +68,11 @@ private:
     const uint8_t DoubleLevelMask = 0b01000000;
     const uint8_t ShadowMask = 0b10000000;
 
-
+	QMap<QString, AbstractImageLayer*> _layers;
 private slots:
     void onHeightToggled(bool checked);
     void onMetaToggled(bool checked);
-    void onDeltaMaskToggled(bool checked);
-    void onObjShadowMaskToggled(bool checked);
-    void onTerrainTypeMaskToggled(bool checked);
-    void onDoubleLevelMaskToggled(bool checked);
-    void onShadowMaskToggled(bool checked);
+	void onMaskTypeChanged(int maskIndex);
 };
 
 #endif // VMAPVIEWERPLUGIN_H
