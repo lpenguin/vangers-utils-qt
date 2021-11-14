@@ -29,6 +29,8 @@ QtApplication {
         "src/image/qtimageaccess.h",
         "src/image/svsimageaccess.cpp",
         "src/image/svsimageaccess.h",
+        "src/imagegraphicsview.cpp",
+        "src/imagegraphicsview.h",
         "src/mainwindow.ui",
         "src/palettegrid.cpp",
         "src/palettegrid.h",
