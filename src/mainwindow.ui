@@ -140,22 +140,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>directoryTreeView</sender>
-   <signal>clicked(QModelIndex)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>openFile(QModelIndex)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>118</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>290</x>
-     <y>26</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionExport</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
