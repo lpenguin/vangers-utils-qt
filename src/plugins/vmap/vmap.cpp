@@ -3,12 +3,23 @@
 #include "../../image/palette.h"
 
 
+QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, const vangers::Palette& palette){
+	QSharedPointer<QImage> image = QSharedPointer<QImage>::create(data, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
+	image->setColorTable(palette);
+	return image;
+}
+
+const Matrix<uint8_t> &Vmap::heightConst() const
+{
+	return _height;
+}
+
 Matrix<uint8_t>&  Vmap::height()
 {
     return _height;
 }
 
-const Matrix<uint8_t> &Vmap::meta() const
+const Matrix<uint8_t> &Vmap::metaConst() const
 {
 	return _meta;
 }
@@ -18,45 +29,44 @@ Matrix<uint8_t> &Vmap::meta()
 	return _meta;
 }
 
-QSharedPointer<QImage> Vmap::fromData(uint8_t* data){
-    QSharedPointer<QImage> image = QSharedPointer<QImage>::create(data, _sizeX, _sizeY, _sizeX, QImage::Format_Indexed8);
-    image->setColorTable(vangers::Palette::grayscale());
-    return image;
-}
 
-int Vmap::sizeY() const
+void Vmap::setPalette(const vangers::Palette &palette)
 {
-	return _sizeY;
+	_palette = palette;
 }
 
-int Vmap::sizeX() const
+void Vmap::setTerrainColorOffsets(const std::vector<std::pair<int, int> > &terrainColorOffsets)
 {
-	return _sizeX;
+	_terrainColorOffsets = terrainColorOffsets;
 }
 
-std::vector<std::pair<int, int> > Vmap::terrainColorOffsets() const
+QSize Vmap::size() const
+{
+	return _size;
+}
+
+void Vmap::setSize(const QSize &size)
+{
+	_size = size;
+}
+
+
+const std::vector<std::pair<int, int>>& Vmap::terrainColorOffsetsConst() const
 {
 	return _terrainColorOffsets;
 }
 
-vangers::Palette Vmap::palette() const
+std::vector<std::pair<int, int> > &Vmap::terrainColorOffsets()
+{
+	return _terrainColorOffsets;
+}
+
+vangers::Palette& Vmap::palette()
 {
 	return _palette;
 }
 
-QSharedPointer<QImage> Vmap::heightImage()
+const vangers::Palette &Vmap::paletteConst() const
 {
-	return fromData(_height.data());
-}
-
-QSharedPointer<QImage> Vmap::metaImage(uint8_t mask)
-{
-    uint8_t* metaMasked = new uint8_t[_sizeX * _sizeY];
-
-    for(int i =0; i < _meta.size(); i++){
-        uint8_t pixel = _meta[i];
-        pixel &= mask;
-        metaMasked[i] = pixel;
-    }
-    return fromData(metaMasked);
+	return _palette;
 }

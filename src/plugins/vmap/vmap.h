@@ -8,42 +8,40 @@
 #include <image/palette.h>
 #include "matrix.h"
 
+
+QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, const vangers::Palette& palette);
+
 class Vmap
 {
 public:
-	Vmap(int sizeX, int sizeY,
-		 const Matrix<uint8_t>& height,
-		 const Matrix<uint8_t>& meta,
-		 const vangers::Palette& palette,
-		 const std::vector<std::pair<int, int>>& terrainColorOffsets)
-        : _height(height)
-        , _meta(meta)
-        , _sizeX(sizeX)
-        , _sizeY(sizeY)
-		, _palette(palette)
-		, _terrainColorOffsets(terrainColorOffsets)
-    {}
+	Vmap()
+		: _size({0, 0})
+		, _height(0, 0)
+		, _meta(0, 0)
+	{}
 
+	const Matrix<uint8_t>& heightConst() const;
 	Matrix<uint8_t>& height();
 
-	const Matrix<uint8_t> &meta() const;
+	const Matrix<uint8_t> &metaConst() const;
 	Matrix<uint8_t>& meta();
-    QSharedPointer<QImage> heightImage();
-    QSharedPointer<QImage> metaImage(uint8_t mask = 0b11111111);
 
-	vangers::Palette palette() const;
-	std::vector<std::pair<int, int>> terrainColorOffsets() const;
-	int sizeX() const;
-	int sizeY() const;
+	vangers::Palette& palette();
+	const vangers::Palette& paletteConst() const;
+	const std::vector<std::pair<int, int>>& terrainColorOffsetsConst() const;
+	std::vector<std::pair<int, int>>& terrainColorOffsets();
+
+	QSize size() const;
+	void setSize(const QSize &size);
+
+	void setTerrainColorOffsets(const std::vector<std::pair<int, int> > &terrainColorOffsets);
+	void setPalette(const vangers::Palette &palette);
 
 private:
-	QSharedPointer<QImage> fromData(uint8_t *data);
+		QSize _size;
 
-	Matrix<uint8_t> _height;
-	Matrix<uint8_t> _meta;
-
-    int _sizeX;
-    int _sizeY;
+		Matrix<uint8_t> _height;
+		Matrix<uint8_t> _meta;
 
 	vangers::Palette _palette;
 	std::vector<std::pair<int, int>> _terrainColorOffsets;
@@ -51,3 +49,4 @@ private:
 };
 
 #endif // VMAP_H
+
