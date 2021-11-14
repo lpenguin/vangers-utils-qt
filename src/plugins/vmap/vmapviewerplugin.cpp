@@ -1,6 +1,7 @@
 #include "vmapviewerplugin.h"
 #include "ui_vmapviewer.h"
-#include "vmapaccess.h"
+#include "vmapreader.h"
+#include "vmapwriter.h"
 
 #include <QSettings>
 #include <QDebug>
@@ -13,6 +14,7 @@
 #include <splay/splay.h>
 #include "../../image/palette.h"
 #include "layer/terrainimagelayer.h"
+using namespace vangers;
 
 const ResourceType VmapViewerPlugin::VmcType = {
     .name = "Vangers level",
@@ -69,88 +71,34 @@ VmapViewer::~VmapViewer()
 bool VmapViewer::importResource(const QString &filename, const ResourceType &resourceType)
 {
     _currentFile = filename;
-    QSettings settings(filename, QSettings::IniFormat);
-    int mapPowerX = settings.value("Global Parameters/Map Power X").toInt();
-    int mapPowerY = settings.value("Global Parameters/Map Power Y").toInt();
 
-    int sizeX = 1 << mapPowerX;
-    int sizeY = 1 << mapPowerY;
-
-	QStringList beginColorsStrs = settings.value("Rendering Parameters/Begin Colors")
-			.toString()
-			.trimmed()
-			.split(QRegExp("\\s+"));
-
-	if(beginColorsStrs.size() != 8){
-		qWarning() << "Invalid begin colors string" << beginColorsStrs;
-		return {};
+	_vmap = QSharedPointer<Vmap>::create();
+	VmapReader reader;
+	QFile file(filename);
+	file.open(QFile::ReadOnly);
+	if(!reader.read(*_vmap, file)){
+		qDebug() << "Cannot read file" << filename;
+		file.close();
+		return false;
 	}
+	file.close();
 
-	QStringList endColorsStrs = settings.value("Rendering Parameters/End Colors")
-			.toString()
-			.trimmed()
-			.split(QRegExp("\\s+"));
-
-	if(endColorsStrs.size() != 8){
-		qWarning() << "Invalid end colors string" << endColorsStrs;
-		return {};
+	auto* old = _ui->graphicsView->scene();
+	if(old != nullptr){
+		old->clear();
+		delete old;
 	}
-
-	std::vector<std::pair<int, int>> terrainColorOffsets;
-	for(int i = 0 ; i < beginColorsStrs.size(); i++)
-	{
-		int beginOffset = beginColorsStrs[i].toInt();
-		int endOffset = endColorsStrs[i].toInt();
-		terrainColorOffsets.push_back({beginOffset, endOffset});
-	}
-
-	QFileInfo fileInfo(filename);
-	QDir fileDir(fileInfo.absoluteDir());
-
-	QString paletteName = settings.value("Storage/Palette File").toString();
-	QString paletteFileName = fileDir.filePath(paletteName);
-	QFileInfo paletteFileInfo(paletteFileName);
-	if(!paletteFileInfo.exists()){
-		qWarning() << "Palette doesn't exist" << paletteFileName;
-		return {};
-	}
-
-	QFile paletteFile(paletteFileName);
-	paletteFile.open(QFile::ReadOnly);
-	vangers::Palette pal = vangers::Palette::read(paletteFile);
-	paletteFile.close();
-
-
-    QString levelBaseName = settings.value("Storage/File Name").toString();
-
-
-
-	QString vmcFileName = QDir(fileDir).filePath(levelBaseName + ".vmc");
-    QFileInfo vmcFileInfo = vmcFileName;
-
-    if(!vmcFileInfo.exists()){
-        qWarning() << "VMC file doesn't exsit" << vmcFileName;
-        return false;
-    }
-
-    QFile vmcFile(vmcFileName);
-    if(!vmcFile.open(QFile::ReadOnly)){
-        qWarning() << "Cannot open file for reading" << vmcFileName;
-        return false;
-    }
-
-	VmapAccess access(sizeX, sizeY, pal, terrainColorOffsets);
-    _vmap = access.read(vmcFile);
-
 //    _ui->graphicsView
     QGraphicsScene* scene = new QGraphicsScene(this);
+	_ui->graphicsView->setScene(scene);
     {
-        uchar* buf = _vmap->height().data();
+		const uchar* buf = _vmap->heightConst().data();
 
+		int sizeX = _vmap->size().width();
+		int sizeY = _vmap->size().height();
         QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
 
         image.setColorTable(vangers::Palette::grayscale());
-
 
         QPixmap pixmap = QPixmap::fromImage(image);
         _heightItem = scene->addPixmap(pixmap);
@@ -177,7 +125,7 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
 //    item->setTransformationMode(Qt::SmoothTransformation);
 //    qDebug() << i.rect() << _image->image()->rect() << _image->image();
 
-    _ui->graphicsView->setScene(scene);
+
 
     _ui->heightButton->setChecked(true);
     _ui->metaButton->setChecked(false);
@@ -194,17 +142,8 @@ void VmapViewer::exportResource(const QString &filename, const ResourceType &)
         return;
     }
 
-    QSettings settings(filename, QSettings::IniFormat);
-    QDir baseDir(QFileInfo(filename).absoluteDir());
-    QString heightFilename = baseDir.filePath("height.png");
-    QString metaFilename = baseDir.filePath("meta.png");
-
-    settings.setValue("height", heightFilename);
-    settings.setValue("meta", metaFilename);
-    settings.sync();
-
-    _vmap->heightImage()->save(heightFilename);
-    _vmap->metaImage()->save(metaFilename);
+	VmapWriter writer;
+	writer.write(*_vmap, filename);
 }
 
 QString VmapViewer::currentFile() const
