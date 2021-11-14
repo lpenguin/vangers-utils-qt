@@ -2,6 +2,7 @@
 #include "ui_vmapviewer.h"
 #include "vmapreader.h"
 #include "vmapwriter.h"
+#include "vmapmeta.h"
 
 #include <QSettings>
 #include <QDebug>
@@ -68,6 +69,8 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
 					 this, SLOT(onMaskTypeChanged(int)));
 
+	QObject::connect(_ui->graphicsView, &ImageGraphicsView::mouseMove,
+					 this, &VmapViewer::onMapMouseMove);
 }
 
 VmapViewer::~VmapViewer()
@@ -193,6 +196,28 @@ void VmapViewer::onMaskTypeChanged(int maskIndex)
 	applyMask(_ui->maskCombo->itemText(maskIndex));
 }
 
+void VmapViewer::onMapMouseMove(QPointF pos)
+{
+	qDebug() << pos;
+	int x = pos.x();
+	int y = pos.y();
+	QSize size = _vmap->size();
+	if(x < 0 || x >= size.width() || y < 0 || y >= size.height()){
+		return;
+	}
+	uint8_t height = _vmap->height().getData(x, y);
+
+	uint8_t meta = _vmap->meta().getData(x, y);
+	VmapMeta vmapMeta = VmapMeta::fromMeta(meta);
+	_ui->statusLabel->setText(QString("%1x%2 alt: %3, terrain: %4, delta: %7, isDoubleLevel: %5, isShadowed: %6 ")
+							  .arg(x)
+							  .arg(y)
+							  .arg(height)
+							  .arg(vmapMeta.terrain())
+							  .arg(vmapMeta.isDoubleLevel())
+							  .arg(vmapMeta.isShadowed())
+							  .arg(vmapMeta.delta()));
+}
 
 ResourceViewer *VmapViewerPlugin::makeResourceViewer(QWidget *parent)
 {
