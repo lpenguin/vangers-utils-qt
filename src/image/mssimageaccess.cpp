@@ -41,34 +41,38 @@ QSharedPointer<QImage> _decode(QBuffer& buffer, quint32 size, quint32 width, qui
     return image;
 }
 
-QSharedPointer<Image> MssImageAccess::read(QIODevice &device)
+bool MssImageAccess::read(Image& image, QIODevice &device)
 {
-    auto meta = _metaAccess.read(device);
-    meta->setHasEmbeddedPalette(true);
+	ImageMeta meta;
+	_metaAccess.read(meta, device);
+	meta.setHasEmbeddedPalette(true);
     QByteArray encoded = device.readAll();
     QBuffer buffer(&encoded);
     buffer.open(QBuffer::ReadOnly);
 
 
-    quint32 size = (*meta)[vangers::ImageField::Size];
-    quint32 width = (*meta)[vangers::ImageField::SizeX];
-    quint32 height = (*meta)[vangers::ImageField::SizeY];
+	quint32 size = (meta)[vangers::ImageField::Size];
+	quint32 width = (meta)[vangers::ImageField::SizeX];
+	quint32 height = (meta)[vangers::ImageField::SizeY];
 
     quint32 filesize = size * width * height * sizeof (int16_t);
 
     qint64 realSize = buffer.size();
     if(filesize != realSize){
         qWarning() << "Size mismatch"<<filesize << realSize;
-        return QSharedPointer<vangers::Image>();
+		return false;
     }
-    auto image =  _decode(buffer, size, width, height);
-    if(image.isNull()){
-        return QSharedPointer<vangers::Image>();
+	auto img = _decode(buffer, size, width, height);
+	if(img.isNull()){
+		return false;
     }
-    return QSharedPointer<vangers::Image>::create(image, meta);
+
+	image.setImage(img);
+	image.setMeta(meta);
+	return true;
 }
 
-void MssImageAccess::write(const QSharedPointer<Image> &image, QIODevice &file)
+void MssImageAccess::write(const Image &image, QIODevice &file)
 {
 
 }

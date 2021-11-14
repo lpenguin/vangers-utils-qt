@@ -75,43 +75,41 @@ class BinaryImageMetaAccess: public AbstractImageMetaAccess {
 public:
     BinaryImageMetaAccess(const ImageMetaFormat readFormat):_readFormat(readFormat){}
 
-    QSharedPointer<ImageMeta> read(QIODevice &device) override;
-    void write(const QSharedPointer<ImageMeta>& meta, QIODevice& device) override;
+	bool read(ImageMeta& meta, QIODevice &device) override;
+	void write(const ImageMeta& meta, QIODevice& device) override;
 private:
     ImageMetaFormat _readFormat;
 };
 
 class IniImageMetaAccess: public AbstractImageMetaAccess {
 public:
-    QSharedPointer<ImageMeta> read(QIODevice &device) override;
-    void write(const QSharedPointer<ImageMeta>& meta, QIODevice& device) override;
+	bool read(ImageMeta& meta, QIODevice &device) override;
+	void write(const ImageMeta& meta, QIODevice& device) override;
 };
 
 
 class Image
 {
 public:
-    Image(const QSharedPointer<QImage>& image,
-          const QSharedPointer<ImageMeta>& meta):
-        _image(image),
-        _meta(meta)
-    {}
-
     QSharedPointer<QImage> image() const{
         return _image;
     }
 
-    QSharedPointer<ImageMeta> meta() const {
+	ImageMeta meta() const {
         return _meta;
     }
 
     bool hasEmbeddedPalette() const {
-        return _meta->hasEmbeddedPalette();
+		return _meta.hasEmbeddedPalette();
     }
 
+	void setImage(const QSharedPointer<QImage> &image);
+
+	void setMeta(const ImageMeta &meta);
+
 protected:
-    QSharedPointer<QImage> _image;
-    QSharedPointer<ImageMeta> _meta;
+	QSharedPointer<QImage> _image;
+	ImageMeta _meta;
 };
 
 class AbstractImageAccess: public AbstractResourceAccess<Image> {

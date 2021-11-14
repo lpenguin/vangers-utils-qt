@@ -79,48 +79,52 @@ vangers::XbmImageAccess::XbmImageAccess():_metaAccess({
 
 }
 
-QSharedPointer<vangers::Image> vangers::XbmImageAccess::read(QIODevice &device)
+bool vangers::XbmImageAccess::read(vangers::Image& image, QIODevice &device)
 {
-    auto meta = _metaAccess.read(device);
+	ImageMeta meta;
+	_metaAccess.read(meta, device);
 
     QByteArray encoded = device.readAll();
     QBuffer buffer(&encoded);
     buffer.open(QBuffer::ReadOnly);
-    quint32 filesize = (*meta)[vangers::ImageField::Size];
+	quint32 filesize = (meta)[vangers::ImageField::Size];
     qint64 realSize = buffer.size();
     if(filesize != realSize){
         qWarning() << "Size mismatch"<<filesize << realSize;
         return QSharedPointer<vangers::Image>();
     }
 
-    quint32 width = (*meta)[vangers::ImageField::SizeX];
-    quint32 height = (*meta)[vangers::ImageField::SizeY];
+	quint32 width = (meta)[vangers::ImageField::SizeX];
+	quint32 height = (meta)[vangers::ImageField::SizeY];
     QByteArray bytes = _decode(buffer, width, height);
     char* buf = new char[bytes.size()];
     memcpy(buf, bytes.constData(), bytes.size());
-    auto image = QSharedPointer<QImage>::create(
+	auto img = QSharedPointer<QImage>::create(
                 (uchar*) buf,
                 width,
                 height,
                 width,
                 QImage::Format_Indexed8);
-    image->setColorTable(vangers::Palette::grayscale());
-    return QSharedPointer<vangers::Image>::create(image, meta);
+	img->setColorTable(vangers::Palette::grayscale());
+
+	image.setImage(img);
+	image.setMeta(meta);
+	return true;
 }
 
 
 
-void vangers::XbmImageAccess::write(const QSharedPointer<vangers::Image>& image, QIODevice &device)
+void vangers::XbmImageAccess::write(const vangers::Image& image, QIODevice &device)
 {
     QByteArray encodedArray;
     QBuffer encodedBuffer(&encodedArray);
     encodedBuffer.open(QBuffer::WriteOnly);
-    _encode(*image->image(), encodedBuffer);
+	_encode(*image.image(), encodedBuffer);
     encodedBuffer.close();
 
-    auto meta = image->meta();
-    meta->insert(vangers::ImageField::Size, encodedArray.size());
-    _metaAccess.write(image->meta(), device);
+	auto meta = image.meta();
+	meta.insert(vangers::ImageField::Size, encodedArray.size());
+	_metaAccess.write(image.meta(), device);
 
     device.write(encodedArray);
 }

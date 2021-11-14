@@ -1,12 +1,14 @@
 #include "vangerspaletteaccess.h"
 
 
-QSharedPointer<vangers::Palette> vangers::VangersPaletteAccess::read(QIODevice &device)
+bool vangers::VangersPaletteAccess::read(Palette& palette, QIODevice &device)
 {
-    return QSharedPointer<Palette>::create(Palette::read(device));
+	palette.clear();
+	palette << Palette::read(device);
+	return true;
 }
 
-void vangers::VangersPaletteAccess::write(const QSharedPointer<Palette> &resource, QIODevice &device)
+void vangers::VangersPaletteAccess::write(const Palette &resource, QIODevice &device)
 {
-    Palette::store(*resource, device);
+	Palette::store(resource, device);
 }

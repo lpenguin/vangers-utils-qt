@@ -10,8 +10,8 @@ namespace vangers {
 class VangersPaletteAccess: public AbstractResourceAccess<Palette>
 {
 public:
-    QSharedPointer<Palette> read(QIODevice &device) override;
-    void write(const QSharedPointer<Palette> &resource, QIODevice &device) override;
+	bool read(Palette& palette, QIODevice &device) override;
+	void write(const Palette &resource, QIODevice &device) override;
 };
 }
 

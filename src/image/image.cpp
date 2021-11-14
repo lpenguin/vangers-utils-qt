@@ -8,10 +8,8 @@ QDebug operator <<(QDebug debug, vangers::ImageField field)
     return debug << toString(field);
 }
 
-QSharedPointer<vangers::ImageMeta> vangers::BinaryImageMetaAccess::read(QIODevice &device)
+bool vangers::BinaryImageMetaAccess::read(ImageMeta& meta, QIODevice &device)
 {
-    auto meta = QSharedPointer<ImageMeta>::create();
-
     BinaryReader reader(&device);
 
     for (auto& pair : _readFormat) {
@@ -35,19 +33,19 @@ QSharedPointer<vangers::ImageMeta> vangers::BinaryImageMetaAccess::read(QIODevic
         default:
             continue;
         }
-        meta->insertField(field, type, data);
+		meta.insertField(field, type, data);
     }
 
-    return meta;
+	return true;
 }
 
-void vangers::BinaryImageMetaAccess::write(const QSharedPointer<vangers::ImageMeta>& meta, QIODevice &device)
+void vangers::BinaryImageMetaAccess::write(const vangers::ImageMeta& meta, QIODevice &device)
 {
     BinaryWriter writer(&device);
-    for (auto& pair : meta->format()) {
+	for (auto& pair : meta.format()) {
         auto field = pair.first;
         auto type = pair.second;
-        quint32 data = meta->value(field);
+		quint32 data = meta.value(field);
         switch (type) {
         case vangers::FieldType::uint16:
             writer.write((quint16)data);
@@ -93,25 +91,24 @@ QString vangers::toString(vangers::ImageField field)
 
 
 
-QSharedPointer<vangers::ImageMeta> vangers::IniImageMetaAccess::read(QIODevice &device)
+bool vangers::IniImageMetaAccess::read(ImageMeta& meta, QIODevice &device)
 {
-    auto meta = QSharedPointer<vangers::ImageMeta>::create();
-    meta->setHasEmbeddedPalette(false);
+	meta.setHasEmbeddedPalette(false);
     QTextStream st(&device);
     QString line;
 
     while(!(line = st.readLine()).isNull()){
         if(line == HAS_EMBEDDED_PALETTE_FIELD){
-           meta->setHasEmbeddedPalette(true);
+		   meta.setHasEmbeddedPalette(true);
            continue;
         }
         auto tokens = line.split(QRegExp("\\s*\\=\\s*"));
         if(tokens.size() != 2){
-            return QSharedPointer<vangers::ImageMeta>();
+			return false;
         }
         auto nameType = tokens[0].split(QRegExp("\\s*\\:\\s*"));
         if(nameType.size() != 2){
-            return QSharedPointer<vangers::ImageMeta>();
+			return false;
         }
         auto name = nameType[0];
         auto field = fromString<vangers::ImageField>(name);
@@ -134,27 +131,27 @@ QSharedPointer<vangers::ImageMeta> vangers::IniImageMetaAccess::read(QIODevice &
             ok = false;
         }
         if(!ok){
-            return QSharedPointer<vangers::ImageMeta>();
+			return false;
         }
 
-        meta->insertField(field, type, value);
+		meta.insertField(field, type, value);
     }
-    return meta;
+	return true;
 }
 
-void vangers::IniImageMetaAccess::write(const QSharedPointer<vangers::ImageMeta> &meta, QIODevice &device)
+void vangers::IniImageMetaAccess::write(const vangers::ImageMeta &meta, QIODevice &device)
 {
     QTextStream st(&device);
-    for(const auto& pair: meta->format()){
+	for(const auto& pair: meta.format()){
         auto field = pair.first;
         auto type = pair.second;
-        auto value = meta->value(field);
+		auto value = meta.value(field);
         st << QString("%1:%2 = %3\r\n")
               .arg(toString(field))
               .arg(toString(type))
               .arg(value);
     }
-    if(meta->hasEmbeddedPalette()){
+	if(meta.hasEmbeddedPalette()){
         st << HAS_EMBEDDED_PALETTE_FIELD<< "\r\n";
     }
 }
@@ -216,4 +213,18 @@ vangers::ImageField vangers::fromString<vangers::ImageField>(const QString &fiel
         return vangers::ImageField::Ctable;
 
     return vangers::ImageField::Invalid;
+}
+
+
+namespace vangers {
+void Image::setImage(const QSharedPointer<QImage> &image)
+{
+    _image = image;
+}
+
+void Image::setMeta(const ImageMeta &meta)
+{
+    _meta = meta;
+}
+
 }

@@ -73,7 +73,7 @@ BmpImageAccess::BmpImageAccess()
     })
 {}
 
-QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QIODevice &device)
+bool vangers::BmpImageAccess::read(Image& image, QIODevice &device)
 {
     auto fileSize = device.size();
 
@@ -81,32 +81,36 @@ QSharedPointer<vangers::Image> vangers::BmpImageAccess::read(QIODevice &device)
         device.seek(0);
 
         BinaryImageMetaAccess access(formatIsValid.first);
-        auto meta = access.read(device);
-        if(formatIsValid.second(*meta, fileSize)){
-            const int sizeX = meta->value(vangers::ImageField::SizeX);
-            const int sizeY = meta->value(vangers::ImageField::SizeY);
-            int size = meta->value(vangers::ImageField::Size);
+		ImageMeta meta;
+		access.read(meta, device);
+
+		if(formatIsValid.second(meta, fileSize)){
+			const int sizeX = meta.value(vangers::ImageField::SizeX);
+			const int sizeY = meta.value(vangers::ImageField::SizeY);
+			int size = meta.value(vangers::ImageField::Size);
             size = size == 0 ? 1 : size;
             const int dataSize = sizeX * sizeY * size;
             char* buf = new char[dataSize];
             // TODO: check result
 
             int read = device.read(buf, dataSize);
-            auto image = QSharedPointer<QImage>::create((uchar*) buf, sizeX, sizeY * size, sizeX, QImage::Format_Indexed8);
+			auto img = QSharedPointer<QImage>::create((uchar*) buf, sizeX, sizeY * size, sizeX, QImage::Format_Indexed8);
 
-            image->setColorTable(vangers::Palette::grayscale());
-            return QSharedPointer<vangers::Image>::create(image, meta);
+			img->setColorTable(vangers::Palette::grayscale());
+			image.setImage(img);
+			image.setMeta(meta);
+			return true;
         }
     }
 
-    return QSharedPointer<vangers::Image>();
+	return false;
 }
 
-void vangers::BmpImageAccess::write(const QSharedPointer<vangers::Image>& image, QIODevice& device)
+void vangers::BmpImageAccess::write(const vangers::Image& image, QIODevice& device)
 {
-    BinaryImageMetaAccess metaAccess(image->meta()->format());
-    metaAccess.write(image->meta(), device);
-    auto qimage = image->image();
+	BinaryImageMetaAccess metaAccess(image.meta().format());
+	metaAccess.write(image.meta(), device);
+	auto qimage = image.image();
     int width = qimage->width();
     for(int iy = 0; iy < qimage->height(); iy++){
         const unsigned char* line = qimage->constScanLine(iy);

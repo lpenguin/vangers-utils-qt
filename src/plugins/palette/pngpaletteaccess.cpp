@@ -1,28 +1,27 @@
 #include "pngpaletteaccess.h"
 #include <QImage>
 
-QSharedPointer<vangers::Palette> vangers::PngPaletteAccess::read(QIODevice &device)
+bool vangers::PngPaletteAccess::read(Palette& palette, QIODevice &device)
 {
     try {
         QFile& file = dynamic_cast<QFile&>(device);
 
         QImage image(file.fileName());
-        auto result = QSharedPointer<Palette>::create();
 
-        Palette& pal = *result;
+		palette.clear();
 
         for(int iy = 0; iy < image.height(); iy++){
             for(int ix = 0; ix < image.width(); ix ++){
-                pal << image.pixel(ix, iy);
+				palette << image.pixel(ix, iy);
             }
         }
-        return result;
+		return true;
     }  catch (std::bad_cast) {
-        return QSharedPointer<vangers::Palette>();
+		return false;
     }
 }
 
-void vangers::PngPaletteAccess::write(const QSharedPointer<Palette> &resource, QIODevice &device)
+void vangers::PngPaletteAccess::write(const Palette &palette, QIODevice &device)
 {
     auto& palette = *resource;
 

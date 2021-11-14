@@ -77,7 +77,7 @@ ImageViewer::~ImageViewer()
     delete ui;
 }
 
-QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName, const ResourceType& resourceType){
+bool ImageViewer::tryRead(vangers::Image& image, const QString& fileName, const ResourceType& resourceType){
     QFile f(fileName);
     f.open(QFile::ReadOnly);
 
@@ -86,21 +86,20 @@ QSharedPointer<vangers::Image> ImageViewer::tryRead(const QString& fileName, con
     }
 
     auto access = _accesses[resourceType.name];
-    auto image = access->read(f);
+	if(!access->read(image, f)){
+		qWarning() << "Cannot find a sutable reader for"<<fileName;
+		return false;
+	}
 
-    if(image.isNull()){
-        qWarning() << "Cannot find a sutable reader for"<<fileName;
-        return {};
-    }
-
-    return image;
+	return true;
 }
 
 
 bool ImageViewer::importResource(const QString& filename, const ResourceType& resourceType)
 {
-    _image = tryRead(filename, resourceType);
-    if(_image.isNull()){
+	_image = QSharedPointer<vangers::Image>::create();
+	if(!tryRead(*_image, filename, resourceType))
+	{
         return false;
     }
     _filename = filename;
@@ -132,7 +131,7 @@ void ImageViewer::exportResource(const QString& filename, const ResourceType& re
         _image->image()->setColorTable(_palette);
     }
 
-    access->write(_image, file);
+	access->write(*_image, file);
 }
 
 QString ImageViewer::currentFile() const
@@ -190,8 +189,8 @@ void ImageViewer::updateImage()
     _metaFields.clear();
 
     auto meta = _image->meta();
-    for(auto& field: meta->keys()){
-        auto value = (*meta)[field];
+	for(auto& field: meta.keys()){
+		auto value = meta[field];
         QLabel* label = new QLabel(ui->infoForm);
         label->setText(QString("%1").arg(value));
         _metaFields.append(label);

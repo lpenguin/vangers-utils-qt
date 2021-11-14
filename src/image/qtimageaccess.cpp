@@ -1,20 +1,20 @@
 #include "qtimageaccess.h"
 
 #include <QFileInfo>
-QSharedPointer<vangers::Image> vangers::QtImageAccess::read(QIODevice &device)
+bool vangers::QtImageAccess::read(Image& image, QIODevice &device)
 {
     try {
         QFile& file = dynamic_cast<QFile&>(device);
 
         QFileInfo fInfo(file);
         if(!fInfo.isFile() || !fInfo.exists()){
-            return QSharedPointer<vangers::Image>();
+			return false;
         }
 
         QString metaFilename = file.fileName()+".meta.txt";
         QFileInfo metaFInfo(metaFilename);
         if(!metaFInfo.isFile() || !metaFInfo.exists()){
-            return QSharedPointer<vangers::Image>();
+			return false;
         }
 
 
@@ -22,27 +22,30 @@ QSharedPointer<vangers::Image> vangers::QtImageAccess::read(QIODevice &device)
         metaFile.open(QFile::ReadOnly);
 
 
-        auto meta = _metaAccess.read(metaFile);
-        auto image = QSharedPointer<QImage>::create();
-        image->load(&file, _format.toLocal8Bit().data());
+		ImageMeta meta;
+		_metaAccess.read(meta, metaFile);
+		auto img = QSharedPointer<QImage>::create();
+		img->load(&file, _format.toLocal8Bit().data());
+		image.setImage(img);
+		image.setMeta(meta);
         // TODO: check for png8
-        return QSharedPointer<vangers::Image>::create(image, meta);
+		return true;
     }  catch (std::bad_cast) {
-        return QSharedPointer<vangers::Image>();
+		return false;
     }
 
 }
 
-void vangers::QtImageAccess::write(const QSharedPointer<vangers::Image> &image, QIODevice &device)
+void vangers::QtImageAccess::write(const vangers::Image &image, QIODevice &device)
 {
     try {
         QFile& file = dynamic_cast<QFile&>(device);
         QString metaFilename = file.fileName()+".meta.txt";
         QFile metaFile(metaFilename);
         metaFile.open(QFile::WriteOnly);
-        _metaAccess.write(image->meta(), metaFile);
+		_metaAccess.write(image.meta(), metaFile);
 
-        image->image()->save(&file, _format.toLocal8Bit().data());
+		image.image()->save(&file, _format.toLocal8Bit().data());
     }  catch (std::bad_cast) {
 
     }

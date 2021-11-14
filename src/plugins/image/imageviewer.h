@@ -56,7 +56,7 @@ private:
     QList<QWidget*> _metaFields;
     QMap<QString, QSharedPointer<vangers::AbstractImageAccess>> _accesses;
 
-    QSharedPointer<vangers::Image> tryRead(const QString& fileName, const ResourceType &resourceType);
+	bool tryRead(vangers::Image& image, const QString& fileName, const ResourceType& resourceType);
     void setPalette(const vangers::Palette palette);
     void updateImage();
     bool useTransparentColor;

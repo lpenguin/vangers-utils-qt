@@ -80,10 +80,14 @@ bool PaletteViewer::importResource(const QString& filePath, const ResourceType& 
     f.open(QFile::ReadOnly);
 
     auto& access = accesses[resourceType.name];
-    auto palette = access->read(f);
+	Palette palette;
+	bool success = access->read(palette, f);
+	if(!success){
+		return false;
+	}
 
     _currentFile = filePath;
-    ui->paletteGrid->setPalette(*palette);
+	ui->paletteGrid->setPalette(palette);
 
     return true;
 }
@@ -99,7 +103,7 @@ void PaletteViewer::exportResource(const QString& filePath, const ResourceType& 
     auto& palette = ui->paletteGrid->vangersPalette();
 
     auto& access = accesses[resourceType.name];
-    access->write(QSharedPointer<Palette>::create(palette), f);
+	access->write(palette, f);
 }
 
 PaletteViewer::~PaletteViewer()

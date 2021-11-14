@@ -39,39 +39,43 @@ QSharedPointer<QImage> _decode(QBuffer& buffer, const QByteArray& paletteBytes, 
     return image;
 }
 
-QSharedPointer<Image> SvsImageAccess::read(QIODevice &device)
+bool SvsImageAccess::read(Image& image, QIODevice &device)
 {
     QByteArray paletteBytes = device.read(PALETTE_SIZE);
-    auto meta = _metaAccess.read(device);
-    meta->setHasEmbeddedPalette(true);
+	ImageMeta meta;
+	_metaAccess.read(meta, device);
+	meta.setHasEmbeddedPalette(true);
+
     QByteArray encoded = device.readAll();
     QBuffer buffer(&encoded);
     buffer.open(QBuffer::ReadOnly);
 
 
-    quint32 width = (*meta)[vangers::ImageField::SizeX];
-    quint32 height = (*meta)[vangers::ImageField::SizeY];
+	quint32 width = (meta)[vangers::ImageField::SizeX];
+	quint32 height = (meta)[vangers::ImageField::SizeY];
 
     quint32 filesize = width * height * sizeof (uint8_t);
 
     qint64 realSize = buffer.size();
     if(filesize != realSize){
         qWarning() << "Size mismatch"<<filesize << realSize;
-        return QSharedPointer<vangers::Image>();
+		return false;
     }
-    auto image =  _decode(buffer, paletteBytes, width, height);
-    if(image.isNull()){
-                return QSharedPointer<vangers::Image>();
+	auto img =  _decode(buffer, paletteBytes, width, height);
+	if(img.isNull()){
+		  return false;
     }
-    return QSharedPointer<vangers::Image>::create(image, meta);
+	image.setImage(img);
+	image.setMeta(meta);
+	return true;
 }
 
-void SvsImageAccess::write(const QSharedPointer<Image> &image, QIODevice &device)
+void SvsImageAccess::write(const Image &image, QIODevice &device)
 {
-    BinaryImageMetaAccess metaAccess(image->meta()->format());
+	BinaryImageMetaAccess metaAccess(image.meta().format());
     BinaryWriter writer(&device);
 
-    auto palette = image->image()->colorTable();
+	auto palette = image.image()->colorTable();
     if(palette.size() != 256){
         qWarning() << "Invalid palette size:"<<palette.size();
     }
@@ -83,8 +87,8 @@ void SvsImageAccess::write(const QSharedPointer<Image> &image, QIODevice &device
         writer.write<uint8_t>(qBlue(color)/4);
     }
 
-    metaAccess.write(image->meta(), device);
-    auto qimage = image->image();
+	metaAccess.write(image.meta(), device);
+	auto qimage = image.image();
     int width = qimage->width();
     for(int iy = 0; iy < qimage->height(); iy++){
         const unsigned char* line = qimage->constScanLine(iy);

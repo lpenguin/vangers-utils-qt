@@ -13,8 +13,8 @@ public:
         : _format(format)
     {}
 
-    QSharedPointer<Image> read(QIODevice &file) override;
-    void write(const QSharedPointer<Image> &image, QIODevice &file) override;
+	bool read(Image& image, QIODevice &file) override;
+	void write(const Image &image, QIODevice &file) override;
 private:
     IniImageMetaAccess _metaAccess;
     QString _format;
