@@ -12,8 +12,13 @@ namespace vangers {
 class PngPaletteAccess: public AbstractResourceAccess<Palette>
 {
 public:
+	PngPaletteAccess(int nCols = 16)
+		:_nCols(nCols)
+	{}
 	bool read(Palette& palette, QIODevice &device) override;
 	void write(const Palette &resource, QIODevice &device) override;
+private:
+	int _nCols;
 };
 
 }

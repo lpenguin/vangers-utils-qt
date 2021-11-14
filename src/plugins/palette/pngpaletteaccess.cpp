@@ -23,14 +23,11 @@ bool vangers::PngPaletteAccess::read(Palette& palette, QIODevice &device)
 
 void vangers::PngPaletteAccess::write(const Palette &palette, QIODevice &device)
 {
-    auto& palette = *resource;
-
-    int nCols = 16;
-    int nRows = palette.size() / nCols;
-    QImage image(nCols, nRows, QImage::Format_RGB32);
+	int nRows = palette.size() / _nCols;
+	QImage image(_nCols, nRows, QImage::Format_RGB32);
     for(int i = 0; i < palette.size(); i++){
-        int iCol = i % nCols;
-        int iRow = i / nCols;
+		int iCol = i % _nCols;
+		int iRow = i / _nCols;
         image.setPixel(iCol, iRow, palette[i]);
     }
     image.save(&device, "png");
