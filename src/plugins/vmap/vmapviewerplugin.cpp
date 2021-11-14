@@ -9,7 +9,6 @@
 #include <QDir>
 #include <QImage>
 #include <QAbstractButton>
-#include <graphicsviewzoom.h>
 
 #include <splay/splay.h>
 #include "../../image/palette.h"
@@ -36,8 +35,7 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 	, _layers()
 {
     _ui->setupUi(this);
-    auto* gz = new GraphicsViewZoom(_ui->graphicsView);
-    gz->set_modifiers(Qt::NoModifier);
+
     QObject::connect(_ui->heightButton, &QAbstractButton::toggled,
                      this, &VmapViewer::onHeightToggled);
 
