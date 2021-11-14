@@ -68,9 +68,10 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 
 	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
 					 this, SLOT(onMaskTypeChanged(int)));
-
 	QObject::connect(_ui->graphicsView, &ImageGraphicsView::mouseMove,
 					 this, &VmapViewer::onMapMouseMove);
+	QObject::connect(_ui->mixSlider, &QSlider::valueChanged,
+					 this, &VmapViewer::onMixValueChanged);
 }
 
 VmapViewer::~VmapViewer()
@@ -115,22 +116,25 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
         scene->setSceneRect(image.rect());
     }
 
-    {
-		const auto& meta = _vmap->meta();
-		uchar* buf = new uchar[meta.size()];
-		for(size_t i =0; i < meta.size(); i++){
-			buf[i] = meta[i];
-		}
+	{
+//		const std::vector<uint8_t>& meta = _vmap->meta();
+//		size_t size = meta.size();
+//		uchar* buf = new uchar[size];
+//		for(size_t i =0; i < size; i++){
+//			buf[i] = meta[i];
+//		}
 
-        QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
+//		int sizeX = _vmap->size().width();
+//		int sizeY = _vmap->size().height();
+//		QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
 
-        image.setColorTable(vangers::Palette::grayscale());
+//		image.setColorTable(vangers::Palette::grayscale());
 
-
-        QPixmap pixmap = QPixmap::fromImage(image);
-        _metaItem = scene->addPixmap(pixmap);
-        _metaItem->setVisible(false);
-    }
+		QSharedPointer<QImage> image = _layers["All"]->getImage(*_vmap);
+		QPixmap pixmap = QPixmap::fromImage(*image);
+		_metaItem = scene->addPixmap(pixmap);
+		_metaItem->setVisible(false);
+	}
 
 //    item->setTransformationMode(Qt::SmoothTransformation);
 //    qDebug() << i.rect() << _image->image()->rect() << _image->image();
@@ -141,7 +145,7 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     _ui->metaButton->setChecked(false);
 
 	_ui->maskCombo->setCurrentIndex(0);
-
+	_ui->mixSlider->setValue(100);
     return true;
 
 }
@@ -218,6 +222,18 @@ void VmapViewer::onMapMouseMove(QPointF pos)
 							  .arg(vmapMeta.isShadowed())
 							  .arg(vmapMeta.delta()));
 }
+
+void VmapViewer::onMixValueChanged(int value)
+{
+	if(_metaItem->isVisible()){
+		float mix = (float)value / 100.0f;
+		_metaItem->setOpacity(mix);
+		_heightItem->setOpacity(1 - mix);
+	} else {
+		_heightItem->setOpacity(1.0f);
+	}
+}
+
 
 ResourceViewer *VmapViewerPlugin::makeResourceViewer(QWidget *parent)
 {

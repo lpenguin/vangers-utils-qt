@@ -74,6 +74,7 @@ private slots:
     void onMetaToggled(bool checked);
 	void onMaskTypeChanged(int maskIndex);
 	void onMapMouseMove(QPointF pos);
+	void onMixValueChanged(int value);
 };
 
 #endif // VMAPVIEWERPLUGIN_H
