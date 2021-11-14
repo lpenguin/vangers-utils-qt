@@ -13,6 +13,11 @@
 #include <splay/splay.h>
 #include "../../image/palette.h"
 #include "layer/terrainimagelayer.h"
+#include "layer/allimagelayer.h"
+#include "layer/isshadowedimagelayer.h"
+#include "layer/doublelevelimagelayer.h"
+#include "layer/deltaimagelayer.h"
+
 using namespace vangers;
 
 const ResourceType VmapViewerPlugin::VmcType = {
@@ -53,7 +58,11 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 							 });
 
 	_layers = {
-		{"Terrain", new TerrainImageLayer(this)}
+		{"Terrain", new TerrainImageLayer(this)},
+		{"All", new AllImageLayer(this)},
+		{"Shadow", new IsShadowedImageLayer(this)},
+		{"DoubleLevel", new DoubleLevelImageLayer(this)},
+		{"Delta", new DeltaImageLayer(this)},
 	};
 
 	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
