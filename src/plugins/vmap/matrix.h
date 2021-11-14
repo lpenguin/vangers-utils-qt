@@ -6,19 +6,31 @@
 template<typename T>
 class Matrix: public std::vector<T>{
 public:
-	Matrix(size_t sizeX, size_t sizeY)
+	Matrix(size_t sizeX = 0, size_t sizeY = 0)
 		: std::vector<T>(sizeX * sizeY)
 		, _sizeX(sizeX)
 		, _sizeY(sizeY)
 	{
-		this->resize(sizeX * sizeY);
+		std::vector<T>::resize(sizeX * sizeY);
 	}
 
-	T& operator()(size_t x, size_t y){
+
+	void setData(size_t x, size_t y, T data){
 		assert(x >= 0 && x < _sizeX);
 		assert(y >= 0 && y < _sizeY);
+		std::vector<T>::at(x + y * _sizeX) = data;
+	}
 
-		return this[x + y * _sizeX];
+	const T getData(size_t x, size_t y) const{
+		assert(x >= 0 && x < _sizeX);
+		assert(y >= 0 && y < _sizeY);
+		return std::vector<T>::at(x + y * _sizeX);
+	}
+
+	void resize(size_t sizeX, size_t sizeY){
+		_sizeX = sizeX;
+		_sizeY = sizeY;
+		std::vector<T>::resize(sizeX * sizeY);
 	}
 private:
 	size_t _sizeX;
