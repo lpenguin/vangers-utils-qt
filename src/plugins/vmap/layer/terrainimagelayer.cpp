@@ -8,15 +8,10 @@ TerrainImageLayer::TerrainImageLayer(QObject *parent)
 
 }
 
-QSharedPointer<QImage> fromData(uint8_t* data, int sizeX, int sizeY, const vangers::Palette& palette){
-	QSharedPointer<QImage> image = QSharedPointer<QImage>::create(data, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
-	image->setColorTable(palette);
-	return image;
-}
 
 QSharedPointer<QImage> TerrainImageLayer::getImage(const Vmap &vmap) const
 {
-	std::vector<uint8_t> meta = vmap.meta();
+	std::vector<uint8_t> meta = vmap.metaConst();
 
 	uint8_t* data = new uint8_t[meta.size()];
 	for(size_t i = 0; i < meta.size(); i++){
@@ -26,14 +21,14 @@ QSharedPointer<QImage> TerrainImageLayer::getImage(const Vmap &vmap) const
 	}
 
 	vangers::Palette terrainPal;
-	vangers::Palette pal = vmap.palette();
+	const vangers::Palette& pal = vmap.paletteConst();
 
-	for(std::pair<int, int> pair: vmap.terrainColorOffsets()){
+	for(const std::pair<int, int> pair: vmap.terrainColorOffsetsConst()){
 		int offset = pair.first;
 		int offsetEnd = pair.second;
 		terrainPal.append(pal[(offset + offsetEnd) / 2]);
 	}
 
-	return fromData(data, vmap.sizeX(), vmap.sizeY(), terrainPal);
+	return imageFromData(data, vmap.size().width(), vmap.size().height(), terrainPal);
 
 }
