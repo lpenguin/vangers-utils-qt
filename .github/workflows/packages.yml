@@ -9,8 +9,7 @@ on:
     branches:
     - 'actions'
 env:
-  QT_VERSION: 5.15.2
-  QTCREATOR_VERSION: 5.0.1
+  QBS_VERSION: 1.20.1
   VANGERS_UTILS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
   VANGERS_UTILS_SNAPSHOT: ${{ !startsWith(github.ref, 'refs/tags/v') }}
 
@@ -29,56 +28,47 @@ jobs:
         if [[ "$VANGERS_UTILS_RELEASE" == 'true' ]]; then echo "::set-output name=version::${GITHUB_REF:11}" ; fi
         if [[ "$VANGERS_UTILS_RELEASE" != 'true' ]]; then echo "::set-output name=version::$(date "+%Y.%m.%d")" ; fi
         echo "::set-output name=release::${VANGERS_UTILS_RELEASE}"
+
   linux:
     name: Linux (AppImage)
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     needs: version
 
     env:
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
 
     steps:
+    - name: "Set environmental variables"
+      run: |
+        echo "QBS_DIR=${{ github.workspace }}/qbs-linux-x86_64-${{ env.QBS_VERSION }}/" >> $GITHUB_ENV
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install libgl1-mesa-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libzstd-dev libcurl4-openssl-dev
     - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        host: linux
+        target: desktop
+        version: 5.15.2
+
+
+    - name: Install Qbs
       run: |
-        ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools icu | tee -a $GITHUB_PATH
-        ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
-
-    # - name: Setup CMake
-    #   uses: jwlawson/actions-setup-cmake@v1.8
-    #   with:
-    #     cmake-version: '3.19'
-    # - name: Install Qt
-    #   uses: jurplel/install-qt-action@v2
-
-    # - name: Install Qbs
-    #   run: |
-    #     wget -c "https://download.qt.io/official_releases/qbs/1.17.0/qbs-linux-x86_64-1.17.0.tar.gz" -o qbs.tar.gz
+        echo QBS_VERSION: $QBS_VERSION
+        wget -c "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-linux-x86_64-$QBS_VERSION.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-$QBS_VERSION.tar.gz
+        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-$QBS_VERSION.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
       run: |
-        qbs --version
-        qbs setup-toolchains --detect
-        qbs config defaultProfile x86_64-linux-gnu-gcc-9
-    # - name: Build Sentry Native
-    #   run: |
-    #     curl -sLO https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip
-    #     mkdir sentry-native
-    #     pushd sentry-native
-    #     unzip -q ../sentry-native.zip
-    #     cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
-    #     cmake --build build --parallel
-    #     sudo cmake --install build --prefix /usr --config RelWithDebInfo
-    #     popd
+        echo Qt5_DIR: $Qt5_DIR
+        $QBS_DIR/bin/qbs --version 
+        $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
+        $QBS_DIR/bin/qbs config defaultProfile vangers
+        $QBS_DIR/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
       run: |
-        qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
     
     - name: Build AppImage
       run: |
@@ -88,12 +78,6 @@ jobs:
         ls ./squashfs-root/usr/bin || true
         mv Vangers_Utils-*-x86_64.AppImage VangersUtils-$VANGERS_UTILS_VERSION-x86_64.AppImage
   
-    # - name: Upload VangersUtils-x86_64.AppImage
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: VangersUtils-${{ needs.version.outputs.version }}-x86_64.AppImage
-    #     path: VangersUtils-*x86_64.AppImage
-
     - name: Upload to release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
@@ -158,6 +142,8 @@ jobs:
           openssl_arch: x64
 
     env:
+      QT_VERSION: 5.15.2
+      QTCREATOR_VERSION: 5.0.3
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
       QT_TOOLCHAIN: win${{ matrix.arch }}_mingw81
       MINGW_VERSION: 8.1.0
@@ -216,143 +202,3 @@ jobs:
         files: VangersUtils-${{ needs.version.outputs.version }}-win${{ matrix.arch }}.zip 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # itch:
-  #   name: Upload to itch.io (${{ matrix.channel }})
-  #   runs-on: ubuntu-latest
-  #   needs: [version, linux, macos, windows]
-
-  #   if: github.repository == 'mapeditor/tiled' && github.event_name == 'push' && github.ref == 'refs/heads/snapshot'
-
-  #   strategy:
-  #     matrix:
-  #       include:
-  #       - channel: linux-64bit
-  #         artifact: Tiled-x86_64.AppImage
-  #         prepare: chmod +x upload/Tiled-x86_64.AppImage
-
-  #       - channel: macos
-  #         artifact: Tiled-macos.app
-  #         prepare: |
-  #           pushd upload
-  #           unzip Tiled-macos.zip
-  #           rm Tiled-macos.zip
-  #           popd
-  #       - channel: windows-32bit
-  #         artifact: Tiled-win32
-
-  #       - channel: windows-64bit
-  #         artifact: Tiled-win64
-
-  #   steps:
-  #   - name: Download artifact
-  #     id: download
-  #     uses: actions/download-artifact@v2
-  #     with:
-  #       name: ${{ matrix.artifact }}
-  #       path: upload
-
-  #   - name: Prepare artifact
-  #     if: matrix.prepare
-  #     run: ${{ matrix.prepare }}
-
-  #   - name: Download Butler
-  #     run: |
-  #       curl -JOL https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-  #       unzip butler-linux-amd64.zip
-  #   - name: Push to itch.io
-  #     env:
-  #       BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
-  #       TILED_VERSION: ${{ needs.version.outputs.version }}
-  #     run: |
-  #       ITCH_CHANNEL=${{ matrix.channel }}
-  #       if [[ "$TILED_SNAPSHOT" == 'true' ]]; then ITCH_CHANNEL="${ITCH_CHANNEL}-snapshot" ; fi
-  #       ./butler push --userversion=${TILED_VERSION} upload thorbjorn/tiled:${ITCH_CHANNEL}
-  # github:
-  #   name: Upload to GitHub releases
-  #   runs-on: ubuntu-latest
-  #   needs: [version, linux, macos, windows]
-
-  #   if: github.repository == 'mapeditor/tiled' && github.event_name == 'push' && needs.version.outputs.release == 'true'
-
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  #   steps:
-  #     - name: Create release
-  #       id: create_release
-  #       uses: actions/create-release@v1
-  #       with:
-  #         tag_name: ${{ github.ref }}
-  #         release_name: Tiled ${{ needs.version.outputs.version }}
-  #         draft: true
-  #         prerelease: false
-
-  #     - name: Download Windows 64-bit installer
-  #       id: download-win64-installer
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: Tiled-win64.msi
-
-  #     - name: Download Windows 32-bit installer
-  #       id: download-win32-installer
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: Tiled-win32.msi
-
-  #     - name: Download Linux AppImage
-  #       id: download-appimage
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: Tiled-x86_64.AppImage
-
-  #     - name: Download macOS app
-  #       id: download-app
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: Tiled-macos.app
-
-  #     - name: Upload Windows 64-bit installer
-  #       uses: actions/upload-release-asset@v1
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: Tiled-${{ needs.version.outputs.version }}-win64.msi
-  #         asset_name: Tiled-${{ needs.version.outputs.version }}-win64.msi
-  #         asset_content_type: applictaion/x-msi
-
-  #     - name: Upload Windows 32-bit installer
-  #       uses: actions/upload-release-asset@v1
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: Tiled-${{ needs.version.outputs.version }}-win32.msi
-  #         asset_name: Tiled-${{ needs.version.outputs.version }}-win32.msi
-  #         asset_content_type: applictaion/x-msi
-
-  #     - name: Upload Linux AppImage
-  #       uses: actions/upload-release-asset@v1
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: Tiled-x86_64.AppImage
-  #         asset_name: Tiled-${{ needs.version.outputs.version }}-x86_64.AppImage
-  #         asset_content_type: application/vnd.appimage
-
-  #     - name: Upload macOS app
-  #       uses: actions/upload-release-asset@v1
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: Tiled-macos.zip
-  #         asset_name: Tiled-${{ needs.version.outputs.version }}-macos.zip
-  #         asset_content_type: application/zip
-
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
-
-  #     - name: Create Sentry release
-  #       uses: getsentry/action-release@v1
-  #       env:
-  #         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-  #         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-  #         SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-  #       with:
-  #         environment: releases
-  #         version: ${{ needs.version.outputs.version }}
