@@ -145,6 +145,7 @@ jobs:
   #       path: Tiled-macos.zip
 
   windows:
+    if: ${{ false }}
     name: Windows (${{ matrix.arch }}-bit)
     runs-on: windows-latest
     needs: version
