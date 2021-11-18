@@ -58,6 +58,8 @@ jobs:
       uses: jurplel/install-qt-action@v2
       with:
         tools: tools_qtcreator
+        host: linux
+        target: desktop
 
 
     # - name: Install Qbs
