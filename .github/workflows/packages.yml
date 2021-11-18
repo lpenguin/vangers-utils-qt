@@ -9,6 +9,7 @@ on:
     branches:
     - 'actions'
 env:
+  QBS_VERSION: 1.20.1
   VANGERS_UTILS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
   VANGERS_UTILS_SNAPSHOT: ${{ !startsWith(github.ref, 'refs/tags/v') }}
 
@@ -34,7 +35,7 @@ jobs:
 
     env:
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
-      QBS_VERSION: qbs-linux-x86_64-1.20.1
+      QBS_DIR: ${{ github.workspace }}/qbs-linux-x86_64-${{ env.QBS_VERSION }}/
 
     steps:
     - name: Checkout repository
@@ -51,19 +52,19 @@ jobs:
     - name: Install Qbs
       run: |
         echo QBS_VERSION: $QBS_VERSION
-        wget -c "https://download.qt.io/official_releases/qbs/1.20.1/$QBS_VERSION.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz
-        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz -C ${{ github.workspace }}
+        wget -c "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-linux-x86_64-$QBS_VERSION.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-$QBS_VERSION.tar.gz
+        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-$QBS_VERSION.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
       run: |
         echo Qt5_DIR: $Qt5_DIR
-        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs --version 
-        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
-        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs config defaultProfile vangers
-        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs setup-toolchains --detect
+        $QBS_DIR/bin/qbs --version 
+        $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
+        $QBS_DIR/bin/qbs config defaultProfile vangers
+        $QBS_DIR/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
       run: |
-        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
     
     - name: Build AppImage
       run: |
@@ -124,7 +125,6 @@ jobs:
   #       path: Tiled-macos.zip
 
   windows:
-    if: ${{ false }}
     name: Windows (${{ matrix.arch }}-bit)
     runs-on: windows-latest
     needs: version
