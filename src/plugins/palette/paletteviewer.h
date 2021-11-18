@@ -20,7 +20,7 @@ class PaletteViewer : public ResourceViewer
 public:
     ~PaletteViewer();
 public:
-    explicit PaletteViewer(ResourceViewerPlugin* plugin, QWidget *parent = nullptr);
+	explicit PaletteViewer(ResourceViewerPluginInterface* plugin, QWidget *parent = nullptr);
 
     bool importResource(const QString& filePath, const ResourceType& resourceType) override;
     void exportResource(const QString& filePath, const ResourceType& resourceType) override;
@@ -35,7 +35,7 @@ private:
     Ui::PaletteViewer *ui;
 };
 
-class PaletteViewerPlugin: public ResourceViewerPlugin {
+class PaletteViewerPlugin: public ResourceViewerPluginInterface {
 
 
     // ResourceViewerPlugin interface
@@ -43,9 +43,6 @@ public:
     static const ResourceType PalType;
     static const ResourceType PngType;
     static const ResourceType MicrosoftPalType;
-
-    explicit PaletteViewerPlugin(QObject* parent = nullptr)
-        : ResourceViewerPlugin(parent) {}
 
     QList<ResourceType> supportedImportTypes() const override;
     QList<ResourceType> supportedExportTypes() const override;

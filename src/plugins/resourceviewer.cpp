@@ -1,11 +1,11 @@
 #include "resourceviewer.h"
 
-ResourceViewer::ResourceViewer(ResourceViewerPlugin* plugin, QWidget* parent)
+ResourceViewer::ResourceViewer(ResourceViewerPluginInterface* plugin, QWidget* parent)
     : QWidget(parent)
     , _plugin(plugin)
 {}
 
-ResourceViewerPlugin* ResourceViewer::plugin() const
+ResourceViewerPluginInterface* ResourceViewer::plugin() const
 {
     return _plugin;
 }

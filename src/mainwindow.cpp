@@ -9,6 +9,8 @@
 #include <QItemSelectionModel>
 
 #include "plugins/vmap/vmapviewerplugin.h"
+#include "plugins/image/imageviewer.h"
+#include "plugins/palette/paletteviewer.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,9 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     , settings("lpenguin", "Vangers Resource Explorer")
 {
     _plugins = {
-        QSharedPointer<ImageViewerPlugin>::create(this),
-        QSharedPointer<PaletteViewerPlugin>::create(this),
-        QSharedPointer<VmapViewerPlugin>::create(this),
+		QSharedPointer<ImageViewerPlugin>::create(),
+		QSharedPointer<PaletteViewerPlugin>::create(),
+		QSharedPointer<VmapViewerPlugin>::create(),
     };
 
     ui->setupUi(this);
@@ -171,7 +173,7 @@ void MainWindow::onDirectorySelectionChanged(QItemSelection selected, QItemSelec
     openFile(index);
 }
 
-QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString& filename, ResourceType& outType)
+QSharedPointer<ResourceViewerPluginInterface> MainWindow::findImportPlugin(const QString& filename, ResourceType& outType)
 {
     for(auto& plugin: _plugins){
         for(auto& resourceType: plugin->supportedImportTypes()){
@@ -185,7 +187,7 @@ QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString&
             }
         }
     }
-    return QSharedPointer<ResourceViewerPlugin>{nullptr};
+	return QSharedPointer<ResourceViewerPluginInterface>{nullptr};
 }
 
 void MainWindow::openFile()

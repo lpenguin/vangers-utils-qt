@@ -5,9 +5,7 @@
 #include <QMainWindow>
 #include <QModelIndex>
 #include <QSettings>
-#include "image/image.h"
-#include "plugins/image/imageviewer.h"
-#include "plugins/palette/paletteviewer.h"
+#include "plugins/resourceviewer.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -31,11 +29,11 @@ private slots:
     void onCustomContextMenu(const QPoint & point);
     void onDirectorySelectionChanged(QItemSelection selected, QItemSelection deselected);
 private:
-    QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, ResourceType& outType);
+	QSharedPointer<ResourceViewerPluginInterface> findImportPlugin(const QString& filename, ResourceType& outType);
     Ui::MainWindow *ui;
 
     ResourceViewer* selectedResourceViewer;
     QSettings settings;
-    QList<QSharedPointer<ResourceViewerPlugin>> _plugins;
+	QList<QSharedPointer<ResourceViewerPluginInterface>> _plugins;
 };
 #endif // MAINWINDOW_H

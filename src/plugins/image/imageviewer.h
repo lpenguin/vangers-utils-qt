@@ -12,7 +12,7 @@ namespace Ui {
 class ImageViewer;
 }
 
-class ImageViewerPlugin: public ResourceViewerPlugin {
+class ImageViewerPlugin: public ResourceViewerPluginInterface {
 public:
     static const ResourceType PngType;
     static const ResourceType XbmType;
@@ -21,8 +21,6 @@ public:
     static const ResourceType SvsType;
     static const ResourceType MssType;
 
-    explicit ImageViewerPlugin(QObject *parent = nullptr)
-        : ResourceViewerPlugin(parent) {}
 
     QList<ResourceType> supportedImportTypes() const override;
     QList<ResourceType> supportedExportTypes() const override;

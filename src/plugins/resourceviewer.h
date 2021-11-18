@@ -9,32 +9,34 @@ struct ResourceType {
     QStringList extensions;
 };
 
-class ResourceViewerPlugin;
+class ResourceViewerPluginInterface;
 
 class ResourceViewer : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ResourceViewer(ResourceViewerPlugin* plugin, QWidget *parent = nullptr);
+	explicit ResourceViewer(ResourceViewerPluginInterface* plugin, QWidget *parent = nullptr);
     virtual ~ResourceViewer(){}
     virtual bool importResource(const QString& filePath, const ResourceType& resourceType) = 0;
     virtual void exportResource(const QString& filePath, const ResourceType& resourceType) = 0;
     virtual QString currentFile() const = 0;
-    ResourceViewerPlugin* plugin() const;
+	ResourceViewerPluginInterface* plugin() const;
 private:
-    ResourceViewerPlugin* _plugin;
+	ResourceViewerPluginInterface* _plugin;
 };
 
-class ResourceViewerPlugin: public QObject {
+class ResourceViewerPluginInterface {
 public:
-    explicit ResourceViewerPlugin(QObject *parent = nullptr)
-        : QObject(parent) {}
 
-    virtual ~ResourceViewerPlugin(){}
+	virtual ~ResourceViewerPluginInterface() = default;
     virtual QList<ResourceType> supportedImportTypes() const = 0;
     virtual QList<ResourceType> supportedExportTypes() const = 0;
     virtual ResourceViewer* makeResourceViewer(QWidget* parent = nullptr) = 0;
     virtual QString name() const = 0;
 };
 
+QT_BEGIN_NAMESPACE
+#define ResourceViewerPluginInterface_iid "com.lilacpenguin.VangersUtils.ResourceViewerPluginInterface/1.0"
+Q_DECLARE_INTERFACE(ResourceViewerPluginInterface, ResourceViewerPluginInterface_iid)
+QT_END_NAMESPACE
 #endif // RESOURCEVIEWER_H

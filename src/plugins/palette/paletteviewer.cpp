@@ -57,11 +57,11 @@ QList<ResourceType> PaletteViewerPlugin::supportedExportTypes() const
 
 ResourceViewer* PaletteViewerPlugin::makeResourceViewer(QWidget* parent)
 {
-    return new PaletteViewer(this, parent);
+	return new PaletteViewer(this, parent);
 }
 
 
-PaletteViewer::PaletteViewer(ResourceViewerPlugin* plugin, QWidget *parent) :
+PaletteViewer::PaletteViewer(ResourceViewerPluginInterface *plugin, QWidget *parent) :
     ResourceViewer(plugin, parent),
     ui(new Ui::PaletteViewer)
 {

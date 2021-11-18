@@ -13,16 +13,11 @@ namespace Ui {
 class VmapViewer;
 }
 
-class VmapViewerPlugin : public ResourceViewerPlugin
+class VmapViewerPlugin : public ResourceViewerPluginInterface
 {
 public:
     static const ResourceType VmcType;
     static const ResourceType LevelType;
-    explicit VmapViewerPlugin(QObject *parent = nullptr):
-        ResourceViewerPlugin(parent)
-    {
-
-    }
 
     // ResourceViewerPlugin interface
 public:
