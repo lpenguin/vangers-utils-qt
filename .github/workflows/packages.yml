@@ -36,24 +36,12 @@ jobs:
 
     env:
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
+      QBS_VERSION: qbs-linux-x86_64-1.17.0
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # - name: Install dependencies
-    #   run: |
-    #     sudo apt update
-    #     sudo apt install qbs libgl1-mesa-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libzstd-dev libcurl4-openssl-dev
-    # # - name: Install Qt
-    #   run: |
-    #     ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools icu | tee -a $GITHUB_PATH
-    #     ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
-
-    # - name: Setup CMake
-    #   uses: jwlawson/actions-setup-cmake@v1.8
-    #   with:
-    #     cmake-version: '3.19'
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
@@ -63,6 +51,7 @@ jobs:
 
     - name: Install Qbs
       run: |
+        echo QBS_VERSION: $QBS_VERSION
         wget -c "https://download.qt.io/official_releases/qbs/1.17.0/qbs-linux-x86_64-1.17.0.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz
         tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz -C ${{ github.workspace }}
 
@@ -70,7 +59,7 @@ jobs:
       run: |
         echo Qt5_DIR: $Qt5_DIR
         ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs --version 
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-qt $Qt5_DIR/qmake vangers
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
         ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs config defaultProfile vangers
         ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
