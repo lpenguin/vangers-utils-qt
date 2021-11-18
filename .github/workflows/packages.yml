@@ -142,6 +142,8 @@ jobs:
           openssl_arch: x64
 
     env:
+      QT_VERSION: 5.15.2
+      QTCREATOR_VERSION: 5.0.3
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
       QT_TOOLCHAIN: win${{ matrix.arch }}_mingw81
       MINGW_VERSION: 8.1.0
