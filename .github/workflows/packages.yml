@@ -50,8 +50,8 @@ jobs:
 
     - name: Install Qbs
       run: |
-        echo QBS_VERSION: ${QBS_VERSION}
-        wget -c "https://download.qt.io/official_releases/qbs/1.20.1/qbs-linux-x86_64-1.20.1.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz
+        echo QBS_VERSION: $QBS_VERSION
+        wget -c "https://download.qt.io/official_releases/qbs/1.20.1/$QBS_VERSION.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz
         tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
@@ -73,12 +73,6 @@ jobs:
         ls ./squashfs-root/usr/bin || true
         mv Vangers_Utils-*-x86_64.AppImage VangersUtils-$VANGERS_UTILS_VERSION-x86_64.AppImage
   
-    # - name: Upload VangersUtils-x86_64.AppImage
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: VangersUtils-${{ needs.version.outputs.version }}-x86_64.AppImage
-    #     path: VangersUtils-*x86_64.AppImage
-
     - name: Upload to release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
