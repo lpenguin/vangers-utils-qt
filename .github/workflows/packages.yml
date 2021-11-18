@@ -57,33 +57,26 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
-        tools: tools_qtcreator
         host: linux
         target: desktop
 
 
-    # - name: Install Qbs
-    #   run: |
-    #     wget -c "https://download.qt.io/official_releases/qbs/1.17.0/qbs-linux-x86_64-1.17.0.tar.gz" -o qbs.tar.gz
+    - name: Install Qbs
+      run: |
+        wget -c "https://download.qt.io/official_releases/qbs/${QBS_SHORT_VERSION}/${QBS_VERSION}.tar.gz" -O ${{ github.workspace }}/${QBS_VERSION}.tar.gz
+        tar xfz ${{ github.workspace }}/${QBS_VERSION}.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
       run: |
-        qbs --version
-        qbs setup-toolchains --detect
-        qbs config defaultProfile x86_64-linux-gnu-gcc-9
-    # - name: Build Sentry Native
-    #   run: |
-    #     curl -sLO https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip
-    #     mkdir sentry-native
-    #     pushd sentry-native
-    #     unzip -q ../sentry-native.zip
-    #     cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
-    #     cmake --build build --parallel
-    #     sudo cmake --install build --prefix /usr --config RelWithDebInfo
-    #     popd
+        echo Qt5_DIR: $Qt5_DIR
+        echo ${{ github.workspace }}/${QBS_VERSION}/bin/qbs
+        ${{ github.workspace }}/${QBS_VERSION}/bin/qbs --version 
+        ${{ github.workspace }}/${QBS_VERSION}/bin/qbs setup-qt $Qt5_DIR/qmake vangers
+        ${{ github.workspace }}/${QBS_VERSION}/bin/qbs config defaultProfile vangers
+        ${{ github.workspace }}/${QBS_VERSION}/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
       run: |
-        qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        ${{ github.workspace }}/${QBS_VERSION}/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
     
     - name: Build AppImage
       run: |
