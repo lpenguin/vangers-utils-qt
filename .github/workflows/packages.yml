@@ -41,11 +41,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install qbs libgl1-mesa-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libzstd-dev libcurl4-openssl-dev
-    # - name: Install Qt
+    # - name: Install dependencies
+    #   run: |
+    #     sudo apt update
+    #     sudo apt install qbs libgl1-mesa-dev libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libzstd-dev libcurl4-openssl-dev
+    # # - name: Install Qt
     #   run: |
     #     ./dist/install-qt.sh --version ${QT_VERSION} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools icu | tee -a $GITHUB_PATH
     #     ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
@@ -56,6 +56,9 @@ jobs:
     #     cmake-version: '3.19'
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
+      with:
+        tools: tools_qtcreator
+
 
     # - name: Install Qbs
     #   run: |
