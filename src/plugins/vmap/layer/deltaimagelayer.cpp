@@ -8,7 +8,7 @@ DeltaImageLayer::DeltaImageLayer(QObject *parent)
 
 }
 
-QSharedPointer<QImage> DeltaImageLayer::getImage(const Vmap &vmap) const
+QSharedPointer<QImage> DeltaImageLayer::getImage(const Vmap &vmap, Level level) const
 {
 	const Matrix<uint8_t>& meta = vmap.metaConst();
 

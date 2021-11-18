@@ -8,7 +8,7 @@ IsShadowedImageLayer::IsShadowedImageLayer(QObject *parent)
 
 }
 
-QSharedPointer<QImage> IsShadowedImageLayer::getImage(const Vmap &vmap) const
+QSharedPointer<QImage> IsShadowedImageLayer::getImage(const Vmap &vmap, Level level) const
 {
 	const Matrix<uint8_t>& meta = vmap.metaConst();
 

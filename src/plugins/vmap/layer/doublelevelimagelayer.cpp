@@ -2,7 +2,7 @@
 
 #include <plugins/vmap/vmapmeta.h>
 
-QSharedPointer<QImage> DoubleLevelImageLayer::getImage(const Vmap &vmap) const
+QSharedPointer<QImage> DoubleLevelImageLayer::getImage(const Vmap &vmap, Level level) const
 {
 	const Matrix<uint8_t>& meta = vmap.metaConst();
 

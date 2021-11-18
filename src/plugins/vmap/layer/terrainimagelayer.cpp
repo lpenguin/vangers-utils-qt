@@ -9,15 +9,27 @@ TerrainImageLayer::TerrainImageLayer(QObject *parent)
 }
 
 
-QSharedPointer<QImage> TerrainImageLayer::getImage(const Vmap &vmap) const
+QSharedPointer<QImage> TerrainImageLayer::getImage(const Vmap &vmap, Level level) const
 {
 	std::vector<uint8_t> meta = vmap.metaConst();
 
 	uint8_t* data = new uint8_t[meta.size()];
 	for(size_t i = 0; i < meta.size(); i++){
 		uint8_t m = meta[i];
-		uint8_t terrain = VmapMeta::fromMeta(m).terrain();
-		data[i] = terrain;
+		VmapMeta currentMeta = VmapMeta::fromMeta(m);
+		uint32_t metaIndex = i;
+		if(currentMeta.isDoubleLevel() && level != Level::Both){
+			if(level == Level::Up){
+				metaIndex = metaIndex | 1;
+			} else if(level == Level::Down){
+				metaIndex = metaIndex & ~1;
+			}
+		}
+
+		if(metaIndex != i){
+			currentMeta = VmapMeta::fromMeta(meta[metaIndex]);
+		}
+		data[i] = currentMeta.terrain();
 	}
 
 	vangers::Palette terrainPal;

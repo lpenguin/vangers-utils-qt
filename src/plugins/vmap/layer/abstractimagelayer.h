@@ -6,11 +6,19 @@
 #include <QImage>
 #include "../vmap.h"
 
+enum class Level {
+	Both = 0,
+	Up = 1,
+	Down = 2,
+	MAX_LEVEL,
+	Invalid,
+};
+
 class AbstractImageLayer : public QObject
 {
 public:
 	explicit AbstractImageLayer(QObject *parent = nullptr);
-	virtual QSharedPointer<QImage> getImage(const Vmap& vmap) const = 0;
+	virtual QSharedPointer<QImage> getImage(const Vmap& vmap, Level level) const = 0;
 protected:
 	virtual ~AbstractImageLayer() {};
 signals:

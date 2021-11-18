@@ -6,7 +6,7 @@ AllImageLayer::AllImageLayer(QObject *parent)
 
 }
 
-QSharedPointer<QImage> AllImageLayer::getImage(const Vmap &vmap) const
+QSharedPointer<QImage> AllImageLayer::getImage(const Vmap &vmap, Level level) const
 {
 	return imageFromData(vmap.metaConst().data(), vmap.size().width(), vmap.size().height(), vmap.paletteConst());
 }

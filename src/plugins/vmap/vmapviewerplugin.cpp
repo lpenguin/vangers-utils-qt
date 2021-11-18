@@ -72,6 +72,8 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 					 this, &VmapViewer::onMapMouseMove);
 	QObject::connect(_ui->mixSlider, &QSlider::valueChanged,
 					 this, &VmapViewer::onMixValueChanged);
+	QObject::connect(_ui->levelComboBox, SIGNAL(currentIndexChanged(int)),
+					 this, SLOT(onLevelChanged(int)));
 }
 
 VmapViewer::~VmapViewer()
@@ -117,20 +119,7 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     }
 
 	{
-//		const std::vector<uint8_t>& meta = _vmap->meta();
-//		size_t size = meta.size();
-//		uchar* buf = new uchar[size];
-//		for(size_t i =0; i < size; i++){
-//			buf[i] = meta[i];
-//		}
-
-//		int sizeX = _vmap->size().width();
-//		int sizeY = _vmap->size().height();
-//		QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
-
-//		image.setColorTable(vangers::Palette::grayscale());
-
-		QSharedPointer<QImage> image = _layers["All"]->getImage(*_vmap);
+		QSharedPointer<QImage> image = _layers["All"]->getImage(*_vmap, getLevel());
 		QPixmap pixmap = QPixmap::fromImage(*image);
 		_metaItem = scene->addPixmap(pixmap);
 		_metaItem->setVisible(false);
@@ -172,9 +161,18 @@ void VmapViewer::applyMask(QString layerName)
 		return;
 	}
 
-	QSharedPointer<QImage> metaImage = _layers[layerName]->getImage(*_vmap);
+	QSharedPointer<QImage> metaImage = _layers[layerName]->getImage(*_vmap, getLevel());
 	QPixmap pixmap = QPixmap::fromImage(*metaImage);
 	_metaItem->setPixmap(pixmap);
+}
+
+Level VmapViewer::getLevel()
+{
+	int currentIndex = _ui->levelComboBox->currentIndex();
+	if(currentIndex < 0 || currentIndex > (int)Level::MAX_LEVEL){
+		return Level::Invalid;
+	}
+	return (Level)currentIndex;
 }
 
 void VmapViewer::onHeightToggled(bool checked)
@@ -193,6 +191,13 @@ void VmapViewer::onMetaToggled(bool checked)
     }
 
 	_metaItem->setVisible(checked);
+	if(checked){
+		float mix = (float)_ui->mixSlider->value() / 100.0f;
+		_metaItem->setOpacity(mix);
+		_heightItem->setOpacity(1 - mix);
+	}else{
+		_heightItem->setOpacity(1);
+	}
 }
 
 void VmapViewer::onMaskTypeChanged(int maskIndex)
@@ -232,6 +237,17 @@ void VmapViewer::onMixValueChanged(int value)
 	} else {
 		_heightItem->setOpacity(1.0f);
 	}
+}
+
+void VmapViewer::onLevelChanged(int index)
+{
+	onMaskTypeChanged(_ui->maskCombo->currentIndex());
+
+	auto* scene = _ui->graphicsView->scene();
+
+	QSharedPointer<QImage> image = _layers["Height"]->getImage(*_vmap, getLevel());
+	QPixmap pixmap = QPixmap::fromImage(*image);
+	_heightItem->setPixmap(pixmap);
 }
 
 

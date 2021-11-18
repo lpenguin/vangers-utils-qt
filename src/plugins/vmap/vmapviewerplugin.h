@@ -69,12 +69,14 @@ private:
     const uint8_t ShadowMask = 0b10000000;
 
 	QMap<QString, AbstractImageLayer*> _layers;
+	Level getLevel();
 private slots:
     void onHeightToggled(bool checked);
     void onMetaToggled(bool checked);
 	void onMaskTypeChanged(int maskIndex);
 	void onMapMouseMove(QPointF pos);
 	void onMixValueChanged(int value);
+	void onLevelChanged(int index);
 };
 
 #endif // VMAPVIEWERPLUGIN_H
