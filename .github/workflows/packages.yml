@@ -63,20 +63,19 @@ jobs:
 
     - name: Install Qbs
       run: |
-        wget -c "https://download.qt.io/official_releases/qbs/${{ env.QBS_SHORT_VERSION }}/${{ env.QBS_VERSION }}.tar.gz" -O ${{ github.workspace }}/${{ env.QBS_VERSION }}.tar.gz
-        tar xfz ${{ github.workspace }}/${{ env.QBS_VERSION }}.tar.gz -C ${{ github.workspace }}
+        wget -c "https://download.qt.io/official_releases/qbs/1.17.0/qbs-linux-x86_64-1.17.0.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz
+        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
       run: |
         echo Qt5_DIR: $Qt5_DIR
-        echo ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs
-        ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs --version 
-        ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs setup-qt $Qt5_DIR/qmake vangers
-        ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs config defaultProfile vangers
-        ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs setup-toolchains --detect
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs --version 
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-qt $Qt5_DIR/qmake vangers
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs config defaultProfile vangers
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
       run: |
-        ${{ github.workspace }}/${{ env.QBS_VERSION }}/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
     
     - name: Build AppImage
       run: |
