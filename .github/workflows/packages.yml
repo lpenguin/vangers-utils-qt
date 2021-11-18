@@ -9,8 +9,6 @@ on:
     branches:
     - 'actions'
 env:
-  QT_VERSION: 5.15.2
-  QTCREATOR_VERSION: 5.0.1
   VANGERS_UTILS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
   VANGERS_UTILS_SNAPSHOT: ${{ !startsWith(github.ref, 'refs/tags/v') }}
 
@@ -36,7 +34,7 @@ jobs:
 
     env:
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
-      QBS_VERSION: qbs-linux-x86_64-1.17.0
+      QBS_VERSION: qbs-linux-x86_64-1.20.1
 
     steps:
     - name: Checkout repository
@@ -47,24 +45,25 @@ jobs:
       with:
         host: linux
         target: desktop
+        version: 5.15.2
 
 
     - name: Install Qbs
       run: |
-        echo QBS_VERSION: $QBS_VERSION
-        wget -c "https://download.qt.io/official_releases/qbs/1.17.0/qbs-linux-x86_64-1.17.0.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz
-        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.17.0.tar.gz -C ${{ github.workspace }}
+        echo QBS_VERSION: ${QBS_VERSION}
+        wget -c "https://download.qt.io/official_releases/qbs/1.20.1/qbs-linux-x86_64-1.20.1.tar.gz" -O ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz
+        tar xfz ${{ github.workspace }}/qbs-linux-x86_64-1.20.1.tar.gz -C ${{ github.workspace }}
 
     - name: Setup Qbs
       run: |
         echo Qt5_DIR: $Qt5_DIR
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs --version 
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs config defaultProfile vangers
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs setup-toolchains --detect
+        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs --version 
+        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
+        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs config defaultProfile vangers
+        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
       run: |
-        ${{ github.workspace }}/qbs-linux-x86_64-1.17.0/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        ${{ github.workspace }}/qbs-linux-x86_64-1.20.1/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
     
     - name: Build AppImage
       run: |
