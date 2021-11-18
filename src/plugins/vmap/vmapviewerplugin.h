@@ -57,7 +57,7 @@ private:
     Ui::VmapViewer* _ui;
     QString _currentFile;
     QSharedPointer<Vmap> _vmap;
-    QGraphicsItem* _heightItem;
+	QGraphicsPixmapItem* _heightItem;
     QGraphicsPixmapItem* _metaItem;
 
 	void applyMask(QString layerName);

@@ -18,6 +18,8 @@
 #include "layer/isshadowedimagelayer.h"
 #include "layer/doublelevelimagelayer.h"
 #include "layer/deltaimagelayer.h"
+#include "layer/heightimagelayer.h"
+
 
 using namespace vangers;
 
@@ -64,6 +66,7 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 		{"Shadow", new IsShadowedImageLayer(this)},
 		{"DoubleLevel", new DoubleLevelImageLayer(this)},
 		{"Delta", new DeltaImageLayer(this)},
+		{"Height", new HeightImageLayer(this)},
 	};
 
 	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
@@ -105,17 +108,10 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
     QGraphicsScene* scene = new QGraphicsScene(this);
 	_ui->graphicsView->setScene(scene);
     {
-		const uchar* buf = _vmap->heightConst().data();
-
-		int sizeX = _vmap->size().width();
-		int sizeY = _vmap->size().height();
-        QImage image(buf, sizeX, sizeY, sizeX, QImage::Format_Indexed8);
-
-        image.setColorTable(vangers::Palette::grayscale());
-
-        QPixmap pixmap = QPixmap::fromImage(image);
-        _heightItem = scene->addPixmap(pixmap);
-        scene->setSceneRect(image.rect());
+		QSharedPointer<QImage> image = _layers["Height"]->getImage(*_vmap, getLevel());
+		QPixmap pixmap = QPixmap::fromImage(*image);
+		_heightItem = scene->addPixmap(pixmap);
+		scene->setSceneRect(image->rect());
     }
 
 	{
