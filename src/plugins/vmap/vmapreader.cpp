@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <binaryio.h>
 #include <span.h>
+#include <vector>
 
 using namespace vangers;
 
@@ -13,8 +14,8 @@ using namespace vangers;
 bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevice& device){
 	BinaryReader reader(&device);
 
-	int sizeX = size.width();
-	int sizeY = size.height();
+    const int sizeX = size.width();
+    const int sizeY = size.height();
 
 
 
@@ -23,8 +24,8 @@ bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevi
 
 	qDebug() << "sizeX" << sizeX << "sizeY" << sizeY << "size" << height.size();
 
-	int32_t offsets[sizeY];
-	int16_t sizes[sizeY];
+    std::vector<int32_t> offsets(sizeY);
+    std::vector<int16_t> sizes(sizeY);
 
 	for(int i = 0; i < sizeY; i++){
 		offsets[i] = reader.read<int32_t>();
