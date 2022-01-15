@@ -1,7 +1,7 @@
 #include "mssimageaccess.h"
 #include "palette.h"
 
-#include <QBuffer>
+#include <QtCore/QBuffer>
 
 using namespace vangers;
 

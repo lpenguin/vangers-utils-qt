@@ -2,7 +2,7 @@
 #include "xbmimage.h"
 #include "palette.h"
 
-#include <QBuffer>
+#include <QtCore/QBuffer>
 #include <QDebug>
 
 QByteArray _decode(QIODevice& device, quint32 width, quint32 height){

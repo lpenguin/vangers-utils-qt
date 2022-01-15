@@ -1,7 +1,7 @@
 #include "palette.h"
 #include "svsimageaccess.h"
 
-#include <QBuffer>
+#include <QtCore/QBuffer>
 #include <binaryio.h>
 
 using namespace vangers;
