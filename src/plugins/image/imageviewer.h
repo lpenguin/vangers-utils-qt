@@ -15,6 +15,7 @@ class ImageViewer;
 class ImageViewerPlugin: public ResourceViewerPlugin {
 public:
     static const ResourceType PngType;
+	static const ResourceType BmpType;
     static const ResourceType XbmType;
     static const ResourceType vBmpType;
     static const ResourceType TiffType;
