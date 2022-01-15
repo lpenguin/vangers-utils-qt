@@ -20,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
         QSharedPointer<ImageViewerPlugin>::create(this),
         QSharedPointer<PaletteViewerPlugin>::create(this),
         QSharedPointer<VmapViewerPlugin>::create(this),
+		QSharedPointer<ModelViewerPlugin>::create(),
     };
 
     ui->setupUi(this);

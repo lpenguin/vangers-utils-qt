@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/modelviewer">
+        <file>main.qml</file>
+        <file>AnimatedEntity.qml</file>
+        <file>VangersEffect.qml</file>
+        <file>shaders/vangers.vert</file>
+        <file>shaders/vangers.frag</file>
+        <file>VangersMaterial.qml</file>
+        <file>WireframeMaterial.qml</file>
+        <file>WireframeEffect.qml</file>
+        <file>shaders/robustwireframe.frag</file>
+        <file>shaders/robustwireframe.geom</file>
+        <file>shaders/robustwireframe.vert</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>
