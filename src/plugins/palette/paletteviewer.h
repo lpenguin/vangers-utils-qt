@@ -42,6 +42,7 @@ class PaletteViewerPlugin: public ResourceViewerPlugin {
 public:
     static const ResourceType PalType;
     static const ResourceType PngType;
+	static const ResourceType BmpType;
     static const ResourceType MicrosoftPalType;
 
     explicit PaletteViewerPlugin(QObject* parent = nullptr)

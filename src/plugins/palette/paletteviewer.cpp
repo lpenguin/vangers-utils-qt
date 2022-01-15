@@ -16,6 +16,11 @@ const ResourceType PaletteViewerPlugin::PngType = {
     .extensions = {"*.png"}
 };
 
+const ResourceType PaletteViewerPlugin::BmpType = {
+	.name = "Bmp Palette",
+	.extensions = {"*.bmp"}
+};
+
 const ResourceType PaletteViewerPlugin::MicrosoftPalType = {
     .name = "Microsoft Palette",
     .extensions = {"*.pal"}
@@ -25,7 +30,8 @@ using namespace vangers;
 
 const QMap<QString, QSharedPointer<AbstractResourceAccess<Palette>>> PaletteViewer::accesses = {
     {PaletteViewerPlugin::PalType.name, QSharedPointer<VangersPaletteAccess>::create()},
-    {PaletteViewerPlugin::PngType.name, QSharedPointer<PngPaletteAccess>::create()},
+	{PaletteViewerPlugin::PngType.name, QSharedPointer<PngPaletteAccess>::create(16, "png")},
+	{PaletteViewerPlugin::BmpType.name, QSharedPointer<PngPaletteAccess>::create(256, "bmp")},
     {PaletteViewerPlugin::MicrosoftPalType.name, QSharedPointer<MicrosoftPalAccess>::create()},
 };
 
@@ -52,7 +58,7 @@ QList<ResourceType> PaletteViewerPlugin::supportedImportTypes() const
 
 QList<ResourceType> PaletteViewerPlugin::supportedExportTypes() const
 {
-    return {PalType, PngType, MicrosoftPalType};
+	return {PalType, BmpType, PngType, MicrosoftPalType};
 }
 
 ResourceViewer* PaletteViewerPlugin::makeResourceViewer(QWidget* parent)

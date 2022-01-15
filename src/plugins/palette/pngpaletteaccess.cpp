@@ -30,5 +30,5 @@ void vangers::PngPaletteAccess::write(const Palette &palette, QIODevice &device)
 		int iRow = i / _nCols;
         image.setPixel(iCol, iRow, palette[i]);
     }
-    image.save(&device, "png");
+	image.save(&device, _format.toLocal8Bit());
 }
