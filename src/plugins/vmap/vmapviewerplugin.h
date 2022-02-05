@@ -18,6 +18,7 @@ class VmapViewerPlugin : public ResourceViewerPlugin
 public:
     static const ResourceType VmcType;
     static const ResourceType LevelType;
+	static const ResourceType ScapeType;
     explicit VmapViewerPlugin(QObject *parent = nullptr):
         ResourceViewerPlugin(parent)
     {
@@ -31,7 +32,7 @@ public:
     };
 
     QList<ResourceType> supportedExportTypes() const {
-        return {LevelType};
+		return {LevelType, ScapeType};
     };
 
     ResourceViewer *makeResourceViewer(QWidget *parent);

@@ -3,6 +3,7 @@
 #include "vmapreader.h"
 #include "vmapwriter.h"
 #include "vmapmeta.h"
+#include "scapestmwriter.h"
 
 #include <QSettings>
 #include <QDebug>
@@ -31,6 +32,11 @@ const ResourceType VmapViewerPlugin::VmcType = {
 const ResourceType VmapViewerPlugin::LevelType = {
     .name = "Uncompressed level directory",
     .extensions = {"*.ini"}
+};
+
+const ResourceType VmapViewerPlugin::ScapeType = {
+	.name = "Scape STM",
+	.extensions = {"*.stm"}
 };
 
 VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
@@ -135,14 +141,20 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
 
 }
 
-void VmapViewer::exportResource(const QString &filename, const ResourceType &)
+void VmapViewer::exportResource(const QString &filename, const ResourceType & resourceType)
 {
     if(_vmap.isNull()){
         return;
     }
 
-	VmapWriter writer;
-	writer.write(*_vmap, filename);
+	if(resourceType == VmapViewerPlugin::LevelType){
+		VmapWriter writer;
+		writer.write(*_vmap, filename);
+	} else if(resourceType == VmapViewerPlugin::ScapeType){
+		ScapeStmWriter writer;
+		writer.write(*_vmap, filename);
+	}
+
 }
 
 QString VmapViewer::currentFile() const

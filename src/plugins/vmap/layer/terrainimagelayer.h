@@ -6,7 +6,7 @@
 class TerrainImageLayer : public AbstractImageLayer
 {
 public:
-	TerrainImageLayer(QObject* parent);
+	TerrainImageLayer(QObject* parent = nullptr);
 
 	// AbstractImageLayer interface
 public:

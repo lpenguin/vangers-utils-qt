@@ -71,10 +71,18 @@ public:
     void write(const uchar* data, qsizetype len){
         _device->write((char*)data, len);
     }
+	template<typename T>
+	void write(const std::vector<T>& values) {
+		for(int i = 0; i < values.size(); i++){
+			write(values[i]);
+		}
+	}
 
-    void write(const QByteArray& value){
-        _device->write(value.constData(), value.size());
-    }
+	void write(const QByteArray& value){
+		_device->write(value.constData(), value.size());
+	}
+
+
 };
 
 }
