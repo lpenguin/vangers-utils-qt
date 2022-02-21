@@ -159,14 +159,8 @@ jobs:
 
     - name: Install Qt
       run: |
-        # curl "https://code.qt.io/cgit/qbs/qbs.git/plain/scripts/install-qt.sh" --output "./dist/install-qt.sh"
-        # chmod +x "./dist/install-qt.sh"
-
         echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools qttranslations)" | tee -a  $GITHUB_ENV
         echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" | tee -a  $GITHUB_ENV
-        ./dist/install-qt.sh --version ${QTCREATOR_VERSION} qtcreator | tee -a $GITHUB_PATH
-        cat $GITHUB_PATH
-        cat $GITHUB_ENV
     - name: Setup Qbs
       run: |
         qbs setup-toolchains ${MINGW_PATH}/*-w64-mingw32-gcc.exe mingw
