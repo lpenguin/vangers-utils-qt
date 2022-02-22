@@ -161,6 +161,13 @@ jobs:
       run: |
         echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools qttranslations)" | tee -a  $GITHUB_ENV
         echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" | tee -a  $GITHUB_ENV
+
+    - name: Install Qbs
+      run: |
+        echo QBS_VERSION: $QBS_VERSION
+        wget -c "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-windows-x86_64-$QBS_VERSION.zip" -O ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip
+        unzip ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip -d ${{ github.workspace }}
+
     - name: Setup Qbs
       run: |
         qbs setup-toolchains ${MINGW_PATH}/*-w64-mingw32-gcc.exe mingw
