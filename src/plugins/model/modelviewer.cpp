@@ -2,6 +2,7 @@
 #include "modelaccess.h"
 #include "propertytree.h"
 #include "scenecontroller.h"
+#include "modelviewerplugin.h"
 
 #include <Qt3DExtras/Qt3DWindow>
 
@@ -25,27 +26,46 @@ ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 
 
 
-bool ModelViewer::importResource(const QString &filePath, const ResourceType &)
+bool ModelViewer::importResource(const QString &filePath, const ResourceType &type)
 {
 	_currentFile = filePath;
-	ModelAccess access;
+	_ui->propertiesTree->clear();
 
-	if(!access.readFromFile(_m3d, filePath)){
+	QTreeWidgetItem* root = nullptr;
+
+	if(type == ModelViewerPlugin::M3D){
+		ModelM3DAccess access;
+		_model = model::M3D();
+
+		model::M3D& m3d = std::get<model::M3D>(_model);
+
+		if(!access.readFromFile(m3d, filePath)){
+			return false;
+		}
+
+		root = addProperty(nullptr, "root", m3d);
+		_sceneController->setM3D(QSharedPointer<model::M3D>::create(m3d));
+	} else if(type == ModelViewerPlugin::A3D){
+		ModelA3DAccess access;
+		_model = model::A3D();
+
+		model::A3D& a3d = std::get<model::A3D>(_model);
+
+		if(!access.readFromFile(a3d, filePath)){
+			return false;
+		}
+
+		root = addProperty(nullptr, "root", a3d);
+		_sceneController->setC3D(a3d.models[0]);
+	} else {
 		return false;
 	}
 
-	_ui->propertiesTree->clear();
-
-	QTreeWidgetItem* root = addProperty(nullptr, "root", _m3d);
-
 	_ui->propertiesTree->addTopLevelItem(root);
-//	_ui->propertiesTree->expandItem(root);
-//	_ui->propertiesTree->expandItem(root);
 	_ui->propertiesTree->setColumnWidth(0, 200);
 
 	root->setExpanded(true);
 	root->child(0)->setExpanded(true);
-	_sceneController->setM3D(QSharedPointer<model::M3D>::create(_m3d));
 
 
 	return true;
@@ -70,28 +90,20 @@ void ModelViewer::onTreeItemClicked(QTreeWidgetItem* item, int column)
 		item = item->parent();
 	}while(item->parent() != nullptr);
 
+	if(std::holds_alternative<model::A3D>(_model)){
+		qDebug() << path;
+		if(path.size() >= 2&& path[0] == "models"){
+			QString modelIndStr = path[1];
+			int modelIndex = modelIndStr.mid(1, modelIndStr.size() - 2).toInt();
+			qDebug() << modelIndex;
+			model::C3D& c3d = std::get<model::A3D>(_model).models[modelIndex];
+			_sceneController->setC3D(c3d);
+		}
+
+	}
 	// TODO: body parts selection
 
-//	qDebug() << path;
 
-//	if(path.size() >= 3&& path[0] == "body" && path[1] == "polygons"){
-//		QString polyIndStr = path[2];
-//		int polygonIndex = polyIndStr.mid(1, polyIndStr.size() - 2).toInt();
-//		qDebug() << polygonIndex;
-//		model::Polygon& polygon = _m3d.body.polygons[polygonIndex];
-//		if(polygon.indices.size() != 3){
-//			qDebug() << "Wrong polygon size: " << polygon.indices.size();
-//			return;
-//		}
-
-//		QVector3D positions[3] = {
-//			fromVectorI8(_m3d.body.vectices[polygon.indices[0].vertInd].pos),
-//			fromVectorI8(_m3d.body.vectices[polygon.indices[1].vertInd].pos),
-//			fromVectorI8(_m3d.body.vectices[polygon.indices[2].vertInd].pos),
-//		};
-//		qDebug() << positions[0] << positions[1] << positions[2];
-//		_sceneController->setPoly(positions);
-//	}
 }
 
 

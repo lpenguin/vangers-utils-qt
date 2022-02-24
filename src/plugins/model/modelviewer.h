@@ -1,6 +1,7 @@
 #ifndef MODELVIEWER_H
 #define MODELVIEWER_H
 
+#include <variant>
 #include <plugins/resourceviewer.h>
 #include "ui_modelviewer.h"
 #include "scenecontroller.h"
@@ -24,7 +25,7 @@ private:
 	Ui::ModelViewer* _ui;
 	QWidget* _widget3d;
 	SceneController* _sceneController;
-	model::M3D _m3d;
+	std::variant<model::M3D, model::A3D> _model;
 private slots:
 	void onTreeItemClicked(QTreeWidgetItem *item, int column);
 };

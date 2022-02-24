@@ -197,3 +197,14 @@ void setupProperty(QTreeWidgetItem* item, const model::M3D& property){
 	addProperty(item, "slotsExistence", property.slotsExistence);
 	addProperty(item, "rSlots", property.rSlots);
 }
+
+template<>
+void setupProperty(QTreeWidgetItem* item, const model::A3D& property)
+{
+	addProperty(item, "nModels", property.nModels);
+	addProperty(item, "bounds", property.bounds);
+	addProperty(item, "rMax", property.rMax);
+	addProperty(item, "bodyColorOffset", property.bodyColorOffset);
+	addProperty(item, "bodyColorShift", property.bodyColorShift);
+	addProperty(item, "models", property.models);
+}

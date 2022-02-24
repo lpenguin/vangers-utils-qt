@@ -88,4 +88,8 @@ void setupProperty(QTreeWidgetItem* item, const model::C3D& c3d);
 template<>
 void setupProperty(QTreeWidgetItem* item, const model::M3D& property);
 
+template<>
+void setupProperty(QTreeWidgetItem* item, const model::A3D& property);
+
+
 #endif // PROPERTYTREE_H
