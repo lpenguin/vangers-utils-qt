@@ -18,8 +18,9 @@ public:
 	QString name() const {
 		return "Model";
 	};
-private:
+
 	static const ResourceType M3D;
+	static const ResourceType A3D;
 };
 
 #endif // MODELVIEWERPLUGIN_H

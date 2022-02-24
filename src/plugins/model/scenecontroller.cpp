@@ -215,29 +215,31 @@ void addWheels(Qt3DCore::QEntity*root, const model::M3D& m3d){
 
 void SceneController::setM3D(const QSharedPointer<model::M3D>& m3d)
 {
+	setC3D(m3d->body);
+	addSlots(_modelsEntity, *m3d);
+	addWheels(_modelsEntity, *m3d);
+}
+
+void SceneController::setC3D(const model::C3D& c3d)
+{
 	for(Qt3DCore::QNode* child: _modelsEntity->childNodes()){
 		child->deleteLater();
 	}
 
-	auto ptr = QSharedPointer<model::C3D>::create(m3d->body);
+	auto ptr = QSharedPointer<model::C3D>::create(c3d);
 	C3DMesh* c3dMesh = new C3DMesh(ptr);
 
-	Qt3DCore::QTransform *m3dTransform = new Qt3DCore::QTransform();
-	m3dTransform->setScale(1/16.0f);
-//	m3dTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1.0f, 0.0f, 0.0f), 45.0f));
-//	m3dTransform->setTranslation(QVector3D(0, 0, -1.5));
+	Qt3DCore::QTransform *c3dTransform = new Qt3DCore::QTransform();
+	c3dTransform->setScale(1/16.0f);
 
-	Qt3DExtras::QPerVertexColorMaterial *m3dMaterial = new Qt3DExtras::QPerVertexColorMaterial();
+	Qt3DExtras::QPerVertexColorMaterial *c3dMaterial = new Qt3DExtras::QPerVertexColorMaterial();
 
-//	m3dMaterial->setDiffuse(QColor(QRgb(0x928327)));
+	auto* c3dEntity = new Qt3DCore::QEntity(_modelsEntity);
+	c3dEntity->addComponent(c3dMesh);
+	c3dEntity->addComponent(c3dMaterial);
+	c3dEntity->addComponent(c3dTransform);
 
-	auto* m3dEntity = new Qt3DCore::QEntity(_modelsEntity);
-	m3dEntity->addComponent(c3dMesh);
-	m3dEntity->addComponent(m3dMaterial);
-	m3dEntity->addComponent(m3dTransform);
 
-	addSlots(_modelsEntity, *m3d);
-	addWheels(_modelsEntity, *m3d);
 }
 
 

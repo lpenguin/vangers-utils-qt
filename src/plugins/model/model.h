@@ -103,6 +103,14 @@ namespace model {
 		std::vector<Slot> rSlots;
 	};
 
+	struct A3D {
+		int32_t nModels;
+		Vector3I32 bounds;
+		int32_t rMax;
+		int32_t bodyColorOffset;
+		int32_t bodyColorShift;
+		std::vector<C3D> models;
+	};
 }
 
 #endif // MODEL_H

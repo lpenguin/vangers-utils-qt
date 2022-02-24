@@ -293,3 +293,21 @@ bool vangers::BinaryReader::tryRead<model::M3D>(model::M3D &m3d){
 	}
 	return true;
 }
+
+template<>
+bool vangers::BinaryReader::tryRead<model::A3D>(model::A3D& a3d)
+{
+	if(!tryRead(a3d.nModels)) return false;
+
+	if(!tryRead(a3d.bounds)) return false;
+
+	if(!tryRead(a3d.rMax)) return false;
+
+	if(!tryRead(a3d.bodyColorOffset)) return false;
+
+	if(!tryRead(a3d.bodyColorShift)) return false;
+
+	if(!tryRead(a3d.models, a3d.nModels)) return false;
+
+	return true;
+}

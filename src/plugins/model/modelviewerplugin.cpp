@@ -7,13 +7,20 @@ const ResourceType ModelViewerPlugin::M3D {
 	}
 };
 
+const ResourceType ModelViewerPlugin::A3D {
+	.name = "A3D",
+	.extensions = {
+		"*.a3d"
+	}
+};
+
 ModelViewerPlugin::ModelViewerPlugin()
 {
 }
 
 QList<ResourceType> ModelViewerPlugin::supportedImportTypes() const
 {
-	return {M3D};
+	return {M3D, A3D};
 }
 
 QList<ResourceType> ModelViewerPlugin::supportedExportTypes() const

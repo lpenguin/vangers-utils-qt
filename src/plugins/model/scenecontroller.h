@@ -12,6 +12,7 @@ Q_OBJECT
 public:
 	SceneController(Qt3DExtras::Qt3DWindow * view, QObject* parent = nullptr);
 	void setM3D(const QSharedPointer<model::M3D>& m3d);
+	void setC3D(const model::C3D& c3d);
 private:
 	void init();
 	Qt3DExtras::Qt3DWindow *_view;
