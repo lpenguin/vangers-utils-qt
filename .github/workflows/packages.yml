@@ -66,6 +66,7 @@ jobs:
         $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
+
     - name: Build VangersUtils
       run: |
         $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
@@ -154,13 +155,26 @@ jobs:
         shell: bash
 
     steps:
+
+    - name: "Set environmental variables"
+      run: |
+        echo "QBS_DIR=${{ github.workspace }}/qbs-windows-x86_64-${{ env.QBS_VERSION }}/" >> $GITHUB_ENV
+
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    # - name: Install Qt
+    #   run: |
+    #     echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools qttranslations)" | tee -a  $GITHUB_ENV
+    #     echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" | tee -a  $GITHUB_ENV
+
     - name: Install Qt
-      run: |
-        echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools qttranslations)" | tee -a  $GITHUB_ENV
-        echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" | tee -a  $GITHUB_ENV
+      uses: jurplel/install-qt-action@v2
+      with:
+        host: linux
+        target: desktop
+        version: 5.15.2
+        arch: win64_mingw81
 
     - name: Install Qbs
       run: |
@@ -168,19 +182,32 @@ jobs:
         wget -c "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-windows-x86_64-$QBS_VERSION.zip" -O ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip
         unzip ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip -d ${{ github.workspace }}
 
+    # - name: Setup Qbs
+    #   run: |
+    #     qbs setup-toolchains ${MINGW_PATH}/*-w64-mingw32-gcc.exe mingw
+    #     qbs setup-qt ${QT_PATH}/qmake.exe qt
+    #     qbs config defaultProfile qt
     - name: Setup Qbs
       run: |
-        qbs setup-toolchains ${MINGW_PATH}/*-w64-mingw32-gcc.exe mingw
-        qbs setup-qt ${QT_PATH}/qmake.exe qt
-        qbs config defaultProfile qt
+        echo Qt5_DIR: $Qt5_DIR
+        ls $Qt5_DIR -lah
+        $QBS_DIR/bin/qbs --version 
+        $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
+        $QBS_DIR/bin/qbs config defaultProfile vangers
+        $QBS_DIR/bin/qbs setup-toolchains --detect
 
     - name: Build VangersUtils
       run: |
-        qbs build --all-products config:release
+        $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        ls -lah        
+
+    # - name: Build VangersUtils
+    #   run: |
+    #     qbs build --all-products config:release
 
     - name: Run windeployqt
       run: |
-        PATH="$PATH:$MINGW_PATH" $QT_PATH/windeployqt.exe release/install-root/bin/vangers-utils-qt.exe
+        PATH="$PATH:$MINGW_PATH" $Qt5_DIR/windeployqt.exe release/install-root/bin/vangers-utils-qt.exe
         cp $MINGW_PATH/libgcc_s*.dll release/install-root/bin
         cp $MINGW_PATH/libstdc++*.dll release/install-root/bin
         cp $MINGW_PATH/libwinpthread*.dll release/install-root/bin
