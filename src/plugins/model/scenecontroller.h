@@ -6,13 +6,15 @@
 
 #include "model.h"
 
-class SceneController: QObject
+class SceneController : public QObject
 {
 Q_OBJECT
 public:
 	SceneController(Qt3DExtras::Qt3DWindow * view, QObject* parent = nullptr);
 	void setM3D(const QSharedPointer<model::M3D>& m3d);
 	void setC3D(const model::C3D& c3d);
+public slots:
+	void resetView();
 private:
 	void init();
 	Qt3DExtras::Qt3DWindow *_view;
