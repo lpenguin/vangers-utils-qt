@@ -262,7 +262,7 @@ void MainWindow::exportFile()
     auto filename = QFileDialog::getSaveFileName(
                 this,
                 tr("Save file"),
-                 QFileInfo(viewer->currentFile()).baseName(),
+                 QFileInfo(viewer->currentFile()).dir().path(),
                 filtersList.join(";;"),
                 &selectedFilter);
 
