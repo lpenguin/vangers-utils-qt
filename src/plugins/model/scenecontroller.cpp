@@ -25,6 +25,7 @@
 
 #include "c3drenderer.h"
 #include "gridmesh.h"
+#include "myorbitcameracontroller.h"
 
 SceneController::SceneController(Qt3DExtras::Qt3DWindow* view, QObject* parent)
 	: QObject(parent)
@@ -65,7 +66,7 @@ void SceneController::init()
 	lightEntity->addComponent(lightTransform);
 
 	// For camera controls
-	Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(_rootEntity);
+	MyOrbitCameraController *camController = new MyOrbitCameraController(_rootEntity);
 	camController->setCamera(cameraEntity);
 	_modelsEntity = new Qt3DCore::QEntity(_rootEntity);
 

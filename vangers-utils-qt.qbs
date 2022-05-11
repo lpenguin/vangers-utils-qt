@@ -76,6 +76,8 @@ QtApplication {
         "src/plugins/model/modelviewerplugin.h",
         "src/plugins/model/modelwrapper.cpp",
         "src/plugins/model/modelwrapper.h",
+        "src/plugins/model/myorbitcameracontroller.cpp",
+        "src/plugins/model/myorbitcameracontroller.h",
         "src/plugins/model/propertytree.cpp",
         "src/plugins/model/propertytree.h",
         "src/plugins/model/scenecontroller.cpp",
