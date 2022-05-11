@@ -243,4 +243,13 @@ void SceneController::setC3D(const model::C3D& c3d)
 
 }
 
+void SceneController::resetView()
+{
+	auto* camera = _view->camera();
+	camera->setPosition(QVector3D(0, 20.0f, 0));
+	camera->setUpVector(QVector3D(0, 0, 1.0f));
+	camera->setViewCenter(QVector3D(0, 0, 0));
+
+}
+
 

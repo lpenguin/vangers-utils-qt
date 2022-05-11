@@ -26,8 +26,14 @@ private:
 	QWidget* _widget3d;
 	SceneController* _sceneController;
 	std::variant<model::M3D, model::A3D> _model;
+	int _a3dModelIndex;
+
+	void showA3dModel(model::A3D& a3d);
+
 private slots:
 	void onTreeItemClicked(QTreeWidgetItem *item, int column);
+	void onPrevModelClicked();
+	void onNextModelClicked();
 };
 
 #endif // MODELVIEWER_H
