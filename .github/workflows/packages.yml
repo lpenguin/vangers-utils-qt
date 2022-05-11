@@ -179,7 +179,7 @@ jobs:
     - name: Install Qbs
       run: |
         echo QBS_VERSION: $QBS_VERSION
-        wget -c "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-windows-x86_64-$QBS_VERSION.zip" -O ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip
+        curl "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-windows-x86_64-$QBS_VERSION.zip" -O ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip
         unzip ${{ github.workspace }}/qbs-windows-x86_64-$QBS_VERSION.zip -d ${{ github.workspace }}
 
     # - name: Setup Qbs
