@@ -185,9 +185,7 @@ jobs:
         echo QBS_VERSION: $QBS_VERSION
         echo QBS_DIR: $QBS_DIR        
         curl -o ./qbs-windows-x86_64-$QBS_VERSION.zip -L "https://download.qt.io/official_releases/qbs/$QBS_VERSION/qbs-windows-x86_64-$QBS_VERSION.zip"
-        ls -lah
         unzip ./qbs-windows-x86_64-$QBS_VERSION.zip -d $QBS_DIR/
-        ls -lah
     # - name: Setup Qbs
     #   run: |
     #     qbs setup-toolchains ${MINGW_PATH}/*-w64-mingw32-gcc.exe mingw
@@ -202,9 +200,12 @@ jobs:
         $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/bin/qmake.exe vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
+        $QBS_DIR/bin/qbs config --list profiles
+        $QBS_DIR/bin/qbs config profiles.vangers.baseProfile x86_64-w64-mingw32-gcc-8_1_0
+        $QBS_DIR/bin/qbs config --list profiles
     - name: Build VangersUtils
       run: |
-        $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.debugInformation:true modules.cpp.separateDebugInformation:true
+        $QBS_DIR/bin/qbs install --install-root VangersUtils profile:vangers config:release qbs.debugInformation:true modules.cpp.separateDebugInformation:true
         ls -lah        
     # - name: Build VangersUtils
     #   run: |
