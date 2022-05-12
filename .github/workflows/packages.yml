@@ -188,12 +188,11 @@ jobs:
     - name: Setup Qbs
       run: |
         echo Qt5_DIR: $Qt5_Dir
-        ls -lah qt5dir
-        ls -lah qt5dir/bin
         ls -lah $Qt5_Dir
-        ls -lah $Qt5_Dir/bin
+        ls -lah $Qt5_Dir/Qt
+        ls -lah $Qt5_Dir/Qt/bin
         $QBS_DIR/bin/qbs --version 
-        $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/bin/qmake.exe vangers
+        $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/Qt/bin/qmake.exe vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
