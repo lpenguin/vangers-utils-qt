@@ -188,10 +188,10 @@ jobs:
     - name: Setup Qbs
       run: |
         echo Qt5_DIR: $Qt5_Dir
-        la -lah qt5dir
-        la -lah qt5dir/bin
-        la -lah $Qt5_Dir
-        la -lah $Qt5_Dir/bin
+        ls -lah qt5dir
+        ls -lah qt5dir/bin
+        ls -lah $Qt5_Dir
+        ls -lah $Qt5_Dir/bin
         $QBS_DIR/bin/qbs --version 
         $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/bin/qmake.exe vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
