@@ -167,8 +167,8 @@ jobs:
       id: cache-qt
       uses: actions/cache@v1  # not v2!
       with:
-        path: '${{ github.workspace }}/qt5dir/'
-        key: ${{ runner.os }}-QtCache
+        path: '${{ github.workspace }}\qt5dir'
+        key: ${{ runner.os }}-QtCache-win64_msvc2019_64
     
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
@@ -176,7 +176,7 @@ jobs:
         host: windows
         target: desktop
         version: 5.15.2
-        arch: win64_mingw81
+        arch: win64_msvc2019_64
         dir: '${{ github.workspace }}/qt5dir/'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
@@ -198,10 +198,8 @@ jobs:
         ls -lah $Qt5_Dir/bin
         $QBS_DIR/bin/qbs --version 
         $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/bin/qmake.exe vangers
-        $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
-        $QBS_DIR/bin/qbs config --list profiles
-        $QBS_DIR/bin/qbs config profiles.vangers.baseProfile x86_64-w64-mingw32-gcc-8_1_0
+        $QBS_DIR/bin/qbs config profiles.vangers.baseProfile MSVC0-x64
         $QBS_DIR/bin/qbs config --list profiles
     - name: Build VangersUtils
       run: |
