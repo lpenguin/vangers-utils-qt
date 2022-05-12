@@ -63,6 +63,7 @@ jobs:
         $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
+        $QBS_DIR/bin/qbs config profiles.vangers.baseProfile x86_64-linux-gnu-gcc-9
     - name: Build VangersUtils
       run: |
         $QBS_DIR/bin/qbs install --install-root VangersUtils config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
@@ -211,10 +212,10 @@ jobs:
 
     - name: Run windeployqt
       run: |
-        PATH="$PATH:$MINGW_PATH" $Qt5_DIR/windeployqt.exe release/install-root/bin/vangers-utils-qt.exe
-        cp $MINGW_PATH/libgcc_s*.dll release/install-root/bin
-        cp $MINGW_PATH/libstdc++*.dll release/install-root/bin
-        cp $MINGW_PATH/libwinpthread*.dll release/install-root/bin
+        PATH="$PATH:$MINGW_PATH" $Qt5_Dir/windeployqt.exe release/install-root/bin/vangers-utils-qt.exe
+        # cp $MINGW_PATH/libgcc_s*.dll release/install-root/bin
+        # cp $MINGW_PATH/libstdc++*.dll release/install-root/bin
+        # cp $MINGW_PATH/libwinpthread*.dll release/install-root/bin
         
     # - name: Upload VangersUtils archive
     #   uses: actions/upload-artifact@v2
