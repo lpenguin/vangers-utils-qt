@@ -43,6 +43,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Set up GCC
+      uses: egor-tensin/setup-gcc@v1
+      with:
+        version: 9
+        platform: x64
+        
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
@@ -63,9 +69,10 @@ jobs:
         $QBS_DIR/bin/qbs setup-qt $Qt5_DIR/bin/qmake vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
-        $QBS_DIR/bin/qbs config profiles.vangers.baseProfile x86_64-linux-gnu-gcc-9
         $QBS_DIR/bin/qbs config --list profiles
         
+# $QBS_DIR/bin/qbs config profiles.vangers.baseProfile x86_64-linux-gnu-gcc-9
+                
     - name: Build VangersUtils
       run: |
         $QBS_DIR/bin/qbs install --install-root VangersUtils profile:vangers config:release qbs.installPrefix:/usr qbs.debugInformation:true modules.cpp.separateDebugInformation:true
