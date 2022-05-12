@@ -32,7 +32,7 @@ jobs:
     name: Linux (AppImage)
     runs-on: ubuntu-18.04
     needs: version
-
+    if: ${{ false }}  # disable for now
     env:
       VANGERS_UTILS_VERSION: ${{ needs.version.outputs.version }}
 
@@ -163,6 +163,13 @@ jobs:
     #     echo "QT_PATH=$(./dist/install-qt.sh --version ${QT_VERSION} --toolchain ${QT_TOOLCHAIN} qtbase qtdeclarative qtscript qtsvg qtimageformats qttools qttranslations)" | tee -a  $GITHUB_ENV
     #     echo "MINGW_PATH=$(./dist/install-qt.sh --version ${MINGW_VERSION} ${MINGW_COMPONENT})" | tee -a  $GITHUB_ENV
 
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1  # not v2!
+      with:
+        path: '${{ github.workspace }}/qt5dir/'
+        key: ${{ runner.os }}-QtCache
+    
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
@@ -171,6 +178,7 @@ jobs:
         version: 5.15.2
         arch: win64_mingw81
         dir: '${{ github.workspace }}/qt5dir/'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Install Qbs
       run: |
@@ -189,10 +197,9 @@ jobs:
       run: |
         echo Qt5_DIR: $Qt5_Dir
         ls -lah $Qt5_Dir
-        ls -lah $Qt5_Dir/Qt
-        ls -lah $Qt5_Dir/Qt/bin
+        ls -lah $Qt5_Dir/bin
         $QBS_DIR/bin/qbs --version 
-        $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/Qt/bin/qmake.exe vangers
+        $QBS_DIR/bin/qbs setup-qt $Qt5_Dir/bin/qmake.exe vangers
         $QBS_DIR/bin/qbs config defaultProfile vangers
         $QBS_DIR/bin/qbs setup-toolchains --detect
     - name: Build VangersUtils
