@@ -3,6 +3,7 @@
 #include "propertytree.h"
 #include "scenecontroller.h"
 #include "modelviewerplugin.h"
+#include "modelobjaccess.h"
 #include "extensions/jsonext.h"
 
 #include <Qt3DExtras/Qt3DWindow>
@@ -135,7 +136,12 @@ void ModelViewer::exportResource(const QString &filePath, const ResourceType &ty
 			f.write(serialized.c_str());
 			f.close();
 		}
-	} 
+	} else if(type == ModelViewerPlugin::Obj) {
+		if(std::holds_alternative<model::M3D>(_model)){
+			const model::M3D& m3d = std::get<model::M3D>(_model);
+			vangers::ModelObjAccess().write(m3d, filePath);
+		}
+	}
 }
 
 void ModelViewer::showA3dModel(model::A3D& a3d)

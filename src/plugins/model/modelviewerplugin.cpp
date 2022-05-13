@@ -21,6 +21,14 @@ const ResourceType ModelViewerPlugin::Json {
 		"*.json"
 	}
 };
+
+const ResourceType ModelViewerPlugin::Obj {
+	.name = "Obj (3D Model/ Animated 3D Model)",
+	.extensions = {
+		"*.obj"
+	}
+};
+
 ModelViewerPlugin::ModelViewerPlugin()
 {
 }
@@ -32,7 +40,7 @@ QList<ResourceType> ModelViewerPlugin::supportedImportTypes() const
 
 QList<ResourceType> ModelViewerPlugin::supportedExportTypes() const
 {
-	return {Json};
+	return {Json, Obj};
 }
 
 ResourceViewer *ModelViewerPlugin::makeResourceViewer(QWidget *parent)

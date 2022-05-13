@@ -71,6 +71,8 @@ QtApplication {
         "src/plugins/model/modelbinaryreaderext.h",
         "src/plugins/model/modelbinarywriterext.cpp",
         "src/plugins/model/modelbinarywriterext.h",
+        "src/plugins/model/modelobjaccess.cpp",
+        "src/plugins/model/modelobjaccess.h",
         "src/plugins/model/modelviewer.cpp",
         "src/plugins/model/modelviewer.h",
         "src/plugins/model/modelviewer.ui",

@@ -22,6 +22,7 @@ public:
 	static const ResourceType M3D;
 	static const ResourceType A3D;
 	static const ResourceType Json;
+	static const ResourceType Obj;
 };
 
 #endif // MODELVIEWERPLUGIN_H
