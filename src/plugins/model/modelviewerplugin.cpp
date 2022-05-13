@@ -14,18 +14,25 @@ const ResourceType ModelViewerPlugin::A3D {
 	}
 };
 
+
+const ResourceType ModelViewerPlugin::Json {
+	.name = "JSON (3D Model/ Animated 3D Model)",
+	.extensions = {
+		"*.json"
+	}
+};
 ModelViewerPlugin::ModelViewerPlugin()
 {
 }
 
 QList<ResourceType> ModelViewerPlugin::supportedImportTypes() const
 {
-	return {M3D, A3D};
+	return {M3D, A3D, Json};
 }
 
 QList<ResourceType> ModelViewerPlugin::supportedExportTypes() const
 {
-	return {};
+	return {Json};
 }
 
 ResourceViewer *ModelViewerPlugin::makeResourceViewer(QWidget *parent)

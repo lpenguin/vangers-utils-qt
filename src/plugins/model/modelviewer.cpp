@@ -3,6 +3,7 @@
 #include "propertytree.h"
 #include "scenecontroller.h"
 #include "modelviewerplugin.h"
+#include "extensions/jsonext.h"
 
 #include <Qt3DExtras/Qt3DWindow>
 #include <QPushButton>
@@ -74,6 +75,28 @@ bool ModelViewer::importResource(const QString &filePath, const ResourceType &ty
 
 		root = addProperty(nullptr, "root", a3d);
 		_sceneController->setC3D(a3d.models[0]);
+	} else if(type == ModelViewerPlugin::Json) {
+		QFile file(filePath);
+		file.open(QFile::ReadOnly);
+		std::string s = file.readAll().toStdString();
+		file.close();
+
+		auto json = nlohmann::json::parse(s);
+		if(json.contains("models")){
+			_model = model::A3D();
+			auto& a3d = std::get<model::A3D>(_model);
+			from_json(json, a3d);
+			_sceneController->setC3D(a3d.models[0]);
+			root = addProperty(nullptr, "root", a3d);
+		} else {
+			_model = model::M3D();
+
+			auto& m3d = std::get<model::M3D>(_model);
+			from_json(json, m3d);
+			root = addProperty(nullptr, "root", m3d);
+			_sceneController->setM3D(QSharedPointer<model::M3D>::create(m3d));
+		}
+
 	} else {
 		return false;
 	}
@@ -90,9 +113,29 @@ bool ModelViewer::importResource(const QString &filePath, const ResourceType &ty
 
 
 
-void ModelViewer::exportResource(const QString &filePath, const ResourceType &)
+void ModelViewer::exportResource(const QString &filePath, const ResourceType &type)
 {
-
+	if(type.name == ModelViewerPlugin::Json.name){
+		if(std::holds_alternative<model::M3D>(_model)){
+			const model::M3D& m3d = std::get<model::M3D>(_model);
+			auto root = nlohmann::json::object();
+			to_json(root, m3d);
+			std::string serialized = root.dump(2);
+			QFile f(filePath);
+			f.open(QFile::WriteOnly);
+			f.write(serialized.c_str());
+			f.close();
+		} else if(std::holds_alternative<model::A3D>(_model)){
+			const model::A3D& a3d = std::get<model::A3D>(_model);
+			auto root = nlohmann::json::object();
+			to_json(root, a3d);
+			std::string serialized = root.dump(2);
+			QFile f(filePath);
+			f.open(QFile::WriteOnly);
+			f.write(serialized.c_str());
+			f.close();
+		}
+	} 
 }
 
 void ModelViewer::showA3dModel(model::A3D& a3d)
