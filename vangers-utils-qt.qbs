@@ -23,7 +23,7 @@ QtApplication {
 
     cpp.cxxLanguageVersion: "c++20"
 
-    cpp.includePaths: [product.sourceDirectory, "src"]
+    cpp.includePaths: [product.sourceDirectory, "src", "thirdparty/nlohmann/json"]
 
     files: [
         "Readme.md",
