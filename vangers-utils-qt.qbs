@@ -62,6 +62,8 @@ QtApplication {
         "src/plugins/model/colortable.h",
         "src/plugins/model/gridmesh.cpp",
         "src/plugins/model/gridmesh.h",
+        "src/plugins/model/extensions/jsonext.cpp",
+        "src/plugins/model/extensions/jsonext.h",
         "src/plugins/model/model.h",
         "src/plugins/model/modelaccess.cpp",
         "src/plugins/model/modelaccess.h",
