@@ -1,14 +1,14 @@
 #include "modelviewerplugin.h"
 #include "modelviewer.h"
 const ResourceType ModelViewerPlugin::M3D {
-	.name = "M3D",
+	.name = "M3D (3D model)",
 	.extensions = {
 		"*.m3d"
 	}
 };
 
 const ResourceType ModelViewerPlugin::A3D {
-	.name = "A3D",
+	.name = "A3D (Animated 3D model)",
 	.extensions = {
 		"*.a3d"
 	}
