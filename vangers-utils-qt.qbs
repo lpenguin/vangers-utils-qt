@@ -3,7 +3,11 @@ import qbs.FileInfo
 QtApplication {
     name: "vangers-utils-qt"
 
-    Depends { name: "Qt"; submodules: ["core", "widgets"]; versionAtLeast: "5.6" }
+    Depends {
+        name: "Qt";
+        submodules: ["core", "widgets", "3dinput", "3drender", "3dextras"];
+        versionAtLeast: "5.12"
+    }
 
     // The following define makes your compiler emit warnings if you use
     // any Qt feature that has been marked deprecated (the exact warnings
@@ -52,6 +56,30 @@ QtApplication {
         "src/main.cpp",
         "src/mainwindow.cpp",
         "src/mainwindow.h",
+        "src/plugins/model/c3drenderer.cpp",
+        "src/plugins/model/c3drenderer.h",
+        "src/plugins/model/colortable.cpp",
+        "src/plugins/model/colortable.h",
+        "src/plugins/model/gridmesh.cpp",
+        "src/plugins/model/gridmesh.h",
+        "src/plugins/model/model.h",
+        "src/plugins/model/modelaccess.cpp",
+        "src/plugins/model/modelaccess.h",
+        "src/plugins/model/modelbinaryreaderext.cpp",
+        "src/plugins/model/modelbinaryreaderext.h",
+        "src/plugins/model/modelbinarywriterext.cpp",
+        "src/plugins/model/modelbinarywriterext.h",
+        "src/plugins/model/modelviewer.cpp",
+        "src/plugins/model/modelviewer.h",
+        "src/plugins/model/modelviewer.ui",
+        "src/plugins/model/modelviewerplugin.cpp",
+        "src/plugins/model/modelviewerplugin.h",
+        "src/plugins/model/modelwrapper.cpp",
+        "src/plugins/model/modelwrapper.h",
+        "src/plugins/model/propertytree.cpp",
+        "src/plugins/model/propertytree.h",
+        "src/plugins/model/scenecontroller.cpp",
+        "src/plugins/model/scenecontroller.h",
         "src/plugins/palette/microsoftpalaccess.cpp",
         "src/plugins/palette/microsoftpalaccess.h",
         "src/plugins/palette/pngpaletteaccess.cpp",
