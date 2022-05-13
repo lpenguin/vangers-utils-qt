@@ -23,12 +23,14 @@ MainWindow::MainWindow(QWidget *parent)
     };
 
     ui->setupUi(this);
-    ui->selectedImageTab->setTabsClosable(true);
-    QObject::connect(ui->selectedImageTab, &QTabWidget::tabCloseRequested, this, &MainWindow::imageTabs_closeRequested);
+	ui->resourceViewerTabWidget->setTabsClosable(true);
+	QObject::connect(ui->resourceViewerTabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::imageTabs_closeRequested);
     ui->directoryTreeView->hide();
     ui->directoryTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->actionExport->setDisabled(true);
     QObject::connect(ui->directoryTreeView, &QTreeView::customContextMenuRequested, this, &MainWindow::onCustomContextMenu);
+	QObject::connect(ui->resourceViewerTabWidget, &QTabWidget::tabBarDoubleClicked, this, &MainWindow::onTabDoubleClicked);
+	loadRecent();
 }
 
 MainWindow::~MainWindow()
@@ -40,36 +42,8 @@ MainWindow::~MainWindow()
 void MainWindow::openFile(QModelIndex index){
 
     QFileSystemModel* model = (QFileSystemModel*)ui->directoryTreeView->model();
-    auto filename = model->filePath(index);
-    qDebug() << filename;
-
-    QFileInfo fInfo(filename);
-    if(!fInfo.exists() || !fInfo.isFile()){
-        return;
-    }
-    QString title = QString("Selected: %1").arg(fInfo.fileName());
-
-    ResourceType type;
-    auto plugin = findImportPlugin(filename, type);
-    if(plugin.isNull()){
-        return;
-    }
-
-    if(selectedResourceViewer == nullptr || selectedResourceViewer->plugin() != plugin){
-        if(selectedResourceViewer != nullptr){
-//            delete selectedResourceViewer;
-            ui->selectedImageTab->removeTab(0);
-        }
-
-        selectedResourceViewer = plugin->makeResourceViewer(ui->selectedImageTab);
-        ui->selectedImageTab->insertTab(0, selectedResourceViewer, title);
-    }
-    selectedResourceViewer->importResource(filename, type);
-    ui->selectedImageTab->setCurrentWidget(selectedResourceViewer);
-    ui->selectedImageTab->setTabText(0, title);
-    ui->selectedImageTab->setTabToolTip(0, filename);
-    ui->actionExport->setEnabled(true);
-
+	QString filename = model->filePath(index);
+	loadFile(filename, true);
 }
 
 void MainWindow::openFolder()
@@ -80,47 +54,89 @@ void MainWindow::openFolder()
     if(directory.isNull()){
         return;
     }
-    settings.setValue("lastDir", directory);
+	loadFolder(directory);
+	settings.setValue("lastDir", directory);
+	addRecentFolder(directory);
+}
 
-    QFileSystemModel* model = new QFileSystemModel(this);
-    QStringList nameFilters;
-    for(auto& plugin: _plugins){
-        for(auto& resourceType: plugin->supportedImportTypes()){
-            for(auto& extension: resourceType.extensions){
-                nameFilters << extension;
-            }
-        }
-    }
+void MainWindow::loadFolder(const QString& folder)
+{
+	QFileSystemModel* model = new QFileSystemModel(this);
+	QStringList nameFilters;
+	for(auto& plugin: _plugins){
+		for(auto& resourceType: plugin->supportedImportTypes()){
+			for(auto& extension: resourceType.extensions){
+				nameFilters << extension;
+			}
+		}
+	}
 
-    model->setNameFilters(nameFilters);
-    QString rootDir = directory;
-    model->setRootPath(rootDir);
+	model->setNameFilters(nameFilters);
+	QString rootDir = folder;
+	model->setRootPath(rootDir);
 
-    if(ui->directoryTreeView->selectionModel() != nullptr){
-        QObject::disconnect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
-    }
+	if(ui->directoryTreeView->selectionModel() != nullptr){
+		QObject::disconnect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
+	}
 
-    ui->directoryTreeView->setModel(model);
-    ui->directoryTreeView->setRootIndex(model->index(rootDir));
+	ui->directoryTreeView->setModel(model);
+	ui->directoryTreeView->setRootIndex(model->index(rootDir));
 //    ui->directoryTreeView->hideColumn(1);
-    ui->directoryTreeView->hideColumn(2);
-    ui->directoryTreeView->hideColumn(3);
-    ui->directoryTreeView->setColumnWidth(0, 300);
-    ui->directoryTreeView->show();
-    QObject::connect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
+	ui->directoryTreeView->hideColumn(2);
+	ui->directoryTreeView->hideColumn(3);
+	ui->directoryTreeView->setColumnWidth(0, 300);
+	ui->directoryTreeView->show();
+	QObject::connect(ui->directoryTreeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelectionChanged);
 
+}
 
+void MainWindow::loadFile(const QString& filename, bool current)
+{
+	QFileInfo fInfo(filename);
+	if(!fInfo.exists() || !fInfo.isFile()){
+		return;
+	}
+
+	QString title = QString("Selected: %1").arg(fInfo.fileName());
+
+	ResourceType type;
+	auto plugin = findImportPlugin(filename, type);
+	if(plugin.isNull()){
+		return;
+	}
+
+	ResourceViewer* viewer = plugin->makeResourceViewer(ui->resourceViewerTabWidget);
+	if(current){
+		if(selectedResourceViewer == nullptr || selectedResourceViewer->plugin() != plugin){
+			if(selectedResourceViewer != nullptr){
+				ui->resourceViewerTabWidget->removeTab(0);
+			}
+
+			selectedResourceViewer = viewer;
+			ui->resourceViewerTabWidget->insertTab(0, selectedResourceViewer, title);
+		}
+		ui->resourceViewerTabWidget->setCurrentWidget(selectedResourceViewer);
+		ui->resourceViewerTabWidget->setTabText(0, title);
+		ui->resourceViewerTabWidget->setTabToolTip(0, filename);
+	} else {
+		ui->resourceViewerTabWidget->addTab(viewer, fInfo.fileName());
+		ui->resourceViewerTabWidget->setCurrentWidget(viewer);
+		ui->resourceViewerTabWidget->setTabToolTip(ui->resourceViewerTabWidget->currentIndex(), filename);
+	}
+
+	viewer->importResource(filename, type);
+	ui->actionExport->setEnabled(true);
 }
 
 void MainWindow::imageTabs_closeRequested(int index)
 {
-    QWidget* selected = ui->selectedImageTab->widget(index);
-    ui->selectedImageTab->removeTab(index);
+	QWidget* selected = ui->resourceViewerTabWidget->widget(index);
+	ui->resourceViewerTabWidget->removeTab(index);
     delete selected;
     if(index == 0){
         selectedResourceViewer = nullptr;
     }
-    if(ui->selectedImageTab->count() == 0){
+	if(ui->resourceViewerTabWidget->count() == 0){
         ui->actionExport->setDisabled(true);
     }
 }
@@ -168,7 +184,61 @@ void MainWindow::onDirectorySelectionChanged(QItemSelection selected, QItemSelec
     }
 
     QModelIndex index = indexes[0];
-    openFile(index);
+	openFile(index);
+}
+
+void MainWindow::onTabDoubleClicked(int index)
+{
+	if(index == 0 && selectedResourceViewer != nullptr){
+		QString title = ui->resourceViewerTabWidget->tabText(index);
+		ui->resourceViewerTabWidget->setTabText(0, title.remove("Selected: "));
+		selectedResourceViewer = nullptr;
+	}
+}
+
+void MainWindow::loadRecent()
+{
+	QStringList recentFiles = settings.value("recentFiles").toStringList();
+	QStringList recentFolders = settings.value("recentFolders").toStringList();
+
+	setRecent(recentFiles, ui->menuRecent_Files, [this](auto s) { loadFile(s, false);});
+	setRecent(recentFolders, ui->menuRecent_Folders, [this](auto s) { loadFolder(s);});
+}
+
+void MainWindow::setRecent(const QStringList& recent, QMenu* menu, std::function<void (QString)> callback)
+{
+	menu->clear();
+	for(const QString& recent: recent){
+		QAction* action = new QAction(recent, this);
+		action->setData(recent);
+		connect(action, &QAction::triggered, [callback, recent](bool){callback(recent);});
+		menu->addAction(action);
+	}
+}
+
+void MainWindow::addRecent(const QString& recent,
+						   const QString& settingName,
+						   QMenu* menu,
+						   std::function<void (QString)> callback)
+{
+	QStringList recents = settings.value(settingName).toStringList();
+	recents.append(recent);
+	while(recents.size() > MAX_RECENT){
+		recents.pop_front();
+	}
+	settings.setValue(settingName, recents);
+
+	setRecent(recents, menu, callback);
+}
+
+void MainWindow::addRecentFile(const QString& recentFile)
+{
+	addRecent(recentFile, "recentFiles", ui->menuRecent_Files, [this](auto s) { loadFile(s, false); });
+}
+
+void MainWindow::addRecentFolder(const QString& recentFolder)
+{
+	addRecent(recentFolder, "recentFolders", ui->menuRecent_Folders, [this](auto s) { loadFolder(s);});
 }
 
 QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString& filename, ResourceType& outType)
@@ -218,34 +288,15 @@ void MainWindow::openFile()
         return;
     }
 
-    int selectedIndex = nameFilters.indexOf(selectedFilter);
-    if(selectedIndex < 0){
-        return;
-    }
-
-    auto plugin = _plugins[pluginIndices[selectedIndex]];
-    const auto& type = types[selectedIndex];
-
-//    ResourceType type;
-//    auto plugin = findImportPlugin(filename, type);
-//    if(plugin.isNull()){
-//        return;
-//    }
-    auto viewer = plugin->makeResourceViewer();
-    QFileInfo fInfo(filename);
-    settings.setValue("lastFileDir", fInfo.dir().path());
-
-    ui->selectedImageTab->addTab(viewer, fInfo.fileName());    
-    ui->selectedImageTab->setCurrentWidget(viewer);
-    ui->selectedImageTab->setTabToolTip(ui->selectedImageTab->currentIndex(), filename);
-    ui->actionExport->setEnabled(true);
-
-    viewer->importResource(filename, type);
+	loadFile(filename, false);
+	QFileInfo fInfo(filename);
+	settings.setValue("lastFileDir", fInfo.absoluteDir().absolutePath());
+	addRecentFile(filename);
 }
 
 void MainWindow::exportFile()
 {
-    ResourceViewer* viewer = (ResourceViewer*)(ui->selectedImageTab->currentWidget());
+	ResourceViewer* viewer = (ResourceViewer*)(ui->resourceViewerTabWidget->currentWidget());
     QStringList filtersList;
 
     auto supportedTypes = viewer->plugin()->supportedExportTypes();

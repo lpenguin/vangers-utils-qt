@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <functional>
 #include <QItemSelection>
 #include <QMainWindow>
 #include <QModelIndex>
@@ -14,6 +15,10 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+class RecentData {
+
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,15 +27,29 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 public slots:
-    void openFile();
+	void openFile();
     void exportFile();
-    void openFile(QModelIndex index);
-    void openFolder();
+	void openFile(QModelIndex index);
+	void openFolder();
 private slots:
     void imageTabs_closeRequested(int index);
     void onCustomContextMenu(const QPoint & point);
     void onDirectorySelectionChanged(QItemSelection selected, QItemSelection deselected);
+	void onTabDoubleClicked(int index);
 private:
+	const int MAX_RECENT = 12;
+	void loadFolder(const QString& folder);
+	void loadFile(const QString& file, bool current);
+
+	void loadRecent();
+	void setRecent(const QStringList& recent, QMenu* menu, std::function<void (QString)> callback);
+	void addRecent(const QString& recent,
+				   const QString& settingName,
+				   QMenu* menu,
+				   std::function<void (QString)> callback);
+
+	void addRecentFile(const QString& recentFile);
+	void addRecentFolder(const QString& recentFolder);
     QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, ResourceType& outType);
     Ui::MainWindow *ui;
 
