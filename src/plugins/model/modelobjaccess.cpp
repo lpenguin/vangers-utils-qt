@@ -18,8 +18,7 @@ model::Vector3<qreal> normalize(const model::Vector3<T>& v) {
 	};
 }
 
-void write_c3d(const QString& objectName, const model::C3D& c3d, QIODevice& device){
-	model::obj::ObjWriter writer(&device);
+void write_c3d(const QString& objectName, const model::C3D& c3d, model::obj::ObjWriter& writer){
 	writer.writeStartObject(objectName);
 
 	for(const model::Vertex& vertex: c3d.vectices){
@@ -36,8 +35,8 @@ void write_c3d(const QString& objectName, const model::C3D& c3d, QIODevice& devi
 
 		for(const model::PolygonIndex& i: p.indices){
 			indices.append({
-							   .vertexIndex = i.vertInd,
-							   .normalIndex = i.normInd
+							   .vertexIndex = i.vertInd + 1,
+							   .normalIndex = i.normInd + 1
 						   });
 		}
 		writer.writeFace(indices);
@@ -53,24 +52,23 @@ void ModelObjAccess::write(const model::M3D& model, const QString& outputPath)
 	if(!obj.open(QFile::WriteOnly | QIODevice::Text)){
 		return;
 	}
-
-	QTextStream s(&obj);
-	write_c3d("body", model.body, obj);
-	write_c3d("bound", model.bound, obj);
+	model::obj::ObjWriter writer(&obj);
+	write_c3d("body", model.body, writer);
+	write_c3d("bound", model.bound, writer);
 	for(size_t i = 0; i < model.debris.size(); i++){
 		const model::C3D& debree = model.debris[i];
-		write_c3d(QString("debree%1").arg(i), debree, obj);
+		write_c3d(QString("debree%1").arg(i), debree, writer);
 	}
 
 	for(size_t i = 0; i < model.boundDebris.size(); i++){
 		const model::C3D& boundDebree = model.boundDebris[i];
-		write_c3d(QString("boundDebree%1").arg(i), boundDebree, obj);
+		write_c3d(QString("boundDebree%1").arg(i), boundDebree, writer);
 	}
 
 	for(size_t i = 0; i < model.wheels.size(); i++){
 		const model::Wheel& wheel = model.wheels[i];
 		for(const model::C3D& wheelModel: wheel.model){
-			write_c3d(QString("wheel%1").arg(i), wheelModel, obj);
+			write_c3d(QString("wheel%1").arg(i), wheelModel, writer);
 		}
 	}
 
