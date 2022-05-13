@@ -80,6 +80,8 @@ QtApplication {
         "src/plugins/model/modelwrapper.h",
         "src/plugins/model/myorbitcameracontroller.cpp",
         "src/plugins/model/myorbitcameracontroller.h",
+        "src/plugins/model/objwriter.cpp",
+        "src/plugins/model/objwriter.h",
         "src/plugins/model/propertytree.cpp",
         "src/plugins/model/propertytree.h",
         "src/plugins/model/scenecontroller.cpp",
