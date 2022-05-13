@@ -52,12 +52,15 @@
         </size>
        </property>
       </widget>
-      <widget class="QTabWidget" name="selectedImageTab">
+      <widget class="QTabWidget" name="resourceViewerTabWidget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>5</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="tabShape">
+        <enum>QTabWidget::Rounded</enum>
        </property>
       </widget>
      </widget>
@@ -77,9 +80,22 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuRecent_Folders">
+     <property name="title">
+      <string>Recent Folders...</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuRecent_Files">
+     <property name="title">
+      <string>Recent Files...</string>
+     </property>
+    </widget>
     <addaction name="actionOpen_Folder"/>
     <addaction name="actionOpen"/>
     <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="menuRecent_Files"/>
+    <addaction name="menuRecent_Folders"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -118,6 +134,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="actionTODO">
+   <property name="text">
+    <string>TODO</string>
+   </property>
+  </action>
+  <action name="actionTDO">
+   <property name="text">
+    <string>TDO</string>
    </property>
   </action>
  </widget>
