@@ -21,6 +21,14 @@ const ResourceType ModelViewerPlugin::Json {
 		"*.json"
 	}
 };
+
+const ResourceType ModelViewerPlugin::Obj {
+	.name = "Obj (3D Model/ Animated 3D Model)",
+	.extensions = {
+		"*.obj"
+	}
+};
+
 ModelViewerPlugin::ModelViewerPlugin()
 {
 }
