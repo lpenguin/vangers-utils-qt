@@ -50,6 +50,27 @@ public:
         }
         return value;
     }
+
+	template<typename T>
+	bool tryRead(T& value) {
+		int size = _device->read((char*)(&value), sizeof (T));
+		if(size != sizeof (T)){
+			qWarning() << "invalid read size" << size << sizeof (T);
+			return false;
+		}
+		return true;
+	}
+
+	template<typename T>
+	bool tryRead(std::vector<T>& value, int32_t numValues) {
+		value.resize(numValues);
+		for(int i = 0; i < numValues; i++){
+			if(!tryRead(value[i])){
+				return false;
+			}
+		}
+		return true;
+	}
 };
 
 class BinaryWriter: BinaryIO
