@@ -1,10 +1,8 @@
 #ifndef PROPERTYTREE_H
 #define PROPERTYTREE_H
 
-#include "model.h"
-
 #include <QTreeWidgetItem>
-
+#include <plugins/model/m3d/m3d.h>
 
 const int NAME_COLUMN = 0;
 const int TYPE_COLUMN = 2;
@@ -43,28 +41,28 @@ template<>
 void setupProperty(QTreeWidgetItem* item, const double& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3I32& vector);
+void setupProperty(QTreeWidgetItem* item, const vangers::core::vector::Vector3I32& vector);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3I8& vector);
+void setupProperty(QTreeWidgetItem* item, const vangers::core::vector::Vector3I8& vector);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3F32& vector);
+void setupProperty(QTreeWidgetItem* item, const vangers::core::vector::Vector3F32& vector);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3F64& vector);
+void setupProperty(QTreeWidgetItem* item, const vangers::core::vector::Vector3F64& vector);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Matrix3x3F64& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::core::vector::Matrix3x3F64& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vertex& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::Vertex& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Normal& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::Normal& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::PolygonNormal& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::PolygonNormal& property);
 
 template<typename I>
 void setupProperty(QTreeWidgetItem* item, const std::vector<I>& property){
@@ -76,20 +74,20 @@ void setupProperty(QTreeWidgetItem* item, const std::vector<I>& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::PolygonIndex& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::PolygonIndex& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Polygon& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::Polygon& property);
 
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::C3D& c3d);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::C3D& c3d);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::M3D& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::M3D& property);
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::A3D& property);
+void setupProperty(QTreeWidgetItem* item, const vangers::model::m3d::A3D& property);
 
 
 #endif // PROPERTYTREE_H

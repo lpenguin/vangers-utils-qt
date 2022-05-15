@@ -2,9 +2,9 @@
 #define JSONEXT_H
 
 #include <json.hpp>
-#include "../model.h"
+#include <plugins/model/m3d/m3d.h>
 
-namespace model {
+namespace vangers::core::vector {
 	// Vector3<T>
 	template<typename T>
 	void to_json(nlohmann::json& j, const Vector3<T>& v) {
@@ -28,7 +28,8 @@ namespace model {
 	void from_json(const nlohmann::json& j, Matrix3x3<T>& m) {
 		j.get_to(m.values);
 	}
-
+}
+namespace vangers::model::m3d {
 	// Vertex
 	void to_json(nlohmann::json& j, const Vertex& vertex);
 	void from_json(const nlohmann::json& j, Vertex& vertex);
@@ -70,5 +71,6 @@ namespace model {
 	void to_json(nlohmann::json& j, const A3D& value);
 	void from_json(const nlohmann::json& j, A3D& value);
 }
+
 
 #endif // JSONEXT_H

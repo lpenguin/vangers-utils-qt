@@ -1,13 +1,16 @@
 #include "modelbinaryreaderext.h"
+#include <core/vector.h>
 
+using namespace vangers::core::vector;
+using namespace vangers::model::m3d;
 
 template<typename T>
-bool readVector(model::Vector3<T>& vector, vangers::BinaryReader &reader){
+bool readVector(Vector3<T>& vector, vangers::BinaryReader &reader){
 	return reader.tryRead(vector.x) && reader.tryRead(vector.y) && reader.tryRead(vector.z);
 }
 
 template<typename T>
-bool readMatrix(model::Matrix3x3<T>& matrix, vangers::BinaryReader &reader){
+bool readMatrix(Matrix3x3<T>& matrix, vangers::BinaryReader &reader){
 	if(!reader.tryRead(matrix.values)){
 		return false;
 	}
@@ -16,35 +19,32 @@ bool readMatrix(model::Matrix3x3<T>& matrix, vangers::BinaryReader &reader){
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Matrix3x3F64>(model::Matrix3x3F64& vector){
+bool vangers::BinaryReader::tryRead<Matrix3x3F64>(Matrix3x3F64& vector){
 	return readMatrix(vector, *this);
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Vector3F32>(model::Vector3F32& vector){
+bool vangers::BinaryReader::tryRead<Vector3F32>(Vector3F32& vector){
 	return readVector(vector, *this);
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Vector3F64>(model::Vector3F64& vector){
+bool vangers::BinaryReader::tryRead<Vector3F64>(Vector3F64& vector){
 	return readVector(vector, *this);
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Vector3I8>(model::Vector3I8& vector){
+bool vangers::BinaryReader::tryRead<Vector3I8>(Vector3I8& vector){
 	return readVector(vector, *this);
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Vector3I32>(model::Vector3I32& vector){
+bool vangers::BinaryReader::tryRead<Vector3I32>(Vector3I32& vector){
 	return readVector(vector, *this);
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Vertex>(model::Vertex& c3d);
-
-template<>
-bool vangers::BinaryReader::tryRead<model::Vertex>(model::Vertex &vertex)
+bool vangers::BinaryReader::tryRead<Vertex>(Vertex &vertex)
 {
 	if(!tryRead(vertex.tf)){
 		return false;
@@ -62,7 +62,7 @@ bool vangers::BinaryReader::tryRead<model::Vertex>(model::Vertex &vertex)
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Normal>(model::Normal &normal)
+bool vangers::BinaryReader::tryRead<Normal>(Normal &normal)
 {
 	if(!tryRead(normal.normal)){
 		return false;
@@ -76,7 +76,7 @@ bool vangers::BinaryReader::tryRead<model::Normal>(model::Normal &normal)
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Polygon>(model::Polygon &polygon)
+bool vangers::BinaryReader::tryRead<Polygon>(Polygon &polygon)
 {
 	if(!tryRead(polygon.num)){
 		return false;
@@ -110,7 +110,7 @@ bool vangers::BinaryReader::tryRead<model::Polygon>(model::Polygon &polygon)
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::PolygonIndex>(model::PolygonIndex &polygonIndex)
+bool vangers::BinaryReader::tryRead<PolygonIndex>(PolygonIndex &polygonIndex)
 {
 	if(!tryRead(polygonIndex.vertInd)){
 		return false;
@@ -125,7 +125,7 @@ bool vangers::BinaryReader::tryRead<model::PolygonIndex>(model::PolygonIndex &po
 
 
 template<>
-bool vangers::BinaryReader::tryRead<model::C3D>(model::C3D &c3d)
+bool vangers::BinaryReader::tryRead<C3D>(C3D &c3d)
 {
 	if(!tryRead(c3d.version)){
 		return false;
@@ -209,7 +209,7 @@ bool vangers::BinaryReader::tryRead<model::C3D>(model::C3D &c3d)
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Wheel>(model::Wheel &wheel){
+bool vangers::BinaryReader::tryRead<Wheel>(Wheel &wheel){
 	if(!tryRead(wheel.steer)){
 		return false;
 	}
@@ -238,7 +238,7 @@ bool vangers::BinaryReader::tryRead<model::Wheel>(model::Wheel &wheel){
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::Slot>(model::Slot &slot){
+bool vangers::BinaryReader::tryRead<Slot>(Slot &slot){
 	if(!tryRead(slot.rSlots)){
 		return false;
 	}
@@ -252,7 +252,7 @@ bool vangers::BinaryReader::tryRead<model::Slot>(model::Slot &slot){
 
 
 template<>
-bool vangers::BinaryReader::tryRead<model::M3D>(model::M3D &m3d){
+bool vangers::BinaryReader::tryRead<M3D>(M3D &m3d){
 	if(!tryRead(m3d.body)){
 		return false;
 	}
@@ -280,9 +280,16 @@ bool vangers::BinaryReader::tryRead<model::M3D>(model::M3D &m3d){
 
 	if(!tryRead(m3d.wheels, m3d.nWheels)) return false;
 
-	if(!tryRead(m3d.debris, m3d.nDebris)) return false;
+//	if(!tryRead(m3d.debris, m3d.nDebris)) return false;
+//	if(!tryRead(m3d.boundDebris, m3d.nDebris)) return false;
 
-	if(!tryRead(m3d.boundDebris, m3d.nDebris)) return false;
+	m3d.debris.resize(m3d.nDebris);
+	m3d.boundDebris.resize(m3d.nDebris);
+
+	for(int i = 0; i < m3d.nDebris; i++){
+		if(!tryRead(m3d.debris[i])) return false;
+		if(!tryRead(m3d.boundDebris[i])) return false;
+	}
 
 	if(!tryRead(m3d.bound)) return false;
 
@@ -295,7 +302,7 @@ bool vangers::BinaryReader::tryRead<model::M3D>(model::M3D &m3d){
 }
 
 template<>
-bool vangers::BinaryReader::tryRead<model::A3D>(model::A3D& a3d)
+bool vangers::BinaryReader::tryRead<A3D>(A3D& a3d)
 {
 	if(!tryRead(a3d.nModels)) return false;
 

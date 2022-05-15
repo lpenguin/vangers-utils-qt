@@ -1,27 +1,16 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef M3D_H
+#define M3D_H
 #include <inttypes.h>
 #include <utility>
 #include <vector>
+#include <core/vector.h>
 
-namespace model {
-	template<typename T>
-	struct Vector3 {
-		T x;
-		T y;
-		T z;
-	};
-
-	template<typename T>
-	struct Matrix3x3 {
-		T values[9];
-	};
-
-	typedef Vector3<int8_t> Vector3I8;
-	typedef Vector3<int32_t> Vector3I32;
-	typedef Vector3<double> Vector3F64;
-	typedef Vector3<float> Vector3F32;
-	typedef Matrix3x3<double> Matrix3x3F64;
+namespace vangers::model::m3d {
+	using Vector3F32 = vangers::core::vector::Vector3F32;
+	using Vector3I8 = vangers::core::vector::Vector3I8;
+	using Vector3I32 = vangers::core::vector::Vector3I32;
+	using Vector3F64 = vangers::core::vector::Vector3F64;
+	using Matrix3x3F64 = vangers::core::vector::Matrix3x3F64;
 
 	struct Vertex {
 		Vector3F32 tf;
@@ -34,7 +23,7 @@ namespace model {
 		uint8_t nPower;
 	};
 
-	struct PolygonNormal: Normal {
+	struct PolygonNormal: public Normal {
 		int32_t sortInfo;
 	};
 
@@ -113,6 +102,6 @@ namespace model {
 	};
 }
 
-#endif // MODEL_H
+#endif // M3D_H
 
 

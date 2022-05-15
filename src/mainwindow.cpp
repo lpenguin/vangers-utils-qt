@@ -298,7 +298,8 @@ void MainWindow::openFile()
                                                  tr("Open file"),
                                                  root,
                                                  nameFilters.join(";;"),
-                                                 &selectedFilter);
+												 &selectedFilter,
+												 QFileDialog::Option::DontUseNativeDialog);
 
     if(filename.isNull() || filename.isEmpty()){
         return;
@@ -330,7 +331,8 @@ void MainWindow::exportFile()
                 tr("Save file"),
                  QFileInfo(viewer->currentFile()).dir().path(),
                 filtersList.join(";;"),
-                &selectedFilter);
+				&selectedFilter,
+				QFileDialog::Option::DontUseNativeDialog);
 
     int typeIndex = filtersList.indexOf(selectedFilter);
     if(typeIndex < 0 || typeIndex >= supportedTypes.size()){

@@ -1,14 +1,17 @@
 #include "modelviewerplugin.h"
 #include "modelviewer.h"
+
+using namespace vangers::model::view;
+
 const ResourceType ModelViewerPlugin::M3D {
-	.name = "M3D (3D model)",
+	.name = "M3D",
 	.extensions = {
 		"*.m3d"
 	}
 };
 
 const ResourceType ModelViewerPlugin::A3D {
-	.name = "A3D (Animated 3D model)",
+	.name = "A3D",
 	.extensions = {
 		"*.a3d"
 	}
@@ -23,24 +26,20 @@ const ResourceType ModelViewerPlugin::Json {
 };
 
 const ResourceType ModelViewerPlugin::Obj {
-	.name = "Obj (3D Model/ Animated 3D Model)",
+	.name = "Wavefront OBJ",
 	.extensions = {
 		"*.obj"
 	}
 };
 
-ModelViewerPlugin::ModelViewerPlugin()
-{
-}
-
 QList<ResourceType> ModelViewerPlugin::supportedImportTypes() const
 {
-	return {M3D, A3D, Json};
+	return {M3D, Obj};
 }
 
 QList<ResourceType> ModelViewerPlugin::supportedExportTypes() const
 {
-	return {Json, Obj};
+	return {M3D, Obj};
 }
 
 ResourceViewer *ModelViewerPlugin::makeResourceViewer(QWidget *parent)

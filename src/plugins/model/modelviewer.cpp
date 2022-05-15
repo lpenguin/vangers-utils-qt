@@ -1,14 +1,29 @@
 #include "modelviewer.h"
-#include "modelaccess.h"
 #include "propertytree.h"
 #include "scenecontroller.h"
 #include "modelviewerplugin.h"
-#include "modelobjaccess.h"
+
 #include "extensions/jsonext.h"
 
-#include <Qt3DExtras/Qt3DWindow>
-#include <QPushButton>
 
+
+#include <Qt3DExtras/Qt3DWindow>
+#include <QFileInfo>
+#include <QDir>
+#include <QPushButton>
+#include <QMenu>
+#include <QClipboard>
+#include <plugins/model/objimport/objimportsettingsaccess.h>
+#include <plugins/model/objimport/objexporter.h>
+#include <plugins/model/objimport/objimporter.h>
+#include <plugins/model/m3d/modelaccess.h>
+#include <plugins/model/obj/objreader.h>
+#include <plugins/model/obj/objwriter.h>
+
+using namespace vangers::model;
+using namespace vangers::model::view;
+using namespace vangers::model::obj;
+using namespace vangers::model::objimport;
 
 ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 	: ResourceViewer(plugin, parent)
@@ -20,11 +35,24 @@ ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 	connect(_ui->propertiesTree, &QTreeWidget::itemClicked,
 			this, &ModelViewer::onTreeItemClicked);
 
+	_ui->propertiesTree->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(
+		_ui->propertiesTree,
+		&QTreeWidget::customContextMenuRequested,
+		this,
+		&ModelViewer::onTreeContextMenuRequested
+	);
+
 	Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
 
 	_widget3d = QWidget::createWindowContainer(view);
 	_ui->splitter->insertWidget(0, _widget3d);
+
+	_objImportWidget = new ObjImportSettingsWidget(_ui->tabObjImporter);
+	// TODO: memory leak
+	_objImportController = new ObjImportController(_objImportWidget);
 	_sceneController = new SceneController(view, this);
+	_objectsController = new M3DObjectsController(_ui->treeObjects, _sceneController, this);
 
 	QObject::connect(_ui->resetViewButton,
 					 &QAbstractButton::clicked,
@@ -40,6 +68,11 @@ ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 					 &QAbstractButton::clicked,
 					 this,
 					 &ModelViewer::onNextModelClicked);
+
+	QObject::connect(_objImportWidget,
+					 &ObjImportSettingsWidget::importSettingsChanged,
+					 this,
+					 &ModelViewer::onImportSettingsChanged);
 }
 
 
@@ -48,110 +81,151 @@ bool ModelViewer::importResource(const QString &filePath, const ResourceType &ty
 {
 	_currentFile = filePath;
 	_ui->propertiesTree->clear();
-
-	QTreeWidgetItem* root = nullptr;
+	_ui->tabWidget->setTabVisible(2, false);
 
 	if(type == ModelViewerPlugin::M3D){
-		ModelM3DAccess access;
-		_model = model::M3D();
-
-		model::M3D& m3d = std::get<model::M3D>(_model);
-
-		if(!access.readFromFile(m3d, filePath)){
-			return false;
-		}
-
-		root = addProperty(nullptr, "root", m3d);
-		_sceneController->setM3D(QSharedPointer<model::M3D>::create(m3d));
-	} else if(type == ModelViewerPlugin::A3D){
-		ModelA3DAccess access;
-		_model = model::A3D();
-		_a3dModelIndex = 0;
-
-		model::A3D& a3d = std::get<model::A3D>(_model);
-
-		if(!access.readFromFile(a3d, filePath)){
-			return false;
-		}
-
-		root = addProperty(nullptr, "root", a3d);
-		_sceneController->setC3D(a3d.models[0]);
-	} else if(type == ModelViewerPlugin::Json) {
-		QFile file(filePath);
-		file.open(QFile::ReadOnly);
-		std::string s = file.readAll().toStdString();
-		file.close();
-
-		auto json = nlohmann::json::parse(s);
-		if(json.contains("models")){
-			_model = model::A3D();
-			auto& a3d = std::get<model::A3D>(_model);
-			from_json(json, a3d);
-			_sceneController->setC3D(a3d.models[0]);
-			root = addProperty(nullptr, "root", a3d);
-		} else {
-			_model = model::M3D();
-
-			auto& m3d = std::get<model::M3D>(_model);
-			from_json(json, m3d);
-			root = addProperty(nullptr, "root", m3d);
-			_sceneController->setM3D(QSharedPointer<model::M3D>::create(m3d));
-		}
-
-	} else {
-		return false;
+		return importM3D(filePath);
+	} else if(type == ModelViewerPlugin::Obj)  {
+		_ui->tabWidget->setTabVisible(2, true);
+		return importObj(filePath);
 	}
 
-	_ui->propertiesTree->addTopLevelItem(root);
-	_ui->propertiesTree->setColumnWidth(0, 200);
-
-	root->setExpanded(true);
-	root->child(0)->setExpanded(true);
-
-
-	return true;
+	return false;
 }
 
 
 
 void ModelViewer::exportResource(const QString &filePath, const ResourceType &type)
 {
-	if(type.name == ModelViewerPlugin::Json.name){
-		if(std::holds_alternative<model::M3D>(_model)){
-			const model::M3D& m3d = std::get<model::M3D>(_model);
-			auto root = nlohmann::json::object();
-			to_json(root, m3d);
-			std::string serialized = root.dump(2);
-			QFile f(filePath);
-			f.open(QFile::WriteOnly);
-			f.write(serialized.c_str());
-			f.close();
-		} else if(std::holds_alternative<model::A3D>(_model)){
-			const model::A3D& a3d = std::get<model::A3D>(_model);
-			auto root = nlohmann::json::object();
-			to_json(root, a3d);
-			std::string serialized = root.dump(2);
-			QFile f(filePath);
-			f.open(QFile::WriteOnly);
-			f.write(serialized.c_str());
-			f.close();
-		}
-	} else if(type == ModelViewerPlugin::Obj) {
-		if(std::holds_alternative<model::M3D>(_model)){
-			const model::M3D& m3d = std::get<model::M3D>(_model);
-			vangers::ModelObjAccess().write(m3d, filePath);
-		}
+	if(!_model) return;
+
+	if(type == ModelViewerPlugin::Obj) {
+		exportObj(filePath);
+	} else if(type == ModelViewerPlugin::M3D){
+		exportM3D(filePath);
 	}
 }
 
-void ModelViewer::showA3dModel(model::A3D& a3d)
+void ModelViewer::showA3dModel(A3D& a3d)
 {
 	if(_a3dModelIndex < 0 || _a3dModelIndex >= a3d.models.size()) return;
 
-	_sceneController->setC3D(a3d.models[_a3dModelIndex]);
+	// TODO:
+	//	_sceneController->setC3D(a3d.models[_a3dModelIndex]);
 }
 
-QVector3D fromVectorI8(const model::Vector3I8& v){
+
+
+void ModelViewer::setupModel()
+{
+	const M3D& m3d = *_model;
+
+	_ui->propertiesTree->clear();
+	auto* root = addProperty(nullptr, "root", m3d);
+	_sceneController->setM3D(m3d);
+	_objectsController->setM3D(m3d);
+
+	_ui->propertiesTree->addTopLevelItem(root);
+	_ui->propertiesTree->setColumnWidth(0, 200);
+
+	root->setExpanded(true);
+	root->child(0)->setExpanded(true);
+}
+
+bool ModelViewer::importM3D(const QString& filePath)
+{
+	_model = QSharedPointer<M3D>::create();
+
+	M3DAccess access;
+
+	if(!access.readFromFile(*_model, filePath)){
+		return false;
+	}
+
+	setupModel();
+	return true;
+}
+
+QString getImportSettingsFilename(const QString& filePath){
+	QFileInfo fileInfo(filePath);
+	QString settingsName = fileInfo.baseName() + ".import.ini";
+	return fileInfo.absoluteDir().filePath(settingsName);
+}
+
+QString getMaterialsFilename(const QString& filePath){
+	QFileInfo fileInfo(filePath);
+	QString settingsName = fileInfo.baseName() + ".mtl";
+	return fileInfo.absoluteDir().filePath(settingsName);
+}
+
+bool ModelViewer::importObj(const QString& filePath)
+{
+	_model = QSharedPointer<M3D>::create();
+
+	std::unique_ptr<ObjectCollection> objectCollection = std::make_unique<ObjectCollection>();
+
+
+	QFile f(filePath);
+	if(!f.open(QFile::ReadOnly | QFile::Text)){
+		return false;
+	}
+
+	if(!ObjReader().read(*objectCollection, f)) return false;
+
+
+	QString settingsFileName = getImportSettingsFilename(filePath);
+
+	QFileInfo fileInfo(settingsFileName);
+
+
+	std::unique_ptr<ObjImportSettings> importSettings = std::make_unique<ObjImportSettings>();
+	ObjImporter::makeDefaultImportSettings(*objectCollection, *importSettings);
+
+	if(fileInfo.exists()){
+		ObjImportSettingsAccess settingsAccess;
+		ObjImportSettings readImportSettings{};
+		if(!settingsAccess.readFromFile(readImportSettings, settingsFileName)){
+			qDebug() << "Could not read import settings" << settingsFileName;
+			importSettings = {};
+		}
+		ObjImportSettings::merge(readImportSettings, *importSettings);
+	}
+
+	ObjImportSettingsAccess().writeToFile(*importSettings, getImportSettingsFilename(filePath));
+
+	_objImportController->setObjectCollection(
+				std::move(objectCollection),
+				std::move(importSettings));
+
+	bool ok = _objImportController->import(*_model);
+	if(!ok) return false;
+
+	setupModel();
+	return true;
+}
+
+void ModelViewer::exportM3D(const QString& filePath)
+{
+	M3DAccess().writeToFile(*_model, filePath);
+}
+
+void ModelViewer::exportObj(const QString& filePath)
+{
+	ObjectCollection result;
+	ObjImportSettings settings{};
+	ObjExporter().export_(*_model, result, settings);
+	ObjImportSettingsAccess().writeToFile(settings, getImportSettingsFilename(filePath));
+
+	QString mtlFilePath = getMaterialsFilename(filePath);
+	QString mtlName = QFileInfo(mtlFilePath).fileName();
+	result.useMaterialLibraries.append(mtlName);
+
+	ObjWriter().write(result, filePath);
+	ObjWriter().writeMaterials(result.materials, mtlFilePath);
+
+}
+
+QVector3D fromVectorI8(const Vector3I8& v){
 	return QVector3D(v.x, v.y, v.z);
 }
 
@@ -162,40 +236,62 @@ void ModelViewer::onTreeItemClicked(QTreeWidgetItem* item, int column)
 		path.prepend(item->text(0));
 		item = item->parent();
 	}while(item->parent() != nullptr);
+}
 
-	if(std::holds_alternative<model::A3D>(_model)){
-		qDebug() << path;
-		if(path.size() >= 2&& path[0] == "models"){
-			QString modelIndStr = path[1];
-			_a3dModelIndex = modelIndStr.mid(1, modelIndStr.size() - 2).toInt();
-			showA3dModel(std::get<model::A3D>(_model));
+void ModelViewer::onTreeContextMenuRequested(const QPoint& pos)
+{
+	qDebug() << _ui->propertiesTree->selectedItems().size();
+	QMenu* menu = new QMenu(this);
+	QAction* copyContentsAction = new QAction("Copy selection contents", this);
+	connect(copyContentsAction,
+			&QAction::triggered,
+			[this](bool){
+		QStringList contentsList;
+		for(const QTreeWidgetItem* item: _ui->propertiesTree->selectedItems()){
+			QStringList rowContentsList;
+			for(int i = 0; i < item->columnCount(); i++){
+				rowContentsList.append(item->text(i));
+			}
+			contentsList.append(rowContentsList.join('\t'));
 		}
+		 QClipboard *clipboard = QGuiApplication::clipboard();
+		 clipboard->setText(contentsList.join("\n"));
+	});
 
-	}
-	// TODO: body parts selection
-
-
+	menu->addAction(copyContentsAction);
+	menu->exec(_ui->propertiesTree->mapToGlobal(pos) );
 }
 
 void ModelViewer::onPrevModelClicked()
 {
-	if(std::holds_alternative<model::A3D>(_model)){
-		auto& a3d = std::get<model::A3D>(_model);
-		_a3dModelIndex = _a3dModelIndex - 1;
-		if(_a3dModelIndex < 0){
-			_a3dModelIndex = a3d.models.size() - 1;
-		}
-		showA3dModel(a3d);
-	}
+//	if(std::holds_alternative<model::A3D>(_model)){
+//		auto& a3d = std::get<model::A3D>(_model);
+//		_a3dModelIndex = _a3dModelIndex - 1;
+//		if(_a3dModelIndex < 0){
+//			_a3dModelIndex = a3d.models.size() - 1;
+//		}
+//		showA3dModel(a3d);
+//	}
 }
 
 void ModelViewer::onNextModelClicked()
 {
-	if(std::holds_alternative<model::A3D>(_model)){
-		auto& a3d = std::get<model::A3D>(_model);
-		_a3dModelIndex = (_a3dModelIndex + 1) % a3d.models.size();
-		showA3dModel(a3d);
-	}
+//	if(std::holds_alternative<model::A3D>(_model)){
+//		auto& a3d = std::get<model::A3D>(_model);
+//		_a3dModelIndex = (_a3dModelIndex + 1) % a3d.models.size();
+//		showA3dModel(a3d);
+//	}
 }
+
+void ModelViewer::onImportSettingsChanged()
+{
+	bool ok = _objImportController->import(*_model);
+	if(!ok) return;
+
+	ObjImportSettingsAccess().writeToFile(*_objImportController->importSettings(), getImportSettingsFilename(_currentFile));
+
+	setupModel();
+}
+
 
 

@@ -16,20 +16,27 @@
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QPerVertexColorMaterial>
 #include <Qt3DExtras/QCylinderMesh>
+#include <Qt3DExtras/QConeMesh>
 #include <Qt3DExtras/QCuboidMesh>
 #include <Qt3DExtras/QSphereMesh>
 #include <Qt3DInput/QInputAspect>
 #include <Qt3DExtras/QForwardRenderer>
+#include <Qt3DCore/QNode>
 
 #include "c3drenderer.h"
 #include "gridmesh.h"
 #include "myorbitcameracontroller.h"
+
+using namespace vangers::model;
+using namespace vangers::model::view;
 
 SceneController::SceneController(Qt3DExtras::Qt3DWindow* view, QObject* parent)
 	: QObject(parent)
 	, _view(view)
 	, _rootEntity(nullptr)
 	, _modelsEntity(nullptr)
+	, _bodyView(nullptr)
+	, _boundView(nullptr)
 {
 	init();
 }
@@ -40,6 +47,7 @@ void SceneController::init()
 	_view->setRootEntity(_rootEntity);
 //	_view->defaultFrameGraph()->setShowDebugOverlay(true);
 	_view->defaultFrameGraph()->setClearColor(QColor(QRgb(0x4d4d4f)));
+//	_view->defaultFrameGraph()
 	Qt3DInput::QInputAspect *input = new Qt3DInput::QInputAspect;
 	_view->registerAspect(input);
 
@@ -47,6 +55,7 @@ void SceneController::init()
 
 
 	// Camera
+//	_view->camera()
 	Qt3DRender::QCamera *cameraEntity = _view->camera();
 
 	cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0f/9.0f, 0.1f, 1000.0f);
@@ -147,14 +156,16 @@ void SceneController::init()
 
 }
 
-void addSlots(Qt3DCore::QEntity*root, const model::M3D& m3d){
+void addSlots(Qt3DCore::QEntity*root, const M3D& m3d){
 	for( int i =0 ; i < 3; i++){
 		if(!((1 << i) & m3d.slotsExistence)){
 			continue;
 		}
-		const model::Slot& slot_ = m3d.rSlots[i];
-		Qt3DExtras::QSphereMesh *slotMesh = new Qt3DExtras::QSphereMesh();
-		slotMesh->setRadius(1);
+		const Slot& slot_ = m3d.rSlots[i];
+
+		Qt3DExtras::QConeMesh *slotMesh = new Qt3DExtras::QConeMesh();
+		slotMesh->setBottomRadius(1);
+		slotMesh->setTopRadius(0);
 		slotMesh->setRings(100);
 		slotMesh->setSlices(20);
 
@@ -171,6 +182,7 @@ void addSlots(Qt3DCore::QEntity*root, const model::M3D& m3d){
 
 		Qt3DExtras::QPhongMaterial *material= new Qt3DExtras::QPhongMaterial();
 		material->setDiffuse(QColor(QRgb(0x928327)));
+		material->setSpecular(QColorConstants::Black);
 
 		auto* slotEntity= new Qt3DCore::QEntity(root);
 		slotEntity->addComponent(slotMesh);
@@ -180,69 +192,121 @@ void addSlots(Qt3DCore::QEntity*root, const model::M3D& m3d){
 
 }
 
-void addWheels(Qt3DCore::QEntity*root, const model::M3D& m3d){
-	for(const model::Wheel& wheel: m3d.wheels){
-		if(wheel.steer == 0){
-			continue;
-		}
-
-		auto ptr = QSharedPointer<model::C3D>::create(wheel.model[0]);
-		C3DMesh *mesh = new C3DMesh(ptr);
-
-//		Qt3DExtras::QSphereMesh *mesh = new Qt3DExtras::QSphereMesh();
-//		mesh->setRadius(8);
-//		mesh->setRings(100);
-//		mesh->setSlices(20);
-
-		QVector3D slotPosition(
-					wheel.f.x,
-					wheel.f.y,
-					wheel.f.z
-					);
-
-		Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
-		transform->setScale(1.0f / 16.0f);
-		transform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1.0f, 0.0f, 0.0f), 0.0f));
-		transform->setTranslation(slotPosition/ 16.0f);
-
-		Qt3DExtras::QPerVertexColorMaterial *material= new Qt3DExtras::QPerVertexColorMaterial();
-
-		auto* entity= new Qt3DCore::QEntity(root);
-		entity->addComponent(mesh);
-		entity->addComponent(material);
-		entity->addComponent(transform );
-	}
-
-}
-
-void SceneController::setM3D(const QSharedPointer<model::M3D>& m3d)
+void SceneController::setM3D(const M3D& m3d)
 {
-	setC3D(m3d->body);
-	addSlots(_modelsEntity, *m3d);
-	addWheels(_modelsEntity, *m3d);
-}
 
-void SceneController::setC3D(const model::C3D& c3d)
-{
+	delete _bodyView;
+	delete _boundView;
+	_debrisViews.clear();
+	_wheelViews.clear();
+	_slotViews.clear();
+	_debrisBoundViews.clear();
+
 	for(Qt3DCore::QNode* child: _modelsEntity->childNodes()){
 		child->deleteLater();
 	}
 
-	auto ptr = QSharedPointer<model::C3D>::create(c3d);
-	C3DMesh* c3dMesh = new C3DMesh(ptr);
+	_bodyView = new C3DView(m3d.body, {}, _modelsEntity);
+	_bodyView->setVisible(true);
 
-	Qt3DCore::QTransform *c3dTransform = new Qt3DCore::QTransform();
-	c3dTransform->setScale(1/16.0f);
+	_boundView = new C3DView(m3d.bound, {}, _modelsEntity);
+	_boundView->setVisible(true);
 
-	Qt3DExtras::QPerVertexColorMaterial *c3dMaterial = new Qt3DExtras::QPerVertexColorMaterial();
+	for(const C3D& debris: m3d.debris){
+		C3DView* debrisView = new C3DView(debris, {}, _modelsEntity);
+//		debrisView->setVisible(true);
+//		debrisView->setVisible(false);
+		_debrisViews.append(debrisView);
 
-	auto* c3dEntity = new Qt3DCore::QEntity(_modelsEntity);
-	c3dEntity->addComponent(c3dMesh);
-	c3dEntity->addComponent(c3dMaterial);
-	c3dEntity->addComponent(c3dTransform);
+		C3DView* debrisBoundView = new C3DView(debris, {}, _modelsEntity);
+//		debrisBoundView->setVisible(true);
+//		debrisBoundView->setVisible(false);
+		_debrisBoundViews.append(debrisBoundView);
+	}
+
+	for(const Wheel& wheel: m3d.wheels){
+		if(wheel.model.size() == 0) continue;
+
+		QVector3D position(wheel.f.x, wheel.f.y, wheel.f.z);
+
+		C3DView* wheelView = new C3DView(wheel.model[0], position, _modelsEntity);
+		wheelView->setVisible(true);
+		_wheelViews.append(wheelView);
+	}
 
 
+	for(int i =0 ; i < m3d.rSlots.size(); i++){
+		if(!((1 << i) & m3d.slotsExistence)){
+			continue;
+		}
+		const Slot& slot_ = m3d.rSlots[i];
+		SlotView* slotView = new SlotView(_modelsEntity, this);
+		slotView->setSlot(slot_);
+		_slotViews.append(slotView);
+	}
+
+
+//	for(int i =0 ; i < 3; i++){
+//		if(!((1 << i) & m3d->slotsExistence)){
+//			continue;
+//		}
+//		const model::Slot& slot_ = m3d->rSlots[i];
+//		SlotView* slotView = new SlotView(_modelsEntity, this);
+//		slotView->setSlot(slot_);
+//		_slotViews.append(slotView);
+//	}
+//	addSlots(_modelsEntity, *m3d);
+	//	addWheels(_modelsEntity, *m3d);
 }
+
+void SceneController::setBodyVisible(bool visible)
+{
+	if(_bodyView == nullptr) return;
+
+	_bodyView->setVisible(visible);
+}
+
+void SceneController::setBoundVisible(bool visible)
+{
+	if(_boundView == nullptr) return;
+
+	_boundView->setVisible(visible);
+}
+
+void SceneController::setDebrisVisible(int index, bool visible)
+{
+	if(index < 0 || index >= _debrisViews.size()) return;
+
+	_debrisViews[index]->setVisible(visible);
+}
+
+void SceneController::setDebrisBoundVisible(int index, bool visible)
+{
+	if(index < 0 || index >= _debrisBoundViews.size()) return;
+
+	_debrisBoundViews[index]->setVisible(visible);
+}
+
+void SceneController::setWheelVisible(int index, bool visible)
+{
+	if(index < 0 || index >= _wheelViews.size()) return;
+
+	_wheelViews[index]->setVisible(visible);
+}
+
+void SceneController::setSlotVisible(int index, bool visible)
+{
+	if(index < 0 || index >= _wheelViews.size()) return;
+
+	_slotViews[index]->setVisible(visible);
+}
+
+int SceneController::slotCount()
+{
+	return _slotViews.size();
+}
+
+
 
 void SceneController::resetView()
 {
@@ -252,5 +316,4 @@ void SceneController::resetView()
 	camera->setViewCenter(QVector3D(0, 0, 0));
 
 }
-
 

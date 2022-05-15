@@ -5,35 +5,55 @@
 #include <plugins/resourceviewer.h>
 #include "ui_modelviewer.h"
 #include "scenecontroller.h"
+#include "m3dobjectscontroller.h"
 
-class ModelViewer : public ResourceViewer
-{
-	Q_OBJECT
-public:
+#include <plugins/model/objimport/objimportsettingswidget.h>
+#include <plugins/model/objimport/objimportcontroller.h>
 
-	ModelViewer(ResourceViewerPlugin* plugin, QWidget* parent = nullptr);
+namespace vangers::model::view {
+	using namespace vangers::model::objimport;
 
-	bool importResource(const QString &filePath, const ResourceType &resourceType);
-	void exportResource(const QString &filePath, const ResourceType &resourceType);
+	class ModelViewer : public ResourceViewer
+	{
+		Q_OBJECT
+	public:
 
-	QString currentFile() const {
-		return _currentFile;
-	}
+		ModelViewer(ResourceViewerPlugin* plugin, QWidget* parent = nullptr);
 
-private:
-	QString _currentFile;
-	Ui::ModelViewer* _ui;
-	QWidget* _widget3d;
-	SceneController* _sceneController;
-	std::variant<model::M3D, model::A3D> _model;
-	int _a3dModelIndex;
+		bool importResource(const QString &filePath, const ResourceType &resourceType);
+		void exportResource(const QString &filePath, const ResourceType &resourceType);
 
-	void showA3dModel(model::A3D& a3d);
+		QString currentFile() const {
+			return _currentFile;
+		}
 
-private slots:
-	void onTreeItemClicked(QTreeWidgetItem *item, int column);
-	void onPrevModelClicked();
-	void onNextModelClicked();
-};
+	private:
+		QString _currentFile;
+		Ui::ModelViewer* _ui;
+		QWidget* _widget3d;
+		SceneController* _sceneController;
+		M3DObjectsController* _objectsController;
+		ObjImportSettingsWidget* _objImportWidget;
+		ObjImportController* _objImportController;
+		QSharedPointer<M3D> _model;
+		int _a3dModelIndex;
+
+		void showA3dModel(A3D& a3d);
+		void setupModel();
+
+		bool importM3D(const QString &filePath);
+		bool importObj(const QString &filePath);
+
+		void exportM3D(const QString& filePath);
+		void exportObj(const QString &filePath);
+	private slots:
+		void onTreeItemClicked(QTreeWidgetItem *item, int column);
+		void onTreeContextMenuRequested(const QPoint& pos);
+		void onPrevModelClicked();
+		void onNextModelClicked();
+		void onImportSettingsChanged();
+	};
+}
+
 
 #endif // MODELVIEWER_H

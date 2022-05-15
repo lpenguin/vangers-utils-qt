@@ -8,7 +8,7 @@
 class ModelViewerPlugin : public ResourceViewerPlugin
 {
 public:
-	ModelViewerPlugin();
+	ModelViewerPlugin() = default;
 	virtual ~ModelViewerPlugin() = default;
 
 	QList<ResourceType> supportedImportTypes() const;

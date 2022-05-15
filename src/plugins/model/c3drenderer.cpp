@@ -4,7 +4,11 @@
 #include <image/palette.h>
 #include <QColor>
 #include <QVector3D>
-#include "colortable.h"
+#include <plugins/model/m3d/colortable.h>
+
+using namespace vangers::model::m3d;
+using namespace vangers::model::view;
+
 
 using QAttribute = Qt3DRender::QAttribute;
 
@@ -15,21 +19,22 @@ struct DrawVBOData {
 };
 
 
-C3DMesh::C3DMesh(const QSharedPointer<model::C3D>& c3d, Qt3DCore::QNode* parent)
+C3DMesh::C3DMesh(const C3D& c3d, Qt3DCore::QNode* parent)
 	: QGeometryRenderer(parent)
 {
 	C3DGeometry* geometry = new C3DGeometry(c3d, this);
 	QGeometryRenderer::setGeometry(geometry);
+	auto pt = primitiveType();
+	qDebug() << pt;
 }
 
-C3DGeometry::C3DGeometry(const QSharedPointer<model::C3D>& c3d, Qt3DCore::QNode* parent)
+C3DGeometry::C3DGeometry(const C3D& c3d, Qt3DCore::QNode* parent)
 	: Qt3DRender::QGeometry(parent)
-	, _c3d(c3d)
 {
-	init();
+	init(c3d);
 }
 
-void C3DGeometry::init()
+void C3DGeometry::init(const C3D& c3d)
 {
 	Qt3DRender::QAttribute* m_positionAttribute = new Qt3DRender::QAttribute(this);
 	Qt3DRender::QAttribute* m_normalAttribute = new Qt3DRender::QAttribute(this);
@@ -40,7 +45,16 @@ void C3DGeometry::init()
 	Qt3DRender::QBuffer* m_indexBuffer = new Qt3DRender::QBuffer(this);
 
 	const int stride = sizeof (DrawVBOData);
-	int nVerts = 3 * _c3d->polygons.size();
+	int nVerts = 0;
+	for(const Polygon& p: c3d.polygons){
+		nVerts += p.num;
+	}
+
+	int nInds = 0;
+	for(const Polygon& p: c3d.polygons){
+		nInds += p.num == 3 ? 3 : 6;
+	}
+
 
 	m_positionAttribute->setName(QAttribute::defaultPositionAttributeName());
 	m_positionAttribute->setVertexBaseType(QAttribute::Float);
@@ -72,10 +86,10 @@ void C3DGeometry::init()
 	m_indexAttribute->setAttributeType(QAttribute::IndexAttribute);
 	m_indexAttribute->setVertexBaseType(QAttribute::UnsignedShort);
 	m_indexAttribute->setBuffer(m_indexBuffer);
-	m_indexAttribute->setCount(nVerts);
+	m_indexAttribute->setCount(nInds);
 
-	m_vertexBuffer->setDataGenerator(QSharedPointer<C3DVertexBufferFunctor>::create(_c3d));
-	m_indexBuffer->setDataGenerator(QSharedPointer<C3DIndexBufferFunctor>::create(_c3d));
+	m_vertexBuffer->setData(createC3DVertexData(c3d));
+	m_indexBuffer->setData(createC3DIndexData(c3d));
 
 	this->addAttribute(m_positionAttribute);
 	this->addAttribute(m_normalAttribute);
@@ -83,28 +97,31 @@ void C3DGeometry::init()
 	this->addAttribute(m_indexAttribute);
 }
 
-QByteArray createC3DVertexData(const model::C3D& c3d)
+QByteArray vangers::model::view::createC3DVertexData(const C3D& c3d)
 {
 	vangers::Palette pal = vangers::Palette::read("objects.pal");
 
 	QMap<int32_t, QColor> colorMap;
 
-	int nVerts = 3 * c3d.polygons.size();
+	int nVerts = 0;
+	for(const Polygon& p: c3d.polygons){
+		nVerts += p.num;
+	}
 
 	const quint32 stride = sizeof (DrawVBOData);
 	QByteArray bufferBytes;
 	bufferBytes.resize(stride * nVerts);
 	DrawVBOData* fptr = reinterpret_cast<DrawVBOData*>(bufferBytes.data());
 
-	for(const model::Polygon& polygon: c3d.polygons){
-		if(polygon.num != 3){
-			return {};
-		}
+	for(const Polygon& polygon: c3d.polygons){
+//		if(polygon.num != 3){
+//			return {};
+//		}
 
 		uint32_t colorId = polygon.colorId;
 		if(colorId == 1) {
 			// TODO: take M3D bodyColor/bodyOffset
-			colorId = (uint32_t)COLORS_IDS::BODY_GREEN;
+			colorId = (uint32_t)ColorId::BODY_GREEN;
 		}
 		if(!colorMap.contains(colorId)){
 			uint8_t color_index = get_color_index(colorId);
@@ -115,43 +132,67 @@ QByteArray createC3DVertexData(const model::C3D& c3d)
 		QVector3D colV{(float)c.redF(), (float)c.greenF(), (float)c.blueF()};
 
 
-		for(int i = polygon.indices.size() - 1; i >= 0; i--) {
-			const model::PolygonIndex& ind = polygon.indices[i];
+//		for(int i = polygon.indices.size() - 1; i >= 0; i--) {
+		for(int i = 0; i < polygon.indices.size(); i++) {
+			const PolygonIndex& ind = polygon.indices[i];
 			DrawVBOData* data = fptr++;
 
-			model::Vector3F32 tf = c3d.vectices[ind.vertInd].tf;
+			Vector3F32 tf = c3d.vectices[ind.vertInd].tf;
 			QVector3D posV = {tf.x, tf.y, tf.z};
 
 
 			data->position = posV;
 			data->color = colV;
 
-			model::Vector3I8 norm = c3d.normals[ind.normInd].normal;
+			Vector3I8 norm = c3d.normals[ind.normInd].normal;
 			QVector3D normal = {(float)norm.x, (float)norm.y, (float)norm.z};
-			data->normal = normal.normalized();
+			normal.normalize();
+			data->normal = normal;
 		}
 	}
 
 	return bufferBytes;
 }
 
-QByteArray createC3DIndexData(const model::C3D& c3d)
+QByteArray vangers::model::view::createC3DIndexData(const C3D& c3d)
 {
-	int nVerts = 3 * c3d.polygons.size();
-	const quint32 stride = sizeof (uint16_t);
-	QByteArray bufferBytes;
-	bufferBytes.resize(stride * nVerts);
-	uint16_t* fptr = reinterpret_cast<uint16_t*>(bufferBytes.data());
-
-	uint16_t iVertex = 0;
-	for(const model::Polygon& polygon: c3d.polygons){
-		if(polygon.num != 3){
+	int nInds = 0;
+	for(const Polygon& p: c3d.polygons){
+		if(p.num == 3){
+			nInds += 3;
+		} else if(p.num == 4){
+			nInds += 6;
+		} else {
+			qDebug() << "Invalid polygon size: " << p.num;
 			return {};
 		}
+	}
 
-		for(ulong i = 0; i < polygon.indices.size(); i++){
-			(*fptr++) = iVertex++;
+	const quint32 stride = sizeof (uint16_t);
+	QByteArray bufferBytes;
+	bufferBytes.resize(stride * nInds);
+	uint16_t* fptr = reinterpret_cast<uint16_t*>(bufferBytes.data());
+//	QList<quint32> indices;
+
+
+	uint16_t iVertex = 0;
+	for(const Polygon& polygon: c3d.polygons){
+		if(polygon.num == 3){
+			(*fptr++) = iVertex + 2;
+			(*fptr++) = iVertex + 1;
+			(*fptr++) = iVertex + 0;
+			iVertex += 3;
+		} else if(polygon.num == 4){
+			(*fptr++) = iVertex + 2;
+			(*fptr++) = iVertex + 1;
+			(*fptr++) = iVertex + 0;
+			(*fptr++) = iVertex + 3;
+			(*fptr++) = iVertex + 2;
+			(*fptr++) = iVertex + 0;
+			iVertex += 4;
 		}
+
+
 	}
 
 	return bufferBytes;

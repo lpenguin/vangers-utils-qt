@@ -1,5 +1,7 @@
 #include "propertytree.h"
 
+using namespace vangers::core::vector;
+using namespace vangers::model::m3d;
 
 template<>
 void setupProperty(QTreeWidgetItem* item, const int32_t& property){
@@ -38,7 +40,7 @@ void setupProperty(QTreeWidgetItem* item, const double& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3I32& vector){
+void setupProperty(QTreeWidgetItem* item, const Vector3I32& vector){
 	item->setText(TYPE_COLUMN, "VectorI32");
 	item->setText(VALUE_COLUMN, QString("[%1; %2; %3]").arg(vector.x).arg(vector.y).arg(vector.z));
 	addProperty(item, "x", vector.x);
@@ -47,7 +49,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Vector3I32& vector){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3I8& vector){
+void setupProperty(QTreeWidgetItem* item, const Vector3I8& vector){
 	item->setText(TYPE_COLUMN, "Vector3I8");
 	item->setText(VALUE_COLUMN, QString("[%1; %2; %3]").arg(vector.x).arg(vector.y).arg(vector.z));
 	addProperty(item, "x", vector.x);
@@ -57,7 +59,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Vector3I8& vector){
 
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3F32& vector){
+void setupProperty(QTreeWidgetItem* item, const Vector3F32& vector){
 	item->setText(TYPE_COLUMN, "Vector3F32");
 	item->setText(VALUE_COLUMN, QString("[%1; %2; %3]").arg(vector.x).arg(vector.y).arg(vector.z));
 	addProperty(item, "x", vector.x);
@@ -66,7 +68,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Vector3F32& vector){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vector3F64& vector){
+void setupProperty(QTreeWidgetItem* item, const Vector3F64& vector){
 	item->setText(TYPE_COLUMN, "Vector3F64");
 	item->setText(VALUE_COLUMN, QString("[%1; %2; %3]").arg(vector.x).arg(vector.y).arg(vector.z));
 	addProperty(item, "x", vector.x);
@@ -75,7 +77,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Vector3F64& vector){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Matrix3x3F64& property){
+void setupProperty(QTreeWidgetItem* item, const Matrix3x3F64& property){
 	item->setText(TYPE_COLUMN, "Matrix3x3F64");
 
 	for(int i = 0; i < 9; i++){
@@ -84,7 +86,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Matrix3x3F64& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Vertex& property){
+void setupProperty(QTreeWidgetItem* item, const Vertex& property){
 	item->setText(TYPE_COLUMN, "Vertex");
 	addProperty(item, "tf", property.tf);
 	addProperty(item, "pos", property.pos);
@@ -93,7 +95,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Vertex& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Normal& property){
+void setupProperty(QTreeWidgetItem* item, const Normal& property){
 	item->setText(TYPE_COLUMN, "Normal");
 	addProperty(item, "normal", property.normal);
 	addProperty(item, "nPower", property.nPower);
@@ -101,7 +103,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Normal& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::PolygonNormal& property){
+void setupProperty(QTreeWidgetItem* item, const PolygonNormal& property){
 	item->setText(TYPE_COLUMN, "PolygonNormal");
 	addProperty(item, "normal", property.normal);
 	addProperty(item, "nPower", property.nPower);
@@ -111,7 +113,7 @@ void setupProperty(QTreeWidgetItem* item, const model::PolygonNormal& property){
 
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::PolygonIndex& property){
+void setupProperty(QTreeWidgetItem* item, const PolygonIndex& property){
 	item->setText(TYPE_COLUMN, "PolygonIndex");
 	addProperty(item, "vertInd", property.vertInd);
 	addProperty(item, "normInd", property.normInd);
@@ -119,7 +121,7 @@ void setupProperty(QTreeWidgetItem* item, const model::PolygonIndex& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Polygon& property){
+void setupProperty(QTreeWidgetItem* item, const Polygon& property){
 	item->setText(TYPE_COLUMN, property.num == 3 ?  "Polygon (Triangle)" : "Polygon (Quad)");
 	addProperty(item, "num", property.num);
 	addProperty(item, "sortInfo", property.sortInfo);
@@ -128,11 +130,12 @@ void setupProperty(QTreeWidgetItem* item, const model::Polygon& property){
 	addProperty(item, "flatNormal", property.flatNormal);
 	addProperty(item, "middle", property.middle);
 	addProperty(item, "indices", property.indices);
+	item->setText(VALUE_COLUMN, QString("[n:%1; c:%2]").arg(property.num).arg(property.colorId));
 }
 
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::C3D& c3d){
+void setupProperty(QTreeWidgetItem* item, const C3D& c3d){
 	item->setText(TYPE_COLUMN, "C3D");
 
 	addProperty(item, "version", c3d.version);
@@ -145,6 +148,7 @@ void setupProperty(QTreeWidgetItem* item, const model::C3D& c3d){
 	addProperty(item, "offsets", c3d.offsets);
 	addProperty(item, "rmax", c3d.rmax);
 	addProperty(item, "angle", c3d.angle);
+	addProperty(item, "volume", c3d.volume);
 	addProperty(item, "rcm", c3d.rcm);
 	addProperty(item, "J", c3d.J);
 	addProperty(item, "vectices", c3d.vectices);
@@ -159,7 +163,7 @@ void setupProperty(QTreeWidgetItem* item, const model::C3D& c3d){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Wheel& wheel){
+void setupProperty(QTreeWidgetItem* item, const Wheel& wheel){
 	item->setText(TYPE_COLUMN, "Wheel");
 
 	addProperty(item, "steer", wheel.steer);
@@ -171,7 +175,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Wheel& wheel){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::Slot& slot){
+void setupProperty(QTreeWidgetItem* item, const Slot& slot){
 	item->setText(TYPE_COLUMN, "Slot");
 
 	addProperty(item, "rSlots", slot.rSlots);
@@ -180,7 +184,7 @@ void setupProperty(QTreeWidgetItem* item, const model::Slot& slot){
 
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::M3D& property){
+void setupProperty(QTreeWidgetItem* item, const M3D& property){
 	item->setText(TYPE_COLUMN, "M3D");
 
 	addProperty(item, "body", property.body);
@@ -199,7 +203,7 @@ void setupProperty(QTreeWidgetItem* item, const model::M3D& property){
 }
 
 template<>
-void setupProperty(QTreeWidgetItem* item, const model::A3D& property)
+void setupProperty(QTreeWidgetItem* item, const A3D& property)
 {
 	addProperty(item, "nModels", property.nModels);
 	addProperty(item, "bounds", property.bounds);

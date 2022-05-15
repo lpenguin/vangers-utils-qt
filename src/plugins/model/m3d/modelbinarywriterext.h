@@ -5,13 +5,10 @@
 
 #include <QIODevice>
 
-#include "model.h"
+#include "m3d.h"
 
 template<>
-void vangers::BinaryWriter::write<model::C3D>(const model::C3D& c3d);
-
-//template<>
-//void vangers::BinaryWriter::write<model::C3D>(const model::C3D& c3d);
+void vangers::BinaryWriter::write<vangers::model::m3d::M3D>(const vangers::model::m3d::M3D& m3d);
 
 
 #endif // MODELBINARYWRITEREXT_H
