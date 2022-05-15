@@ -56,11 +56,11 @@ void MainWindow::openFolder()
     }
 	loadFolder(directory);
 	settings.setValue("lastDir", directory);
-	addRecentFolder(directory);
 }
 
 void MainWindow::loadFolder(const QString& folder)
 {
+	addRecentFolder(folder);
 	QFileSystemModel* model = new QFileSystemModel(this);
 	QStringList nameFilters;
 	for(auto& plugin: _plugins){
@@ -119,10 +119,11 @@ void MainWindow::loadFile(const QString& filename, bool current)
 		}
 		ui->resourceViewerTabWidget->setCurrentWidget(selectedResourceViewer);
 		ui->resourceViewerTabWidget->setTabText(0, title);
-		ui->resourceViewerTabWidget->setTabToolTip(0, filename);
+		ui->resourceViewerTabWidget->setTabToolTip(0, fInfo.absoluteFilePath());
 	} else {
 		for(int i = 0; i < ui->resourceViewerTabWidget->count(); i++){
-			if(fInfo.fileName() == ui->resourceViewerTabWidget->tabText(i)){
+			if(fInfo.absoluteFilePath() == ui->resourceViewerTabWidget->tabToolTip(i)){
+				ui->resourceViewerTabWidget->setCurrentIndex(i);
 				return;
 			}
 		}
@@ -130,7 +131,9 @@ void MainWindow::loadFile(const QString& filename, bool current)
 		viewer = plugin->makeResourceViewer(ui->resourceViewerTabWidget);
 		ui->resourceViewerTabWidget->addTab(viewer, fInfo.fileName());
 		ui->resourceViewerTabWidget->setCurrentWidget(viewer);
-		ui->resourceViewerTabWidget->setTabToolTip(ui->resourceViewerTabWidget->currentIndex(), filename);
+		ui->resourceViewerTabWidget->setTabToolTip(ui->resourceViewerTabWidget->currentIndex(), fInfo.absoluteFilePath());
+
+		addRecentFile(filename);
 	}
 
 	viewer->importResource(filename, type);
@@ -231,9 +234,12 @@ void MainWindow::addRecent(const QString& recent,
 						   std::function<void (QString)> callback)
 {
 	QStringList recents = settings.value(settingName).toStringList();
-	recents.append(recent);
+
+	recents.removeAll(recent);
+	recents.prepend(recent);
+
 	while(recents.size() > MAX_RECENT){
-		recents.pop_front();
+		recents.pop_back();
 	}
 	settings.setValue(settingName, recents);
 
@@ -300,7 +306,6 @@ void MainWindow::openFile()
 	loadFile(filename, false);
 	QFileInfo fInfo(filename);
 	settings.setValue("lastFileDir", fInfo.absoluteDir().absolutePath());
-	addRecentFile(filename);
 }
 
 void MainWindow::exportFile()
