@@ -12,8 +12,6 @@
 #include <Qt3DRender/QDepthTest>
 
 #include <Qt3DExtras/Qt3DWindow>
-//#include <Qt3DExtras/QFirstPersonCameraController>
-#include <Qt3DExtras/QOrbitCameraController>
 
 #include <Qt3DExtras/QPhongMaterial>
 #include <Qt3DExtras/QPerVertexColorMaterial>
@@ -65,9 +63,12 @@ void SceneController::init()
 	lightTransform->setTranslation(cameraEntity->position());
 	lightEntity->addComponent(lightTransform);
 
-	// For camera controls
 	MyOrbitCameraController *camController = new MyOrbitCameraController(_rootEntity);
+	camController->setUpVector({0, 0, 1.0f});
+	camController->setSensitivity(0.01f);
+	camController->setLookSpeed(1500.0f);
 	camController->setCamera(cameraEntity);
+
 	_modelsEntity = new Qt3DCore::QEntity(_rootEntity);
 
 
