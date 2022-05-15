@@ -105,20 +105,23 @@ void MainWindow::loadFile(const QString& filename, bool current)
 		return;
 	}
 
-	ResourceViewer* viewer = plugin->makeResourceViewer(ui->resourceViewerTabWidget);
+	ResourceViewer* viewer;
 	if(current){
 		if(selectedResourceViewer == nullptr || selectedResourceViewer->plugin() != plugin){
 			if(selectedResourceViewer != nullptr){
 				ui->resourceViewerTabWidget->removeTab(0);
 			}
 
-			selectedResourceViewer = viewer;
+			selectedResourceViewer = viewer =  plugin->makeResourceViewer(ui->resourceViewerTabWidget);;
 			ui->resourceViewerTabWidget->insertTab(0, selectedResourceViewer, title);
+		} else {
+			viewer = selectedResourceViewer;
 		}
 		ui->resourceViewerTabWidget->setCurrentWidget(selectedResourceViewer);
 		ui->resourceViewerTabWidget->setTabText(0, title);
 		ui->resourceViewerTabWidget->setTabToolTip(0, filename);
 	} else {
+		viewer = plugin->makeResourceViewer(ui->resourceViewerTabWidget);
 		ui->resourceViewerTabWidget->addTab(viewer, fInfo.fileName());
 		ui->resourceViewerTabWidget->setCurrentWidget(viewer);
 		ui->resourceViewerTabWidget->setTabToolTip(ui->resourceViewerTabWidget->currentIndex(), filename);
