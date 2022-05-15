@@ -121,6 +121,12 @@ void MainWindow::loadFile(const QString& filename, bool current)
 		ui->resourceViewerTabWidget->setTabText(0, title);
 		ui->resourceViewerTabWidget->setTabToolTip(0, filename);
 	} else {
+		for(int i = 0; i < ui->resourceViewerTabWidget->count(); i++){
+			if(fInfo.fileName() == ui->resourceViewerTabWidget->tabText(i)){
+				return;
+			}
+		}
+
 		viewer = plugin->makeResourceViewer(ui->resourceViewerTabWidget);
 		ui->resourceViewerTabWidget->addTab(viewer, fInfo.fileName());
 		ui->resourceViewerTabWidget->setCurrentWidget(viewer);
