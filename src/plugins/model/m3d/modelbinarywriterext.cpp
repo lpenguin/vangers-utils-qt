@@ -126,8 +126,10 @@ void vangers::BinaryWriter::write<M3D>(const M3D& m3d)
 	write(m3d.bodyColorOffset);
 	write(m3d.bodyColorShift);
 	write(m3d.wheels);
-	write(m3d.debris);
-	write(m3d.boundDebris);
+	for(int i = 0; i < m3d.nDebris; i++){
+		write(m3d.debris[i]);
+		write(m3d.boundDebris[i]);
+	}
 	write(m3d.bound);
 	write(m3d.slotsExistence);
 	if(m3d.slotsExistence != 0){
