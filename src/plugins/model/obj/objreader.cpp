@@ -1,4 +1,6 @@
 #include "objreader.h"
+
+#include <QSet>
 using namespace vangers::model::obj;
 
 const QRegExp ObjStreamReader::REGEXP_START_OBJECT(R"(o\s+(.+))");
@@ -290,49 +292,46 @@ bool ObjStreamReader::readFace(Face& face)
 
 bool assignVertices(ObjectCollection& col, const QList<Vector3F64>& vertices, const QList<Vector3F64>& normals){
 	for(Object& obj: col.objects){
+		QVector<int32_t> verticesSubset;
+		QVector<int32_t> normalsSubset;
+
+		for(const Group& g: obj.groups){
+			for(const Face& f: g.faces){
+				for(const FaceIndex& fi: f.indices){
+					verticesSubset.append(fi.vertexIndex);
+					normalsSubset.append(fi.normalIndex);
+				}
+			}
+		}
+
+		std::sort(verticesSubset.begin(), verticesSubset.end());
+		std::sort(normalsSubset.begin(), normalsSubset.end());
+
 		QMap<int32_t, int32_t> vertexIndexMap;
 		QMap<int32_t, int32_t> normalIndexMap;
+		vertexIndexMap[verticesSubset[0]] = 0;
+		obj.vertices.append(vertices[verticesSubset[0]]);
+		for(int i = 1; i < verticesSubset.size(); i++){
+			if(verticesSubset[i] != verticesSubset[i - 1]){
+				vertexIndexMap[verticesSubset[i]] = vertexIndexMap.size();
+				obj.vertices.append(vertices[verticesSubset[i]]);
+			}
+		}
+
+		normalIndexMap[normalsSubset[0]] = 0;
+		obj.normals.append(normals[normalsSubset[0]]);
+		for(int i = 1; i < normalsSubset.size(); i++){
+			if(normalsSubset[i] != normalsSubset[i - 1]){
+				normalIndexMap[normalsSubset[i]] = normalIndexMap.size();
+				obj.normals.append(normals[normalsSubset[i]]);
+			}
+		}
 
 		for(Group& g: obj.groups){
 			for(Face& f: g.faces){
 				for(FaceIndex& fi: f.indices){
-					{
-						int internalVertexIndex;
-						int externalVertexIndex = fi.vertexIndex;
-
-						if(!vertexIndexMap.contains(externalVertexIndex)){
-							internalVertexIndex = obj.vertices.size();
-							vertexIndexMap[externalVertexIndex] = internalVertexIndex;
-							if(externalVertexIndex < 0 || externalVertexIndex >= vertices.size()){
-								return false;
-							}
-							obj.vertices.append(vertices[externalVertexIndex]);
-						} else {
-							internalVertexIndex = vertexIndexMap[externalVertexIndex];
-						}
-						fi.vertexIndex = internalVertexIndex;
-					}
-
-
-					{
-						int normalIndex;
-						int externalNormalIndex = fi.normalIndex;
-
-						if(!normalIndexMap.contains(externalNormalIndex)){
-							normalIndex = obj.normals.size();
-							normalIndexMap[externalNormalIndex] = normalIndex;
-
-							if(externalNormalIndex < 0 || externalNormalIndex >= normals.size()){
-								return false;
-							}
-
-							obj.normals.append(normals[externalNormalIndex]);
-						} else {
-							normalIndex = normalIndexMap[externalNormalIndex];
-						}
-						fi.normalIndex = normalIndex;
-					}
-
+					fi.vertexIndex = vertexIndexMap[fi.vertexIndex];
+					fi.normalIndex = normalIndexMap[fi.normalIndex];
 				}
 			}
 		}
