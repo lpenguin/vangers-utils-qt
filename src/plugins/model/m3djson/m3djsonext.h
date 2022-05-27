@@ -4,31 +4,6 @@
 #include <json.hpp>
 #include <plugins/model/m3d/m3d.h>
 
-namespace vangers::core::vector {
-	// Vector3<T>
-	template<typename T>
-	void to_json(nlohmann::json& j, const Vector3<T>& v) {
-		j = nlohmann::json {{"x", v.x}, {"y", v.y}, {"z", v.z}};
-	}
-
-	template<typename  T>
-	void from_json(const nlohmann::json& j, Vector3<T>& v){
-		j.at("x").get_to(v.x);
-		j.at("y").get_to(v.y);
-		j.at("z").get_to(v.z);
-	}
-
-	// Matrix3x3<T>
-	template<typename T>
-	void to_json(nlohmann::json& j, const Matrix3x3<T>& m) {
-		j = m.values;
-	}
-
-	template<typename T>
-	void from_json(const nlohmann::json& j, Matrix3x3<T>& m) {
-		j.get_to(m.values);
-	}
-}
 namespace vangers::model::m3d {
 	// Vertex
 	void to_json(nlohmann::json& j, const Vertex& vertex);

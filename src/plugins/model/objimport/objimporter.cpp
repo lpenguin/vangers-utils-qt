@@ -28,14 +28,7 @@ QList<Face> triangulate(const Face& face){
 }
 
 
-struct Bounds {
-	Vector3F64 min;
-	Vector3F64 max;
 
-	Vector3F64 origin() const {
-		return (min + max) / 2.0;
-	}
-};
 
 
 
@@ -99,20 +92,20 @@ void objectToC3D(
 		C3D& c3d,
 		const ObjImportSettings& importSettings,
 		double scaleFactor,
-		Bounds bounds){
+		Size3F64 bounds){
 
 	std::vector<Vertex> vertices;
 	std::vector<PolygonNormal> normals;
 	std::vector<Polygon> polygons;
 
-	Vector3F64 origin = (bounds.max + bounds.min) / 2.0;
+//	Vector3F64 origin = (bounds.max + bounds.min) / 2.0;
 
 	for(const Vector3F64& vertex: obj.vertices){
-		Vector3F64 objVertexScaled = (vertex  - origin) * scaleFactor;
+		Vector3F64 objVertexScaled = (vertex) * scaleFactor;
 
 		Vertex v {
-			.tf = objVertexScaled,
-			.pos = objVertexScaled,
+			.tf = Vector3F32::fromVector(objVertexScaled),
+			.pos = Vector3I8::round(objVertexScaled),
 			.sortInfo = 0,
 		};
 		vertices.push_back(v);
@@ -121,7 +114,7 @@ void objectToC3D(
 	for(const Vector3F64& normal: obj.normals) {
 		Vector3F64 normalScaled = normal * 123.0;
 		PolygonNormal n = {};
-		n.normal = normalScaled;
+		n.normal = Vector3I8::round(normalScaled);
 		n.sortInfo = 0;
 		n.nPower = 0;
 		normals.push_back(n);

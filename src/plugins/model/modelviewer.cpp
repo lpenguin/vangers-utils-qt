@@ -3,8 +3,7 @@
 #include "scenecontroller.h"
 #include "modelviewerplugin.h"
 
-#include "extensions/jsonext.h"
-
+#include <core/vector/vectorjsonext.h>
 
 
 #include <Qt3DExtras/Qt3DWindow>

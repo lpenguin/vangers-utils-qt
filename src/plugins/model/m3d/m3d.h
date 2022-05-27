@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include <utility>
 #include <vector>
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 namespace vangers::model::m3d {
 	using Vector3F32 = vangers::core::vector::Vector3F32;

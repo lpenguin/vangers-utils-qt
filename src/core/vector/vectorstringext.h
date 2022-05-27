@@ -4,12 +4,12 @@
 #include <QRegExp>
 #include <QString>
 #include <QStringList>
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 namespace vangers::core::vector {
 	template<typename T>
 	QString toString(const Vector3<T>& v){
-		return QString("%1 %2 %3").arg(v.x).arg(v.y).arg(v.z);
+		return QString("%1 %2 %3").arg(v.x, 0, 'f').arg(v.y, 0, 'f').arg(v.z, 0, 'f');
 	}
 
 	template<typename T>
@@ -34,7 +34,7 @@ namespace vangers::core::vector {
 	QString toString(const Matrix3x3<T>& v){
 		QStringList strs;
 		for(int i = 0; i < 9; i++){
-			strs.append(QString::number(v.values[i]));
+			strs.append(QString::number(v.values[i], 'f'));
 		}
 		return strs.join(" ");
 	}

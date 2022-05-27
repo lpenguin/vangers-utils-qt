@@ -7,7 +7,7 @@
 #include <plugins/model/m3d/colortable.h>
 
 #include <core/optional.h>
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 namespace vangers::model::objimport {
 	using namespace vangers::model::m3d;

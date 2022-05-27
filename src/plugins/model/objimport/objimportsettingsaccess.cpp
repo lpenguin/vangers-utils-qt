@@ -1,7 +1,7 @@
 #include "objimportsettingsaccess.h"
 
 #include <core/ini/iniaccess.h>
-#include <core/vectorext.h>
+#include <core/vector/vectorstringext.h>
 
 using namespace vangers::model::objimport;
 using namespace vangers::core::ini;

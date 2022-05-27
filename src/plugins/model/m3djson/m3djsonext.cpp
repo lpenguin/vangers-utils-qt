@@ -1,5 +1,5 @@
-#include "jsonext.h"
-
+#include <plugins/model/m3djson/m3djsonext.h>
+#include <core/vector/vectorjsonext.h>
 
 namespace vangers::model::m3d {
 	void to_json(nlohmann::json& j, const Vertex& vertex) {
@@ -44,14 +44,14 @@ namespace vangers::model::m3d {
 
 	void to_json(nlohmann::json& j, const PolygonIndex& index) {
 		j = nlohmann::json {
-			{"normInd", index.normInd},
-			{"vertInd", index.vertInd},
+			index.vertInd,
+			index.normInd,
 		};
 	}
 
 	void from_json(const nlohmann::json& j, PolygonIndex& index){
-		j.at("normInd").get_to(index.normInd);
-		j.at("vertInd").get_to(index.vertInd);
+		j.at(0).get_to(index.vertInd);
+		j.at(1).get_to(index.normInd);
 	}
 
 	void to_json(nlohmann::json& j, const Polygon& value) {

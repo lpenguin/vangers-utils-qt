@@ -1,5 +1,5 @@
 #include "modelbinaryreaderext.h"
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 using namespace vangers::core::vector;
 using namespace vangers::model::m3d;

@@ -1,7 +1,7 @@
 #include "objexporter.h"
 #include <plugins/model/m3d/colortable.h>
 #include <image/palette.h>
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 #include <QColor>
 #include <QDebug>
@@ -12,11 +12,11 @@ using namespace vangers::core::vector;
 
 void exportC3D(Object& res, const C3D& c3d){
 	for(const Vertex& v: c3d.vectices){
-		res.vertices.append(v.tf);
+		res.vertices.append(Vector3F64::fromVector(v.tf));
 	}
 
 	for(const Normal& n: c3d.normals){		
-		Vector3F64 normal = ((Vector3F64)n.normal).normalized();
+		Vector3F64 normal = Vector3F64::fromVector(n.normal).normalized();
 		if(qIsNaN(normal.x)){
 			qDebug() << "nan!";
 			normal = {};
@@ -113,7 +113,7 @@ void ObjExporter::export_(const M3D& m3d,
 		objCol.objects.append(Object{.name = name});
 		Object& slotObject = objCol.objects.last();
 
-		Object::makeCube(slotObject, {4, 4, 4}, slot.rSlots);
+		Object::makeCube(slotObject, {4, 4, 4}, Vector3F64::fromVector(slot.rSlots));
 		settings.objectMapping[name] = i == 0
 									   ? ObjectType::Slot1
 									   : i == 1
@@ -132,8 +132,8 @@ void ObjExporter::export_(const M3D& m3d,
 		QColor c = pal[colorIndex];
 		objCol.materials.append({
 									   .name = materialName,
-									   .ambientColor = Vector3F64{c.redF(), c.greenF(), c.blueF()},
-									   .diffuseColor = Vector3F64{c.redF(), c.greenF(), c.blueF()},
+									   .ambientColor = Vector3F32{(float)c.redF(), (float)c.greenF(), (float)c.blueF()},
+									   .diffuseColor = Vector3F32{(float)c.redF(), (float)c.greenF(), (float)c.blueF()},
 									   .specularColor = {0, 0, 0},
 								   });
 		settings.materialsMapping[materialName] = (ColorId)colorId;

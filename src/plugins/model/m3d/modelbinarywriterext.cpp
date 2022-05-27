@@ -1,5 +1,5 @@
 #include "modelbinarywriterext.h"
-#include <core/vector.h>
+#include <core/vector/vector.h>
 
 using namespace vangers;
 using namespace vangers::model::m3d;

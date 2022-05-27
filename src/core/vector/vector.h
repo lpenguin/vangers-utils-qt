@@ -11,6 +11,24 @@ namespace vangers::core::vector {
 		T y;
 		T z;
 
+		template<typename K>
+		static Vector3<T> fromVector(const Vector3<K>& v) {
+			return Vector3<T> {
+				.x = (T)v.x,
+				.y = (T)v.y,
+				.z = (T)v.z,
+			};
+		}
+
+		template<typename K>
+		static Vector3<T> round(const Vector3<K>& v) {
+			return {
+				.x = ::qRound(v.x),
+				.y = ::qRound(v.y),
+				.z = ::qRound(v.z),
+			};
+		}
+
 		Vector3 operator-(const Vector3<T>& v) const{
 			return {
 				.x = x - v.x,
@@ -48,15 +66,6 @@ namespace vangers::core::vector {
 				.x = x / v,
 				.y = y / v,
 				.z = z / v,
-			};
-		}
-
-		template<typename K>
-		operator Vector3<K>() const {
-			return Vector3<K> {
-				.x = (K)x,
-				.y = (K)y,
-				.z = (K)z,
 			};
 		}
 
@@ -117,8 +126,18 @@ namespace vangers::core::vector {
 		Vector3<T> mid() const {
 			return (max + min) / 2.0;
 		}
+
+		Vector3<T> size() const {
+			return (max - min);
+		}
+
+		void move(const Vector3<T>& v) {
+			min = min + v;
+			max = max + v;
+		}
 	};
 
+	typedef Size3<double> Size3F64;
 }
 
 

@@ -1,7 +1,7 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#include <core/vector.h>
+#include <core/vector/vector.h>
 #include <core/optional.h>
 #include <QList>
 
