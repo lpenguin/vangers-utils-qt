@@ -158,17 +158,17 @@ void setupItem(const Vector3<T> param, QTreeWidgetItem* item){
 
 	child = new QTreeWidgetItem(item);
 	child->setText(0, "x");
-	child->setText(1, QString::number(param.x));
+	child->setText(1, QString::number(param.x, 'f'));
 	child->setFlags(child->flags() | Qt::ItemIsEditable);
 
 	child = new QTreeWidgetItem(item);
 	child->setText(0, "y");
-	child->setText(1, QString::number(param.y));
+	child->setText(1, QString::number(param.y, 'f'));
 	child->setFlags(child->flags() | Qt::ItemIsEditable);
 
 	child = new QTreeWidgetItem(item);
 	child->setText(0, "z");
-	child->setText(1, QString::number(param.z));
+	child->setText(1, QString::number(param.z, 'f'));
 	child->setFlags(child->flags() | Qt::ItemIsEditable);
 }
 
@@ -179,7 +179,7 @@ void setupItem(const Matrix3x3<T> param, QTreeWidgetItem* item){
 
 		child = new QTreeWidgetItem(item);
 		child->setText(0, QString("[%1]").arg(i));
-		child->setText(1, QString::number(param.values[i]));
+		child->setText(1, QString::number(param.values[i], 'f'));
 		child->setFlags(child->flags() | Qt::ItemIsEditable);
 	}
 }
