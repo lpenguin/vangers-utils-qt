@@ -170,6 +170,8 @@ QtApplication {
         "src/splay/splay.h",
         "src/volint/volint.cpp",
         "src/volint/volint.h",
+        "src/mtool/ModelClass.h",
+        "src/mtool/ModelClass.cpp",
     ]
 
     install: true
