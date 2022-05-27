@@ -14,6 +14,7 @@ namespace vangers::model::m3d {
 		Slot3,
 		BodyBound,
 		DebreeBound,
+		Unknown,
 		MAX_VALUE
 	};
 

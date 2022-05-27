@@ -2,7 +2,7 @@
 
 namespace vangers::model::m3d {
 	const char* ObjectNames[(uint32_t)ObjectType::MAX_VALUE] = {
-		"Body", "Debris", "Wheel", "Wheel (Static)", "Slot1", "Slot2", "Slot3", "ObjectBound", "DebreeBound"
+		"Body", "Debris", "Wheel", "Wheel (Static)", "Slot1", "Slot2", "Slot3", "ObjectBound", "DebreeBound", "Unknown"
 	};
 
 
