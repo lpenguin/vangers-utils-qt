@@ -11,21 +11,24 @@ void makeBoundingBox(Object& result, const Bounds& bounds);
 void skinBodyBounds(const Object& body, Object& bounds);
 void alterBoundingBox(C3D& bounds, C3D& body, bool isMechous);
 void calcPhysics(C3D& c3d);
-QList<Face> triangulate(const Face& face){
-	if(face.indices.size() == 3){
-		return {face};
+//QList<Face> triangulate(const Face& face){
+//	if(face.indices.size() == 3){
+//		return {face};
+//	}
+
+//	QList<Face> result;
+//	FaceIndex i0 = face.indices[0];
+//	for(int i = 2; i< face.indices.size(); i++){
+//		const FaceIndex& iCurr = face.indices[i];
+//		const FaceIndex& iPrev = face.indices[i - 1];
+//		result.append({{i0, iPrev, iCurr}});
+//	}
+
+//	return result;
+//}
+
 	}
 
-	QList<Face> result;
-	FaceIndex i0 = face.indices[0];
-	for(int i = 2; i< face.indices.size(); i++){
-		const FaceIndex& iCurr = face.indices[i];
-		const FaceIndex& iPrev = face.indices[i - 1];
-		result.append({{i0, iPrev, iCurr}});
-	}
-
-	return result;
-}
 
 
 
@@ -127,8 +130,6 @@ void objectToC3D(
 			colorId = importSettings.materialsMapping[group.material];
 		}
 
-		for(const Face& face1: group.faces){
-			for(const Face& face: triangulate(face1)){
 				Polygon polygon {
 					.num = face.indices.size(),
 					.colorId = (uint32_t)colorId,
@@ -141,6 +142,7 @@ void objectToC3D(
 					});
 				}
 				std::reverse(polygon.indices.begin(), polygon.indices.end());
+		for(const Face& face: group.faces){
 
 				const Vector3F32& v1 = vertices[polygon.indices[0].vertInd].tf;
 				const Vector3F32& v2 = vertices[polygon.indices[1].vertInd].tf;
