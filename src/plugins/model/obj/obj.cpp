@@ -12,6 +12,26 @@ void Object::move(const Vector3F64& origin)
 	}
 }
 
+Size3F64 Object::bounds() const {
+	if(vertices.size() == 0) {
+		return {};
+	}
+
+	Vector3F64 minPos = vertices[0];
+	Vector3F64 maxPos = vertices[0];
+
+	for(const Vector3F64& v: vertices){
+		minPos.x = std::min(v.x, minPos.x);
+		minPos.y = std::min(v.y, minPos.y);
+		minPos.z = std::min(v.z, minPos.z);
+
+		maxPos.x = std::max(v.x, maxPos.x);
+		maxPos.y = std::max(v.y, maxPos.y);
+		maxPos.z = std::max(v.z, maxPos.z);
+	}
+	return {.min = minPos, .max = maxPos};
+}
+
 void Object::merge(Object& result, const QList<const Object*>& objects)
 {
 	for(const Object* obj: objects){
