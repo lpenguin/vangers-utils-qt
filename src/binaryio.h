@@ -81,7 +81,7 @@ public:
     {}
 
 	template<typename T>
-	bool write(const std::vector<T>& value) {
+	void write(const std::vector<T>& value) {
 		for(int i = 0; i < value.size(); i++){
 			write(value[i]);
 		}
@@ -91,8 +91,6 @@ public:
     void write(const T& value) {
        _device->write((char*)(&value), sizeof (T));
     }
-
-
 
     void write(const char* data, qsizetype len){
         _device->write(data, len);
@@ -105,8 +103,6 @@ public:
     void write(const QByteArray& value){
         _device->write(value.constData(), value.size());
     }
-
-
 };
 
 }

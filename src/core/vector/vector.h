@@ -23,9 +23,9 @@ namespace vangers::core::vector {
 		template<typename K>
 		static Vector3<T> round(const Vector3<K>& v) {
 			return {
-				.x = ::qRound(v.x),
-				.y = ::qRound(v.y),
-				.z = ::qRound(v.z),
+				.x = (T)::qRound(v.x),
+				.y = (T)::qRound(v.y),
+				.z = (T)::qRound(v.z),
 			};
 		}
 
@@ -72,14 +72,14 @@ namespace vangers::core::vector {
 		Vector3<T> normalized() const {
 			double l = length();
 			return {
-				.x = (T)x / l,
-				.y = (T)y / l,
-				.z = (T)z / l,
+				.x = (T)((double)x / l),
+				.y = (T)((double)y / l),
+				.z = (T)((double)z / l),
 			};
 		}
 
 		T length() const {
-			return qSqrt(lengthSquared());
+			return (T)qSqrt(lengthSquared());
 		}
 
 		T lengthSquared() const {
