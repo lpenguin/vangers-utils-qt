@@ -21,7 +21,7 @@
      </property>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tabObjects">
        <attribute name="title">
@@ -107,7 +107,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabObjImporter">
+      <widget class="vangers::model::objimport::ObjImportSettingsWidget" name="tabObjImporter">
        <attribute name="title">
         <string>OBJ Importer</string>
        </attribute>
@@ -162,6 +162,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vangers::model::objimport::ObjImportSettingsWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">plugins/model/objimport/objimportsettingswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

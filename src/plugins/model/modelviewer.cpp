@@ -44,15 +44,15 @@ ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 		&ModelViewer::onTreeContextMenuRequested
 	);
 
-	Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
+	_view = new Qt3DExtras::Qt3DWindow();
 
-	_widget3d = QWidget::createWindowContainer(view);
+
+	_widget3d = QWidget::createWindowContainer(_view);
 	_ui->splitter->insertWidget(0, _widget3d);
 
-	_objImportWidget = new ObjImportSettingsWidget(_ui->tabObjImporter);
 	// TODO: memory leak
-	_objImportController = new ObjImportController(_objImportWidget);
-	_sceneController = new SceneController(view, this);
+	_objImportController = new ObjImportController(_ui->tabObjImporter);
+	_sceneController = new SceneController(_view, this);
 	_objectsController = new M3DObjectsController(_ui->treeObjects, _sceneController, this);
 
 	QObject::connect(_ui->resetViewButton,
@@ -70,7 +70,7 @@ ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 					 this,
 					 &ModelViewer::onNextModelClicked);
 
-	QObject::connect(_objImportWidget,
+	QObject::connect(_ui->tabObjImporter,
 					 &ObjImportSettingsWidget::importSettingsChanged,
 					 this,
 					 &ModelViewer::onImportSettingsChanged);
@@ -111,6 +111,19 @@ void ModelViewer::exportResource(const QString &filePath, const ResourceType &ty
 	}
 }
 
+void ModelViewer::hideEvent(QHideEvent* event)
+{
+	qDebug() << "hideEvent" << _view->visibility() << _view->isActive();
+	ResourceViewer::hideEvent(event);
+	_widget3d->hide();
+}
+
+void ModelViewer::showEvent(QShowEvent* event)
+{
+	qDebug() << "showEvent" << _view->visibility() << _view->isActive();
+	ResourceViewer::showEvent(event);
+	_widget3d->show();
+}
 void ModelViewer::showA3dModel(A3D& a3d)
 {
 	if(_a3dModelIndex < 0 || _a3dModelIndex >= a3d.models.size()) return;

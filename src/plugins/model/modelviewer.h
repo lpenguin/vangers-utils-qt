@@ -26,14 +26,16 @@ namespace vangers::model::view {
 		QString currentFile() const {
 			return _currentFile;
 		}
-
+	protected:
+		void hideEvent(QHideEvent* event) override;
+		void showEvent(QShowEvent* event) override;
 	private:
 		QString _currentFile;
 		Ui::ModelViewer* _ui;
 		QWidget* _widget3d;
+		Qt3DExtras::Qt3DWindow *_view;
 		SceneController* _sceneController;
 		M3DObjectsController* _objectsController;
-		ObjImportSettingsWidget* _objImportWidget;
 		ObjImportController* _objImportController;
 		QSharedPointer<M3D> _model;
 		int _a3dModelIndex;
