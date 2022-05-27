@@ -4,6 +4,7 @@
 #include "modelviewerplugin.h"
 
 #include <core/vector/vectorjsonext.h>
+#include <plugins/model/m3djson/m3djsonaccess.h>
 
 
 #include <Qt3DExtras/Qt3DWindow>
@@ -23,6 +24,7 @@ using namespace vangers::model;
 using namespace vangers::model::view;
 using namespace vangers::model::obj;
 using namespace vangers::model::objimport;
+using namespace vangers::model::m3djson;
 
 ModelViewer::ModelViewer(ResourceViewerPlugin *plugin, QWidget *parent)
 	: ResourceViewer(plugin, parent)
@@ -87,6 +89,8 @@ bool ModelViewer::importResource(const QString &filePath, const ResourceType &ty
 	} else if(type == ModelViewerPlugin::Obj)  {
 		_ui->tabWidget->setTabVisible(2, true);
 		return importObj(filePath);
+	} else if(type == ModelViewerPlugin::Json)  {
+		return importJson(filePath);
 	}
 
 	return false;
@@ -102,6 +106,8 @@ void ModelViewer::exportResource(const QString &filePath, const ResourceType &ty
 		exportObj(filePath);
 	} else if(type == ModelViewerPlugin::M3D){
 		exportM3D(filePath);
+	} else if(type == ModelViewerPlugin::Json){
+		exportJson(filePath);
 	}
 }
 
@@ -222,6 +228,16 @@ void ModelViewer::exportObj(const QString& filePath)
 	ObjWriter().write(result, filePath);
 	ObjWriter().writeMaterials(result.materials, mtlFilePath);
 
+}
+
+bool ModelViewer::importJson(const QString& filePath)
+{
+	return M3DJsonAccess().readFromFile(*_model, filePath);
+}
+
+void ModelViewer::exportJson(const QString& filePath)
+{
+	M3DJsonAccess().writeToFile(*_model, filePath);
 }
 
 QVector3D fromVectorI8(const Vector3I8& v){

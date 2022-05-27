@@ -42,10 +42,13 @@ namespace vangers::model::view {
 		void setupModel();
 
 		bool importM3D(const QString &filePath);
-		bool importObj(const QString &filePath);
-
 		void exportM3D(const QString& filePath);
+
+		bool importObj(const QString &filePath);
 		void exportObj(const QString &filePath);
+
+		bool importJson(const QString &filePath);
+		void exportJson(const QString& filePath);
 	private slots:
 		void onTreeItemClicked(QTreeWidgetItem *item, int column);
 		void onTreeContextMenuRequested(const QPoint& pos);

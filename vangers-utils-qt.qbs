@@ -88,6 +88,8 @@ QtApplication {
         "src/plugins/model/m3d/modelbinarywriterext.h",
         "src/plugins/model/m3djson/m3djsonext.h",
         "src/plugins/model/m3djson/m3djsonext.cpp",
+        "src/plugins/model/m3djson/m3djsonaccess.cpp",
+        "src/plugins/model/m3djson/m3djsonaccess.h",
         "src/plugins/model/modelviewer.cpp",
         "src/plugins/model/modelviewer.h",
         "src/plugins/model/modelviewer.ui",
