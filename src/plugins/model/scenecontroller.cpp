@@ -69,7 +69,8 @@ void SceneController::init()
 	light->setIntensity(1);
 	lightEntity->addComponent(light);
 	Qt3DCore::QTransform *lightTransform = new Qt3DCore::QTransform(lightEntity);
-	lightTransform->setTranslation(cameraEntity->position());
+	lightTransform->setTranslation(QVector3D(0, 20.0f, 20.0f));
+	lightTransform->setRotation(QQuaternion::fromDirection(-lightTransform->translation(), QVector3D(0, 0, 1)));
 	lightEntity->addComponent(lightTransform);
 
 	MyOrbitCameraController *camController = new MyOrbitCameraController(_rootEntity);
