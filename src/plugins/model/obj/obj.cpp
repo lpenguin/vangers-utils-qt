@@ -95,5 +95,25 @@ void Object::makeCube(Object& result, const Vector3F64& size, const Vector3F64& 
 			{{{0, 0, 4}, {3, 0, 4}, {2, 0, 4}, {1, 0, 4}}},
 			{{{4, 0, 5}, {5, 0, 5}, {6, 0, 5}, {7, 0, 5}}},
 		}
-	}};
+					 }};
+}
+
+void Object::triangulate()
+{
+	for(Group& g: groups){
+		QList<Face> newFaces;
+		for(const Face& face: g.faces){
+			if(face.indices.size() == 3) {
+				newFaces.append(face);
+			} else {
+				FaceIndex i0 = face.indices[0];
+				for(int i = 2; i< face.indices.size(); i++){
+					const FaceIndex& iCurr = face.indices[i];
+					const FaceIndex& iPrev = face.indices[i - 1];
+					newFaces.append({{i0, iPrev, iCurr}});
+				}
+			}
+		}
+		g.faces = newFaces;
+	}
 }

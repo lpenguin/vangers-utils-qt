@@ -35,6 +35,7 @@ namespace vangers::model::obj {
 		Size3F64 bounds() const;
 		static void merge(Object& result, const QList<const Object*>& objects);
 		static void makeCube(Object& result, const Vector3F64& size, const Vector3F64& origin);
+		void triangulate();
 	};
 
 	struct Material {

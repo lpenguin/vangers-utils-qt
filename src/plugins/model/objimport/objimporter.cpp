@@ -12,22 +12,6 @@ void alterBoundingBox(C3D& bounds, C3D& body, bool isMechous);
 void calcPhysics(C3D& c3d);
 void calcPhysicsMtool(C3D& c3d);
 
-//QList<Face> triangulate(const Face& face){
-//	if(face.indices.size() == 3){
-//		return {face};
-//	}
-
-//	QList<Face> result;
-//	FaceIndex i0 = face.indices[0];
-//	for(int i = 2; i< face.indices.size(); i++){
-//		const FaceIndex& iCurr = face.indices[i];
-//		const FaceIndex& iPrev = face.indices[i - 1];
-//		result.append({{i0, iPrev, iCurr}});
-//	}
-
-//	return result;
-//}
-
 
 void calcPhysicsMtool(C3D& c3d){
 	mtool::Vertex* vertices = new mtool::Vertex[c3d.vectices.size()];
@@ -273,7 +257,9 @@ bool ObjImporter::import(const ObjectCollection& objCollection,
 
 	Object bodyGeometry {};
 	Object::merge(bodyGeometry, objs);
-
+	if(importSettings.triangulate){
+		bodyGeometry.triangulate();
+	}
 
 	Size3F64 bounds = bodyGeometry.bounds();
 	Vector3F64 bodyOrigin = bounds.mid();
