@@ -24,8 +24,6 @@ C3DMesh::C3DMesh(const C3D& c3d, Qt3DCore::QNode* parent)
 {
 	C3DGeometry* geometry = new C3DGeometry(c3d, this);
 	QGeometryRenderer::setGeometry(geometry);
-	auto pt = primitiveType();
-	qDebug() << pt;
 }
 
 C3DGeometry::C3DGeometry(const C3D& c3d, Qt3DCore::QNode* parent)
