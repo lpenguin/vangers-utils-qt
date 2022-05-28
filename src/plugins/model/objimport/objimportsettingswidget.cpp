@@ -2,6 +2,7 @@
 #include "ui_objimportsettingswidget.h"
 
 #include <plugins/model/m3d/colortable.h>
+#include <core/vector/vectorstringext.h>
 
 #include <QComboBox>
 #include <QDoubleSpinBox>
@@ -12,6 +13,7 @@
 using namespace vangers::model::objimport;
 using namespace vangers::model::obj;
 using namespace vangers::model::m3d;
+using namespace vangers::core::vector;
 
 
 
@@ -78,24 +80,6 @@ void ObjImportSettingsWidget::setupTables(const ObjImportSettings& importSetting
 	setupObjetcs(importSettings);
 	setupMaterials(importSettings);
 	setupParameters(importSettings);
-
-//	ui->tableParameters->setRowCount(0);
-//	ui->tableParameters->setRowCount(2);
-
-//	QDoubleSpinBox* scaleSpinBox = new QDoubleSpinBox(nullptr);
-//	scaleSpinBox->setValue(_importSettings.customScale.valueOrDefault(1.0));
-
-//	QTableWidgetItem* nameItem = new QTableWidgetItem("scale");
-//	ui->tableParameters->setItem(0, 0, nameItem);
-//	ui->tableParameters->setCellWidget(0, 1, scaleSpinBox);
-
-
-//	QDoubleSpinBox* volumeSpinBox = new QDoubleSpinBox(nullptr);
-//	scaleSpinBox->setValue(_importSettings.customVolume.valueOrDefault(1.0));
-
-//	QTableWidgetItem* volumeItem = new QTableWidgetItem("volume");
-//	ui->tableParameters->setItem(1, 0, volumeItem);
-	//	ui->tableParameters->setCellWidget(1, 1, volumeSpinBox);
 }
 
 void ObjImportSettingsWidget::setupObjetcs(const ObjImportSettings& importSettings)
@@ -142,14 +126,18 @@ void ObjImportSettingsWidget::setupMaterials(const ObjImportSettings& importSett
 }
 
 void setupItem(const float& param, QTreeWidgetItem* item){
-//	QTreeWidgetItem* child = nullptr;
-//	child = new QTreeWidgetItem(item);
-//	child->setText(0, "Value");
-//	child->setText(1, QString::number(param));
-//	child->setFlags(child->flags() | Qt::ItemIsEditable);
 	item->setText(1, QString::number(param));
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
+}
 
+void setupItem(const bool& param, QTreeWidgetItem* item){
+	item->setText(1, toString(param));
+	item->setCheckState(1, param ? Qt::Checked : Qt::Unchecked);
+}
+
+void setupItem(const int32_t& param, QTreeWidgetItem* item){
+	item->setText(1, toString(param));
+	item->setFlags(item->flags() | Qt::ItemIsEditable);
 }
 
 template<typename T>
@@ -191,7 +179,6 @@ void addParameter(const Optional<T>& param,
 	QTreeWidgetItem* item = new QTreeWidgetItem();
 	item->setText(0, name);
 
-	QString text;
 	if(param.hasValue()){
 		item->setCheckState(0, Qt::Checked);
 	} else {
@@ -199,6 +186,17 @@ void addParameter(const Optional<T>& param,
 	}
 
 	setupItem(param.valueConst(), item);
+	treeWidget->addTopLevelItem(item);
+}
+
+template<typename T>
+void addParameter(const T& param,
+				  const QString& name,
+				  QTreeWidget* treeWidget){
+	QTreeWidgetItem* item = new QTreeWidgetItem();
+	item->setText(0, name);
+
+	setupItem(param, item);
 	treeWidget->addTopLevelItem(item);
 }
 
@@ -216,6 +214,16 @@ void itemToParameter(QTreeWidgetItem* item, float& param){
 	bool isOk = false;
 	param = item->text(1).toFloat(&isOk);
 	if(!isOk) param = 0;
+}
+
+void itemToParameter(QTreeWidgetItem* item, int32_t& param){
+	if(!fromString(item->text(1), param)){
+		param = 0;
+	}
+}
+
+void itemToParameter(QTreeWidgetItem* item, bool& param){
+	param =item->checkState(1) == Qt::Checked;
 }
 
 void itemToParameter(QTreeWidgetItem* item, double& param){
@@ -256,6 +264,9 @@ void ObjImportSettingsWidget::setupParameters(const ObjImportSettings& importSet
 	addParameter(importSettings.customVolume, "Custom Volume", ui->treeParameters);
 	addParameter(importSettings.customRcm, "Custom RCM", ui->treeParameters);
 	addParameter(importSettings.customJ, "Custom J", ui->treeParameters);
+	addParameter(importSettings.triangulate, "Triangulate", ui->treeParameters);
+	addParameter(importSettings.bodyColorOffset, "Body Color Offset", ui->treeParameters);
+	addParameter(importSettings.bodyColorShift, "Body Color Shift", ui->treeParameters);
 
 	ui->treeParameters->setColumnWidth(0, 220);
 
@@ -307,6 +318,12 @@ void ObjImportSettingsWidget::makeParameters(ObjImportSettings& importSettings)
 			itemToParameter(item, importSettings.customRcm);
 		} else if(text == "Custom J"){
 			itemToParameter(item, importSettings.customJ);
+		} else if(text == "Triangulate"){
+			itemToParameter(item, importSettings.triangulate);
+		} else if(text == "Body Color Offset"){
+			itemToParameter(item, importSettings.bodyColorOffset);
+		} else if(text == "Body Color Shift"){
+			itemToParameter(item, importSettings.bodyColorShift);
 		}
 	}
 }

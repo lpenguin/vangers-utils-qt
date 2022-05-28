@@ -16,6 +16,7 @@ namespace vangers::model::objimport {
 		bool import(const ObjectCollection& objCollection,
 					const ObjImportSettings& importSettings,
 					M3D& m3d);
+
 		static void makeDefaultImportSettings(
 				const ObjectCollection& objCollection,
 				ObjImportSettings& importSettings);

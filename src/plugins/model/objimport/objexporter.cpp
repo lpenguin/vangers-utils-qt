@@ -143,4 +143,7 @@ void ObjExporter::export_(const M3D& m3d,
 	settings.customVolume = m3d.body.volume;
 	settings.customRcm = m3d.body.rcm;
 	settings.customJ = m3d.body.J;
+	settings.triangulate = false;
+	settings.bodyColorShift = m3d.bodyColorShift;
+	settings.bodyColorOffset = m3d.bodyColorOffset;
 }

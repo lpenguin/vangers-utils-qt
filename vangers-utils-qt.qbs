@@ -38,6 +38,7 @@ QtApplication {
         "src/core/optional.h",
         "src/core/vector/vector.h",
         "src/core/vector/vectorjsonext.h",
+        "src/core/vector/vectorstringext.cpp",
         "src/core/vector/vectorstringext.h",
         "src/graphicsviewzoom.cpp",
         "src/graphicsviewzoom.h",
@@ -72,7 +73,6 @@ QtApplication {
         "src/plugins/model/c3drenderer.h",
         "src/plugins/model/c3dview.cpp",
         "src/plugins/model/c3dview.h",
-
         "src/plugins/model/m3d/colortable.cpp",
         "src/plugins/model/m3d/colortable.h",
         "src/plugins/model/gridmesh.cpp",

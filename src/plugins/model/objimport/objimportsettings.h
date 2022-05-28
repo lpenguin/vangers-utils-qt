@@ -19,6 +19,8 @@ namespace vangers::model::objimport {
 		QMap<QString, ObjectType> objectMapping;
 		QMap<QString, ColorId> materialsMapping;
 		bool triangulate;
+		int32_t bodyColorOffset;
+		int32_t bodyColorShift;
 
 		Optional<float> customScale;
 		Optional<float> customVolume;

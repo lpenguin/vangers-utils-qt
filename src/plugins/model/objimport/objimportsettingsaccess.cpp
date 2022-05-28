@@ -5,6 +5,7 @@
 
 using namespace vangers::model::objimport;
 using namespace vangers::core::ini;
+using namespace vangers::core::vector;
 
 const QString SectionObjects = "objects";
 const QString SectionMaterials = "materials";
@@ -42,6 +43,10 @@ void ObjImportSettingsAccess::write(const ObjImportSettings& resource, QIODevice
 	if(resource.customJ.hasValue()){
 		settings.setValue(SectionParameters, "customJ", toString(resource.customJ.valueConst()));
 	}
+
+	settings.setValue(SectionParameters, "triangulate", toString(resource.triangulate));
+	settings.setValue(SectionParameters, "bodyColorOffset", toString(resource.bodyColorOffset));
+	settings.setValue(SectionParameters, "bodyColorShift", toString(resource.bodyColorShift));
 
 	IniAccess access;
 	access.write(settings, device);
@@ -120,6 +125,23 @@ bool ObjImportSettingsAccess::read(ObjImportSettings& resource, QIODevice& devic
 		return false;
 	}
 
+	Optional<bool> triangulate;
+	if(!readOptional(settings, "triangulate", triangulate)) {
+		return false;
+	}
+	resource.triangulate = triangulate.valueOrDefault(true);
+
+	Optional<int32_t> bodyColorOffset;
+	if(!readOptional(settings, "bodyColorOffset", bodyColorOffset)) {
+		return false;
+	}
+	resource.bodyColorOffset = bodyColorOffset.valueOrDefault(144);
+
+	Optional<int32_t> bodyColorShift;
+	if(!readOptional(settings, "bodyColorShift", bodyColorShift)) {
+		return false;
+	}
+	resource.bodyColorShift = bodyColorShift.valueOrDefault(3);
 	return true;
 }
 

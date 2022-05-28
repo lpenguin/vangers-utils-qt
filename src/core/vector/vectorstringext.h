@@ -52,16 +52,16 @@ namespace vangers::core::vector {
 		return true;
 	}
 
-	bool fromString(const QString& s, float& d){
-		bool ok;
-		d = s.toFloat(&ok);
-		return ok;
-	}
+	bool fromString(const QString& s, float& d);
 
-	bool fromString(const QString& s, double& d){
-		bool ok;
-		d = s.toDouble(&ok);
-		return ok;
-	}
+	bool fromString(const QString& s, double& d);
+
+	QString toString(bool v);
+
+	bool fromString(const QString& s, bool& d);
+
+	QString toString(int32_t v);
+
+	bool fromString(const QString& s, int32_t& d);
 }
 #endif // VECTOREXT_H

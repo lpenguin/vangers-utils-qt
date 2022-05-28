@@ -684,5 +684,8 @@ void ObjImporter::makeDefaultImportSettings(const ObjectCollection& objCollectio
 			importSettings.materialsMapping[group.material] = ColorId::BODY;
 		}
 	}
+	importSettings.triangulate = true;
+	importSettings.bodyColorOffset = 144;
+	importSettings.bodyColorShift = 3;
 }
 
