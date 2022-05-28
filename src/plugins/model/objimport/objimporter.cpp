@@ -311,9 +311,8 @@ bool ObjImporter::import(const ObjectCollection& objCollection,
 	// TODO:
 //	calcPhysicsMtool(m3d.bound);
 
-	// TODO:
-	m3d.bodyColorOffset = 144;
-	m3d.bodyColorShift = 3;
+	m3d.bodyColorOffset = importSettings.bodyColorOffset;
+	m3d.bodyColorShift = importSettings.bodyColorShift;
 
 	m3d.rMax = m3d.body.rmax;
 	m3d.bounds = m3d.body.maxBound;
