@@ -263,8 +263,12 @@ bool ObjImporter::import(const ObjectCollection& objCollection,
 
 	Size3F64 bounds = bodyGeometry.bounds();
 //	Vector3F64 bodyOrigin = bounds.mid();
-	Vector3F64 bodySize = bounds.size();
-	double maxDim = std::max(bodySize.x, std::max(bodySize.y, bodySize.z));
+//	Vector3F64 bodySize = bounds.size();
+
+//	double maxDim = std::max(bodySize.x, std::max(bodySize.y, bodySize.z));
+	double maxDimMax = std::max(std::abs(bounds.max.x), std::max(std::abs(bounds.max.y), std::abs(bounds.max.z)));
+	double maxDimMin = std::max(std::abs(bounds.min.x), std::max(std::abs(bounds.min.y), std::abs(bounds.min.z)));
+	double maxDim = std::max(maxDimMax, maxDimMin) * 2;
 
 	double scaleFactor = 255.0 / maxDim;
 	if(importSettings.customScale.hasValue()){
