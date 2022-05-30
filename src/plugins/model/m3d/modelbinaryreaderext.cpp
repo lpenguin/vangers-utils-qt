@@ -102,7 +102,7 @@ bool vangers::BinaryReader::tryRead<Polygon>(Polygon &polygon)
 		return false;
 	}
 
-	if(!tryRead(polygon.indices, polygon.num)){
+	if(!tryReadArray(polygon.indices, polygon.num)){
 		return false;
 	}
 
@@ -187,20 +187,20 @@ bool vangers::BinaryReader::tryRead<C3D>(C3D &c3d)
 		return false;
 	}
 
-	if(!tryRead(c3d.vectices, c3d.numVert)){
+	if(!tryReadArray(c3d.vectices, c3d.numVert)){
 		return false;
 	}
 
-	if(!tryRead(c3d.normals, c3d.numNorm)){
+	if(!tryReadArray(c3d.normals, c3d.numNorm)){
 		return false;
 	}
 
-	if(!tryRead(c3d.polygons, c3d.numPoly)){
+	if(!tryReadArray(c3d.polygons, c3d.numPoly)){
 		return false;
 	}
 
 	for(int i = 0; i < 3; i++){
-		if(!tryRead(c3d.polyInds[i], c3d.numPoly)){
+		if(!tryReadArray(c3d.polyInds[i], c3d.numPoly)){
 			return false;
 		}
 	}
@@ -230,7 +230,7 @@ bool vangers::BinaryReader::tryRead<Wheel>(Wheel &wheel){
 		return false;
 	}
 
-	if(!tryRead(wheel.model, wheel.steer)){
+	if(!tryReadArray(wheel.model, wheel.steer)){
 		return false;
 	}
 
@@ -278,7 +278,7 @@ bool vangers::BinaryReader::tryRead<M3D>(M3D &m3d){
 
 	if(!tryRead(m3d.bodyColorShift)) return false;
 
-	if(!tryRead(m3d.wheels, m3d.nWheels)) return false;
+	if(!tryReadArray(m3d.wheels, m3d.nWheels)) return false;
 
 //	if(!tryRead(m3d.debris, m3d.nDebris)) return false;
 //	if(!tryRead(m3d.boundDebris, m3d.nDebris)) return false;
@@ -296,7 +296,7 @@ bool vangers::BinaryReader::tryRead<M3D>(M3D &m3d){
 	if(!tryRead(m3d.slotsExistence)) return false;
 
 	if(m3d.slotsExistence != 0){
-		if(!tryRead(m3d.rSlots, 3)) return false;
+		if(!tryReadArray(m3d.rSlots, 3)) return false;
 	}
 	return true;
 }
@@ -314,7 +314,7 @@ bool vangers::BinaryReader::tryRead<A3D>(A3D& a3d)
 
 	if(!tryRead(a3d.bodyColorShift)) return false;
 
-	if(!tryRead(a3d.models, a3d.nModels)) return false;
+	if(!tryReadArray(a3d.models, a3d.nModels)) return false;
 
 	return true;
 }
