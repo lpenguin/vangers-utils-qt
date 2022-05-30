@@ -50,10 +50,10 @@ public:
 
 	template<typename TContainer>
 	bool tryReadArray(TContainer& value, int32_t numValues) {
-		value.resize(numValues);
-
 		for(int i = 0; i < numValues; i++){
-			if(!tryRead<typename TContainer::value_type>(value[i])){
+			value.push_back(typename TContainer::value_type{});
+			typename TContainer::value_type& v = value.back();
+			if(!tryRead<typename TContainer::value_type>(v)){
 				return false;
 			}
 		}
@@ -86,7 +86,7 @@ public:
     }
 
 	template<typename TContainer>
-	bool writeArray(const TContainer& value) {
+	void writeArray(const TContainer& value) {
 		for(int i = 0; i < value.size(); i++){
 			write<typename TContainer::value_type>(value[i]);
 		}

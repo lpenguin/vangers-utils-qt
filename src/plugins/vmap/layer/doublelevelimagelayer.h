@@ -15,6 +15,7 @@ public:
 	// AbstractImageLayer interface
 public:
 	QSharedPointer<QImage> getImage(const Vmap &vmap, Level level) const;
+	void fillData(const Vmap &vmap, Level level, std::vector<uint8_t>& data) const;
 };
 
 #endif // DOUBLELEVELIMAGELAYER_H

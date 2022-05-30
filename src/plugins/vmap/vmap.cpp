@@ -9,6 +9,19 @@ QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, 
 	return image;
 }
 
+QSharedPointer<QImage> imageFromDataRed(const uint8_t* data, int sizeX, int sizeY){
+	uint8_t* newData = new uint8_t[sizeof(uint32_t) * sizeX * sizeY];
+	for(int i = 0; i < sizeX * sizeY; i++){
+		newData[i * sizeof(uint32_t) + 0] = 0;
+		newData[i * sizeof(uint32_t) + 1] = 0;
+		newData[i * sizeof(uint32_t) + 2] = data[i];
+		newData[i * sizeof(uint32_t) + 3] = 0;
+	}
+	// TODO: leak
+	return QSharedPointer<QImage>::create(newData, sizeX, sizeY, sizeX * sizeof(uint32_t), QImage::Format_RGB32);
+}
+
+
 const Matrix<uint8_t> &Vmap::heightConst() const
 {
 	return _height;

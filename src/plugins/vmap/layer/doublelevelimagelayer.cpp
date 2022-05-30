@@ -16,3 +16,15 @@ QSharedPointer<QImage> DoubleLevelImageLayer::getImage(const Vmap &vmap, Level l
 	}
 	return imageFromData(data, vmap.size().width(), vmap.size().height(), pal);
 }
+
+void DoubleLevelImageLayer::fillData(const Vmap &vmap, Level level, std::vector<uint8_t>& data) const
+{
+	std::vector<uint8_t> meta = vmap.metaConst();
+	std::vector<uint8_t> height = vmap.heightConst();
+
+	data.resize(meta.size());
+	for(size_t i =0; i < meta.size(); i++){
+		VmapMeta metaInfo = VmapMeta::fromMeta(meta[i]);
+		data[i] = metaInfo.isDoubleLevel() ? 1U : 0U;
+	}
+}
