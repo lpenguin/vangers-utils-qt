@@ -3,6 +3,7 @@
 #include <splay/splay.h>
 #include <QDir>
 #include <QFileInfo>
+#include <QList>
 #include <QSettings>
 #include <binaryio.h>
 #include <span.h>
@@ -45,7 +46,9 @@ bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevi
 			return false;
 		}
 
-		std::vector<uint8_t> bytes = reader.readArray<uint8_t>(sizes[iRow]);
+		std::vector<uint8_t> bytes;
+		if(!reader.tryReadArray(bytes, sizes[iRow])) return false;
+
 		splay.expand(bytes, dataHeight, dataMeta);
 
 		for(int iCol = 0; iCol < sizeX; iCol++){

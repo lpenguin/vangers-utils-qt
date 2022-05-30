@@ -28,28 +28,37 @@ public:
         return _device->read(size);
     }
 
-    template<typename T>
-    std::vector<T> readArray(quint32 size) {
-        std::vector<T> result(size);
-        result.resize(size);
-        QByteArray bytes = _device->read(size);
-        const char* bytesData = bytes.constData();
+	template<typename T>
+	T read() {
+		T value;
 
-        std::copy(bytesData, bytesData + bytes.size(), result.data());
+		int size = _device->read((char*)(&value), sizeof (T));
+		if(size != sizeof (T)){
+			qWarning() << "invalid read size" << size << sizeof (T);
+		}
+		return value;
+	}
 
-        return result;
-    }
+	template<typename T>
+	bool tryRead(T& value) {
+		int size = _device->read((char*)(&value), sizeof (T));
+		if(size != sizeof (T)){
+			return false;
+		}
+		return true;
+	}
 
-    template<typename T>
-    T read() {
-        T value;
+	template<typename TContainer>
+	bool tryReadArray(TContainer& value, int32_t numValues) {
+		value.resize(numValues);
 
-        int size = _device->read((char*)(&value), sizeof (T));
-        if(size != sizeof (T)){
-            qWarning() << "invalid read size" << size << sizeof (T);
-        }
-        return value;
-    }
+		for(int i = 0; i < numValues; i++){
+			if(!tryRead<typename TContainer::value_type>(value[i])){
+				return false;
+			}
+		}
+		return true;
+	}
 };
 
 class BinaryWriter: BinaryIO
@@ -75,6 +84,13 @@ public:
     void write(const QByteArray& value){
         _device->write(value.constData(), value.size());
     }
+
+	template<typename TContainer>
+	bool writeArray(const TContainer& value) {
+		for(int i = 0; i < value.size(); i++){
+			write<typename TContainer::value_type>(value[i]);
+		}
+	}
 };
 
 }
