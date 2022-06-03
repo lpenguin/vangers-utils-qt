@@ -49,15 +49,18 @@ void vangers::VmapVoxWriter::write(const Vmap& vmap, QString filename)
 	const bool hollow = true;
 	const int8_t hollowSize = 32;
 	const uint8_t colorIndexShift = 24;
-	const bool compressChunks = true;
+	const bool compressChunks = false;
 	const bool flipX = true;
 
 	int sizeX = vmap.size().width();
 	int sizeY = vmap.size().height();
 	const int sizeZ = 256;
 
-	const int32_t voxSizeX = qMin(2048, sizeX);
-	const int32_t voxSizeY = qMin(2048, sizeY);
+	const int32_t voxSizeX = qMin(128, sizeX);
+	const int32_t voxSizeY = qMin(128, sizeY);
+
+//	const int32_t voxSizeX = qMin(2048, sizeX);
+//	const int32_t voxSizeY = qMin(2048, sizeY);
 	const int32_t chunkSizeX = 128;
 	const int32_t chunkSizeY = 128;
 
