@@ -224,21 +224,21 @@ bool _readData(
 
 	QString vprFileName = fileDir.filePath(levelBaseName + ".vpr");
 	QFileInfo vprFileInfo(vmcFileInfo);
-
-	if(!vprFileInfo.exists()){
+	
+	flood.resize(floodSize);
+	std::fill(flood.begin(), flood.end(), 0);
+	
+	if(vprFileInfo.exists()) {
+		QFile vprFile(vprFileName);
+		if(vprFile.open(QFile::ReadOnly)) {
+			_decodeFlood(flood, floodOffset, floodSize, vprFile));
+		} else {
+			qWarning() << "Cannot open file for reading" << vprFileName;
+		}
+	} else {
 		qWarning() << "VPR file doesn't exsit" << vprFileName;
-		return false;
 	}
 
-	QFile vprFile(vprFileName);
-	if(!vprFile.open(QFile::ReadOnly)){
-		qWarning() << "Cannot open file for reading" << vprFileName;
-		return false;
-	}
-
-	if(!_decodeFlood(flood, floodOffset, floodSize, vprFile)){
-		return false;
-	}
 
 	qDebug() << "_readData size" << height.size() << meta.size();
 	return true;
