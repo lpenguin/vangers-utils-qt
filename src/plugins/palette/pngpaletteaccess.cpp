@@ -19,6 +19,7 @@ bool vangers::PngPaletteAccess::read(Palette& palette, QIODevice &device)
     }  catch (std::bad_cast) {
 		return false;
     }
+	return true;
 }
 
 void vangers::PngPaletteAccess::write(const Palette &palette, QIODevice &device)
