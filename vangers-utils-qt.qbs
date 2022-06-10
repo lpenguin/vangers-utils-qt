@@ -42,6 +42,8 @@ QtApplication {
         "src/core/vector/vectorstringext.h",
         "src/graphicsviewzoom.cpp",
         "src/graphicsviewzoom.h",
+        "src/heightmapfrommesh.cpp",
+        "src/heightmapfrommesh.h",
         "src/image/mssimageaccess.cpp",
         "src/image/mssimageaccess.h",
         "src/image/qtimageaccess.cpp",

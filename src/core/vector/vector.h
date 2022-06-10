@@ -6,6 +6,24 @@
 
 namespace vangers::core::vector {
 	template<typename T>
+	struct Vector2 {
+		T x;
+		T y;
+
+		T& operator[](const size_t i)
+		{
+			assert(i >= 0 && i < 2);
+			return i<=0 ? x : y;
+		}
+
+		const T& operator[](const size_t i) const
+		{
+			assert(i >= 0 && i < 2);
+			return i<=0 ? x : y;
+		}
+	};
+
+	template<typename T>
 	struct Vector3 {
 		T x;
 		T y;
@@ -69,6 +87,14 @@ namespace vangers::core::vector {
 			};
 		}
 
+		Vector3 operator/(const Vector3<T>& v) const{
+			return {
+				.x = x / v.x,
+				.y = y / v.y,
+				.z = z / v.z,
+			};
+		}
+
 		Vector3<T> normalized() const {
 			double l = length();
 			return {
@@ -96,6 +122,26 @@ namespace vangers::core::vector {
 				z * v.x - x * v.z,
 				x * v.y - y * v.x
 			};
+		}
+
+		T& operator[](const size_t i)
+		{
+			assert(i >= 0 && i < 3);
+			return i<=0 ?
+						x :
+						i == 1 ?
+							y :
+							z;
+		}
+
+		const T& operator[](const size_t i) const
+		{
+			assert(i >= 0 && i < 3);
+			return i<=0 ?
+						x :
+						i == 1 ?
+							y :
+							z;
 		}
 	};
 
