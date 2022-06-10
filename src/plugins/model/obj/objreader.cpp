@@ -292,6 +292,8 @@ bool ObjStreamReader::readFace(Face& face)
 
 bool assignVertices(ObjectCollection& col, const QList<Vector3F64>& vertices, const QList<Vector3F64>& normals){
 	for(Object& obj: col.objects){
+		if(obj.groups.size() == 0) continue;
+
 		QVector<int32_t> verticesSubset;
 		QVector<int32_t> normalsSubset;
 
