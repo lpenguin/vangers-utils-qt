@@ -12,13 +12,15 @@
 using namespace vangers;
 
 
-bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevice& device){
+bool _decodeCompressed(
+		Matrix<uint8_t>& height,
+		Matrix<uint8_t>& meta,
+		QSize size,
+		QIODevice& device){
 	BinaryReader reader(&device);
 
     const int sizeX = size.width();
     const int sizeY = size.height();
-
-
 
 	height.resize(sizeX, sizeY);
 	meta.resize(sizeX, sizeY);
@@ -55,8 +57,41 @@ bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevi
 			height.setData(iCol, iRow, dataHeight[iCol]);
 			meta.setData(iCol, iRow, dataMeta[iCol]);
 		}
-//		std::copy(dataHeight.data(), dataHeight.data() + sizeX, height.data() + (iRow * sizeX));
-//		std::copy(dataMeta.data(), dataMeta.data() + sizeX, meta.data() + (iRow * sizeX));
+	}
+	qDebug() << "_decode size" << height.size() << meta.size();
+
+	return true;
+}
+
+bool _decodeRaw(
+		Matrix<uint8_t>& height,
+		Matrix<uint8_t>& meta,
+		QSize size,
+		QIODevice& device){
+	BinaryReader reader(&device);
+
+	const int sizeX = size.width();
+	const int sizeY = size.height();
+
+	height.resize(sizeX, sizeY);
+	meta.resize(sizeX, sizeY);
+
+	qDebug() << "sizeX" << sizeX << "sizeY" << sizeY << "size" << height.size();
+
+	std::vector<uint8_t> dataHeight(sizeX);
+	dataHeight.resize(sizeX);
+	std::vector<uint8_t> dataMeta(sizeX);
+	dataMeta.resize(sizeX);
+
+
+	for(int iRow = 0; iRow < sizeY; iRow++){
+		reader.tryReadArray(dataHeight, sizeX);
+		reader.tryReadArray(dataMeta, sizeX);
+
+		for(int iCol = 0; iCol < sizeX; iCol++){
+			height.setData(iCol, iRow, dataHeight[iCol]);
+			meta.setData(iCol, iRow, dataMeta[iCol]);
+		}
 	}
 	qDebug() << "_decode size" << height.size() << meta.size();
 
@@ -114,12 +149,13 @@ bool _readPalette(vangers::Palette & palette, const QDir& fileDir, const QSettin
 
 bool _readData(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize& size, const QDir& fileDir, const QSettings& settings){
 	QString levelBaseName = settings.value("Storage/File Name").toString();
+	bool isCompressed = settings.value("Storage/Compressed Format Using").toString().trimmed() == "1";
 
-	QString vmcFileName = fileDir.filePath(levelBaseName + ".vmc");
+	QString vmcFileName = fileDir.filePath(levelBaseName + (isCompressed ? ".vmc" : ".vmp"));
 	QFileInfo vmcFileInfo = vmcFileName;
 
 	if(!vmcFileInfo.exists()){
-		qWarning() << "VMC file doesn't exsit" << vmcFileName;
+		qWarning() << "VMP/VMC file doesn't exsit" << vmcFileName;
 		return false;
 	}
 
@@ -137,7 +173,10 @@ bool _readData(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize& size, cons
 
 	size.setWidth(sizeX);
 	size.setHeight(sizeY);
-	_decode(height, meta, size, vmcFile);
+	if(isCompressed)
+		_decodeCompressed(height, meta, size, vmcFile);
+	else
+		_decodeRaw(height, meta, size, vmcFile);
 	vmcFile.close();
 
 	qDebug() << "_readData size" << height.size() << meta.size();
