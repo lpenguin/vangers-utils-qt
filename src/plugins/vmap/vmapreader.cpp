@@ -231,7 +231,7 @@ bool _readData(
 	if(vprFileInfo.exists()) {
 		QFile vprFile(vprFileName);
 		if(vprFile.open(QFile::ReadOnly)) {
-			_decodeFlood(flood, floodOffset, floodSize, vprFile));
+			_decodeFlood(flood, floodOffset, floodSize, vprFile);
 		} else {
 			qWarning() << "Cannot open file for reading" << vprFileName;
 		}
