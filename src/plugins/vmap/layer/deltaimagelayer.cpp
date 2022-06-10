@@ -16,14 +16,29 @@ QSharedPointer<QImage> DeltaImageLayer::getImage(const Vmap &vmap, Level level) 
 
 	uint8_t* data = new uint8_t[meta.size()];
 	for(size_t i =0; i < meta.size(); i++){
-		VmapMeta metaInfo = VmapMeta::fromMeta(meta[i]);
-		data[i] = metaInfo.delta();
+		int32_t evenX, oddX;
+		if(i % 2 == 0) {
+			evenX = i;
+			oddX = i + 1;
+		} else {
+			evenX = i - 1;
+			oddX = i;
+		}
+
+		int32_t evenDelta = VmapMeta::fromMeta(meta[evenX]).delta();
+		int32_t oddDelta = VmapMeta::fromMeta(meta[oddX]).delta();
+
+//		int32_t evenDelta = VmapMeta::fromMeta(meta[i & !1]).delta();
+//		int32_t oddDelta = VmapMeta::fromMeta(meta[i | 1]).delta();
+		int32_t delta = (evenDelta << 2) + oddDelta;
+		data[i] = delta;
 	}
 
-	pal << qRgb(0xB6, 0xB2, 0x90)
-		<< qRgb(0xDD, 0xDB, 0xCB)
-		<< qRgb(0xF5, 0xF1, 0xE3)
-		<< qRgb(0xFF, 0xFF, 0xFF);
+	int32_t deltaMax = 1 << 4;
+	for(int i = 0; i < deltaMax; i++){
+		int32_t c = i * (255.0 / deltaMax);
+		pal << qRgb(c, c, c);
+	}
 
 	return imageFromData(data, vmap.size().width(), vmap.size().height(), pal);
 }

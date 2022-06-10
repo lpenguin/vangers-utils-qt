@@ -214,6 +214,20 @@ void VmapViewer::onMapMouseMove(QPointF pos)
 
 	uint8_t meta = _vmap->meta().getData(x, y);
 	VmapMeta vmapMeta = VmapMeta::fromMeta(meta);
+
+	int32_t evenX, oddX;
+	if(x % 2 == 0) {
+		evenX = x;
+		oddX = x + 1;
+	} else {
+		evenX = x - 1;
+		oddX = x;
+	}
+
+	int32_t evenDelta = VmapMeta::fromMeta(_vmap->meta().getData(evenX, y)).delta();
+	int32_t oddDelta = VmapMeta::fromMeta(_vmap->meta().getData(oddX, y)).delta();
+	int32_t delta = (evenDelta << 2) + oddDelta;
+
 	_ui->statusLabel->setText(QString("%1x%2 alt: %3, terrain: %4, delta: %7, isDoubleLevel: %5, isShadowed: %6 ")
 							  .arg(x)
 							  .arg(y)
@@ -221,7 +235,7 @@ void VmapViewer::onMapMouseMove(QPointF pos)
 							  .arg(vmapMeta.terrain())
 							  .arg(vmapMeta.isDoubleLevel())
 							  .arg(vmapMeta.isShadowed())
-							  .arg(vmapMeta.delta()));
+							  .arg(delta));
 }
 
 void VmapViewer::onMixValueChanged(int value)
