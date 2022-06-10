@@ -145,6 +145,8 @@ QtApplication {
         "src/plugins/vmap/layer/deltaimagelayer.h",
         "src/plugins/vmap/layer/doublelevelimagelayer.cpp",
         "src/plugins/vmap/layer/doublelevelimagelayer.h",
+        "src/plugins/vmap/layer/floodlayer.cpp",
+        "src/plugins/vmap/layer/floodlayer.h",
         "src/plugins/vmap/layer/heightimagelayer.cpp",
         "src/plugins/vmap/layer/heightimagelayer.h",
         "src/plugins/vmap/layer/isshadowedimagelayer.cpp",

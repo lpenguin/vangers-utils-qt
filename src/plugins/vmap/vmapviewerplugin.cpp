@@ -19,6 +19,8 @@
 #include "layer/doublelevelimagelayer.h"
 #include "layer/deltaimagelayer.h"
 #include "layer/heightimagelayer.h"
+#include "layer/floodlayer.h"
+
 
 
 using namespace vangers;
@@ -58,6 +60,7 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 								 "Terrain",
 								 "DoubleLevel",
 								 "Shadow",
+								 "Flood",
 							 });
 
 	_layers = {
@@ -67,6 +70,7 @@ VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
 		{"DoubleLevel", new DoubleLevelImageLayer(this)},
 		{"Delta", new DeltaImageLayer(this)},
 		{"Height", new HeightImageLayer(this)},
+		{"Flood", new FloodLayer(this)},
 	};
 
 	QObject::connect(_ui->maskCombo, SIGNAL(currentIndexChanged(int)),
@@ -228,14 +232,22 @@ void VmapViewer::onMapMouseMove(QPointF pos)
 	int32_t oddDelta = VmapMeta::fromMeta(_vmap->meta().getData(oddX, y)).delta();
 	int32_t delta = (evenDelta << 2) + oddDelta;
 
-	_ui->statusLabel->setText(QString("%1x%2 alt: %3, terrain: %4, delta: %7, isDoubleLevel: %5, isShadowed: %6 ")
+	int32_t floodChunkSize = _vmap->size().height() / _vmap->floodConst().size();
+	int32_t floodChunk = y / floodChunkSize;
+	int32_t flood = -1;
+
+	if(floodChunk >= 0 && floodChunk < _vmap->floodConst().size()){
+		flood = _vmap->floodConst()[floodChunk];
+	}
+	_ui->statusLabel->setText(QString("%1x%2 alt: %3, terrain: %4, delta: %7, isDoubleLevel: %5, isShadowed: %6, flood: %8 ")
 							  .arg(x)
 							  .arg(y)
 							  .arg(height)
 							  .arg(vmapMeta.terrain())
 							  .arg(vmapMeta.isDoubleLevel())
 							  .arg(vmapMeta.isShadowed())
-							  .arg(delta));
+							  .arg(delta)
+							  .arg(flood));
 }
 
 void VmapViewer::onMixValueChanged(int value)
