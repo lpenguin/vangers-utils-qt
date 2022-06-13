@@ -90,7 +90,7 @@ void MainWindow::loadFolder(const QString& folder)
 
 }
 
-void MainWindow::loadFile(const QString& filename, bool current)
+void MainWindow::loadFile(const QString& filename, bool current, QString selectedFilter)
 {
 	QFileInfo fInfo(filename);
 	if(!fInfo.exists() || !fInfo.isFile()){
@@ -100,7 +100,7 @@ void MainWindow::loadFile(const QString& filename, bool current)
 	QString title = QString("Selected: %1").arg(fInfo.fileName());
 
 	ResourceType type;
-	auto plugin = findImportPlugin(filename, type);
+	auto plugin = findImportPlugin(filename, selectedFilter, type);
 	if(plugin.isNull()){
 		return;
 	}
@@ -256,18 +256,28 @@ void MainWindow::addRecentFolder(const QString& recentFolder)
 	addRecent(recentFolder, "recentFolders", ui->menuRecent_Folders, [this](auto s) { loadFolder(s);});
 }
 
-QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString& filename, ResourceType& outType)
+QSharedPointer<ResourceViewerPlugin> MainWindow::findImportPlugin(const QString& filename,
+																  const QString& selectedPlugin,
+																  ResourceType& outType)
 {
     for(auto& plugin: _plugins){
         for(auto& resourceType: plugin->supportedImportTypes()){
-            for(auto& extension: resourceType.extensions){
-                QRegExp rx(extension);
-                rx.setPatternSyntax(QRegExp::Wildcard);
-                if(rx.exactMatch(filename)){
-                    outType = resourceType;
-                    return plugin;
-                }
-            }
+			if(!selectedPlugin.isNull()){
+				if(selectedPlugin.startsWith(resourceType.name)){
+					outType = resourceType;
+					return plugin;
+				}
+			} else {
+				for(auto& extension: resourceType.extensions){
+					QRegExp rx(extension);
+					rx.setPatternSyntax(QRegExp::Wildcard);
+					if(rx.exactMatch(filename)){
+						outType = resourceType;
+						return plugin;
+					}
+				}
+			}
+
         }
     }
     return QSharedPointer<ResourceViewerPlugin>{nullptr};
@@ -303,7 +313,7 @@ void MainWindow::openFile()
         return;
     }
 
-	loadFile(filename, false);
+	loadFile(filename, false, selectedFilter);
 	QFileInfo fInfo(filename);
 	settings.setValue("lastFileDir", fInfo.absoluteDir().absolutePath());
 }
