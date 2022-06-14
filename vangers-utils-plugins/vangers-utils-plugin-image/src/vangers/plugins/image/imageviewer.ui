@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageViewer</class>
+ <widget class="QWidget" name="ImageViewer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>830</width>
+    <height>494</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGraphicsView" name="imageWidget">
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+         <property name="backgroundBrush">
+          <brush brushstyle="Dense1Pattern">
+           <color alpha="255">
+            <red>211</red>
+            <green>215</green>
+            <blue>207</blue>
+           </color>
+          </brush>
+         </property>
+         <property name="foregroundBrush">
+          <brush brushstyle="NoBrush">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </property>
+         <property name="dragMode">
+          <enum>QGraphicsView::ScrollHandDrag</enum>
+         </property>
+         <property name="transformationAnchor">
+          <enum>QGraphicsView::AnchorUnderMouse</enum>
+         </property>
+         <property name="resizeAnchor">
+          <enum>QGraphicsView::AnchorUnderMouse</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="infoForm" native="true">
+         <layout class="QFormLayout" name="formLayout"/>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+	 <widget class="vangers::plugins::image::PaletteView" name="paletteViewer" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vangers::plugins::image::PaletteView</class>
+   <extends>QWidget</extends>
+   <header location="global">vangers/plugins/image/paletteview.h</header>
+   <container>1</container>
+   <slots>
+    <signal>paletteChanged(QString)</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>paletteViewer</sender>
+   <signal>paletteChanged(QString)</signal>
+   <receiver>ImageViewer</receiver>
+   <slot>handlePaletteChanged(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>409</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>339</x>
+     <y>4</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>handlePaletteChanged(QString)</slot>
+ </slots>
+</ui>
