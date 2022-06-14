@@ -7,6 +7,10 @@
 struct ResourceType {
     QString name;
     QStringList extensions;
+
+	inline friend bool operator==(const ResourceType& first, const ResourceType& second){
+		return first.name == second.name;
+	};
 };
 
 class ResourceViewerPlugin;

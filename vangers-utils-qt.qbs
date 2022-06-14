@@ -3,7 +3,11 @@ import qbs.FileInfo
 QtApplication {
     name: "vangers-utils-qt"
 
-    Depends { name: "Qt"; submodules: ["core", "widgets"]; versionAtLeast: "5.6" }
+    Depends {
+        name: "Qt";
+        submodules: ["core", "widgets", "3dinput", "3drender", "3dextras"];
+        versionAtLeast: "5.12"
+    }
 
     // The following define makes your compiler emit warnings if you use
     // any Qt feature that has been marked deprecated (the exact warnings
@@ -19,10 +23,23 @@ QtApplication {
 
     cpp.cxxLanguageVersion: "c++20"
 
-    cpp.includePaths: [product.sourceDirectory, "src"]
+    cpp.includePaths: [product.sourceDirectory, "src", "thirdparty/nlohmann/json"]
 
     files: [
         "Readme.md",
+        "src/core/ini/iniaccess.cpp",
+        "src/core/ini/iniaccess.h",
+        "src/core/ini/inisettings.cpp",
+        "src/core/ini/inisettings.h",
+        "src/core/ini/inistreamreader.cpp",
+        "src/core/ini/inistreamreader.h",
+        "src/core/ini/inistreamwriter.cpp",
+        "src/core/ini/inistreamwriter.h",
+        "src/core/optional.h",
+        "src/core/vector/vector.h",
+        "src/core/vector/vectorjsonext.h",
+        "src/core/vector/vectorstringext.cpp",
+        "src/core/vector/vectorstringext.h",
         "src/graphicsviewzoom.cpp",
         "src/graphicsviewzoom.h",
         "src/image/mssimageaccess.cpp",
@@ -52,6 +69,59 @@ QtApplication {
         "src/main.cpp",
         "src/mainwindow.cpp",
         "src/mainwindow.h",
+        "src/plugins/model/c3drenderer.cpp",
+        "src/plugins/model/c3drenderer.h",
+        "src/plugins/model/c3dview.cpp",
+        "src/plugins/model/c3dview.h",
+        "src/plugins/model/m3d/colortable.cpp",
+        "src/plugins/model/m3d/colortable.h",
+        "src/plugins/model/gridmesh.cpp",
+        "src/plugins/model/gridmesh.h",
+        "src/plugins/model/m3d/m3d.h",
+        "src/plugins/model/m3dobjectscontroller.cpp",
+        "src/plugins/model/m3dobjectscontroller.h",
+        "src/plugins/model/m3d/modelaccess.cpp",
+        "src/plugins/model/m3d/modelaccess.h",
+        "src/plugins/model/m3d/modelbinaryreaderext.cpp",
+        "src/plugins/model/m3d/modelbinaryreaderext.h",
+        "src/plugins/model/m3d/modelbinarywriterext.cpp",
+        "src/plugins/model/m3d/modelbinarywriterext.h",
+        "src/plugins/model/m3djson/m3djsonext.h",
+        "src/plugins/model/m3djson/m3djsonext.cpp",
+        "src/plugins/model/m3djson/m3djsonaccess.cpp",
+        "src/plugins/model/m3djson/m3djsonaccess.h",
+        "src/plugins/model/modelviewer.cpp",
+        "src/plugins/model/modelviewer.h",
+        "src/plugins/model/modelviewer.ui",
+        "src/plugins/model/modelviewerplugin.cpp",
+        "src/plugins/model/modelviewerplugin.h",
+        "src/plugins/model/myorbitcameracontroller.cpp",
+        "src/plugins/model/myorbitcameracontroller.h",
+        "src/plugins/model/obj/obj.cpp",
+        "src/plugins/model/obj/obj.h",
+        "src/plugins/model/objimport/objexporter.cpp",
+        "src/plugins/model/objimport/objexporter.h",
+        "src/plugins/model/objimport/objimportcontroller.cpp",
+        "src/plugins/model/objimport/objimportcontroller.h",
+        "src/plugins/model/objimport/objimporter.cpp",
+        "src/plugins/model/objimport/objimporter.h",
+        "src/plugins/model/objimport/objimportsettings.cpp",
+        "src/plugins/model/objimport/objimportsettings.h",
+        "src/plugins/model/objimport/objimportsettingsaccess.cpp",
+        "src/plugins/model/objimport/objimportsettingsaccess.h",
+        "src/plugins/model/objimport/objimportsettingswidget.cpp",
+        "src/plugins/model/objimport/objimportsettingswidget.h",
+        "src/plugins/model/objimport/objimportsettingswidget.ui",
+        "src/plugins/model/obj/objreader.cpp",
+        "src/plugins/model/obj/objreader.h",
+        "src/plugins/model/obj/objwriter.cpp",
+        "src/plugins/model/obj/objwriter.h",
+        "src/plugins/model/propertytree.cpp",
+        "src/plugins/model/propertytree.h",
+        "src/plugins/model/scenecontroller.cpp",
+        "src/plugins/model/scenecontroller.h",
+        "src/plugins/model/slotview.cpp",
+        "src/plugins/model/slotview.h",
         "src/plugins/palette/microsoftpalaccess.cpp",
         "src/plugins/palette/microsoftpalaccess.h",
         "src/plugins/palette/pngpaletteaccess.cpp",
@@ -98,6 +168,10 @@ QtApplication {
         "src/span.h",
         "src/splay/splay.cpp",
         "src/splay/splay.h",
+        "src/volint/volint.cpp",
+        "src/volint/volint.h",
+        "src/mtool/ModelClass.h",
+        "src/mtool/ModelClass.cpp",
     ]
 
     install: true

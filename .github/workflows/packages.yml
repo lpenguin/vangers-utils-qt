@@ -81,7 +81,7 @@ jobs:
       run: |
         wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" -O linuxdeployqt
         chmod a+x linuxdeployqt
-        ./linuxdeployqt ./VangersUtils/usr/share/applications/com.lpenguin.vangers-utils.desktop -bundle-non-qt-libs -verbose=2 -appimage
+        ./linuxdeployqt ./VangersUtils/usr/share/applications/com.lpenguin.vangers-utils.desktop -bundle-non-qt-libs -verbose=2 -appimage -extra-plugins=renderers
         ls ./squashfs-root/usr/bin || true
         mv Vangers_Utils-*-x86_64.AppImage VangersUtils-$VANGERS_UTILS_VERSION-x86_64.AppImage
   
