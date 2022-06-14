@@ -16,21 +16,8 @@ QSharedPointer<QImage> DeltaImageLayer::getImage(const Vmap &vmap, Level level) 
 
 	uint8_t* data = new uint8_t[meta.size()];
 	for(size_t i =0; i < meta.size(); i++){
-		int32_t evenX, oddX;
-		if(i % 2 == 0) {
-			evenX = i;
-			oddX = i + 1;
-		} else {
-			evenX = i - 1;
-			oddX = i;
-		}
-
-		int32_t evenDelta = VmapMeta::fromMeta(meta[evenX]).delta();
-		int32_t oddDelta = VmapMeta::fromMeta(meta[oddX]).delta();
-
-//		int32_t evenDelta = VmapMeta::fromMeta(meta[i & !1]).delta();
-//		int32_t oddDelta = VmapMeta::fromMeta(meta[i | 1]).delta();
-		int32_t delta = (evenDelta << 2) + oddDelta;
+		int32_t evenDelta = VmapMeta::fromMeta(meta[i & !1]).delta();
+		int32_t delta = ((evenDelta << 2) + meta[i | 1]) << 3;
 		data[i] = delta;
 	}
 
@@ -42,3 +29,5 @@ QSharedPointer<QImage> DeltaImageLayer::getImage(const Vmap &vmap, Level level) 
 
 	return imageFromData(data, vmap.size().width(), vmap.size().height(), pal);
 }
+
+

@@ -10,7 +10,7 @@
 
 
 QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, const vangers::Palette& palette);
-
+QSharedPointer<QImage> imageFromDataRed(const uint8_t* data, int sizeX, int sizeY);
 class Vmap
 {
 public:

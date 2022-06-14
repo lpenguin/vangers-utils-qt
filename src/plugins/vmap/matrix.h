@@ -32,6 +32,15 @@ public:
 		_sizeY = sizeY;
 		std::vector<T>::resize(sizeX * sizeY);
 	}
+
+	size_t sizeX() const {
+		return _sizeX;
+	}
+
+	size_t sizeY() const {
+		return _sizeY;
+	}
+
 private:
 	size_t _sizeX;
 	size_t _sizeY;

@@ -3,6 +3,7 @@
 #include "vmapreader.h"
 #include "vmapwriter.h"
 #include "vmapmeta.h"
+#include "vmapvoxwriter.h"
 
 #include <QSettings>
 #include <QDebug>
@@ -33,6 +34,11 @@ const ResourceType VmapViewerPlugin::VmcType = {
 const ResourceType VmapViewerPlugin::LevelType = {
     .name = "Uncompressed level directory",
     .extensions = {"*.ini"}
+};
+
+const ResourceType VmapViewerPlugin::VoxType = {
+	.name = "MagicaVoxel VOX",
+	.extensions = {"*.vox"}
 };
 
 VmapViewer::VmapViewer(VmapViewerPlugin *plugin, QWidget *parent)
@@ -139,14 +145,20 @@ bool VmapViewer::importResource(const QString &filename, const ResourceType &res
 
 }
 
-void VmapViewer::exportResource(const QString &filename, const ResourceType &)
+void VmapViewer::exportResource(const QString &filename, const ResourceType & type)
 {
     if(_vmap.isNull()){
         return;
     }
 
-	VmapWriter writer;
-	writer.write(*_vmap, filename);
+	if(type.name == VmapViewerPlugin::LevelType.name){
+		VmapWriter writer;
+		writer.write(*_vmap, filename, getLevel());
+	} else if(type.name == VmapViewerPlugin::VoxType.name){
+		VmapVoxWriter writer;
+		writer.write(*_vmap, filename);
+	}
+
 }
 
 QString VmapViewer::currentFile() const
@@ -207,7 +219,6 @@ void VmapViewer::onMaskTypeChanged(int maskIndex)
 
 void VmapViewer::onMapMouseMove(QPointF pos)
 {
-	qDebug() << pos;
 	int x = pos.x();
 	int y = pos.y();
 	QSize size = _vmap->size();

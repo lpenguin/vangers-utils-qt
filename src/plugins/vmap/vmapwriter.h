@@ -4,13 +4,13 @@
 #include "vmap.h"
 
 #include <plugins/resourceaccess.h>
-
+#include <plugins/vmap/layer/abstractimagelayer.h>
 
 namespace vangers {
 class VmapWriter
 {
 public:
-	void write(const Vmap &resource, QString filename);
+	void write(const Vmap &resource, QString filename, Level level = Level::Both);
 };
 
 }
