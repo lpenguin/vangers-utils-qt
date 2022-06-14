@@ -39,7 +39,7 @@ private slots:
 private:
 	const int MAX_RECENT = 12;
 	void loadFolder(const QString& folder);
-	void loadFile(const QString& file, bool current);
+	void loadFile(const QString& file, bool current, QString selectedFilter = QString());
 
 	void loadRecent();
 	void setRecent(const QStringList& recent, QMenu* menu, std::function<void (QString)> callback);
@@ -50,7 +50,7 @@ private:
 
 	void addRecentFile(const QString& recentFile);
 	void addRecentFolder(const QString& recentFolder);
-    QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, ResourceType& outType);
+	QSharedPointer<ResourceViewerPlugin> findImportPlugin(const QString& filename, const QString& selectedPlugin, ResourceType& outType);
     Ui::MainWindow *ui;
 
     ResourceViewer* selectedResourceViewer;
