@@ -56,11 +56,9 @@ void vangers::VmapVoxWriter::write(const Vmap& vmap, QString filename)
 	int sizeY = vmap.size().height();
 	const int sizeZ = 256;
 
-	const int32_t voxSizeX = qMin(128, sizeX);
-	const int32_t voxSizeY = qMin(128, sizeY);
+	const int32_t voxSizeX = qMin(2048, sizeX);
+	const int32_t voxSizeY = qMin(2048, sizeY);
 
-//	const int32_t voxSizeX = qMin(2048, sizeX);
-//	const int32_t voxSizeY = qMin(2048, sizeY);
 	const int32_t chunkSizeX = 128;
 	const int32_t chunkSizeY = 128;
 
