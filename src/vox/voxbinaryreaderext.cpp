@@ -1,7 +1,7 @@
 #include "voxbinaryreaderext.h"
 #include <riff/riff.h>
 #include <riff/riffbinaryreaderext.h>
-#include <QBuffer>
+#include <QtCore/QBuffer>
 
 using namespace vangers;
 using namespace vangers::vox;

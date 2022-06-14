@@ -1,7 +1,7 @@
 #include "vmapreader.h"
 #include <QSharedPointer>
 #include <splay/splay.h>
-#include <QBuffer>
+#include <QtCore/QBuffer>
 #include <QDir>
 #include <QFileInfo>
 #include <QList>

@@ -3,7 +3,7 @@
 
 #include "riff.h"
 
-#include <QBuffer>
+#include <QtCore/QBuffer>
 #include <binaryio.h>
 
 namespace vangers::riff {
