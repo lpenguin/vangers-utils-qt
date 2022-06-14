@@ -1,6 +1,7 @@
 #include "vmapreader.h"
 #include <QSharedPointer>
 #include <splay/splay.h>
+#include <QBuffer>
 #include <QDir>
 #include <QFileInfo>
 #include <QList>
@@ -12,13 +13,15 @@
 using namespace vangers;
 
 
-bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevice& device){
+bool _decodeCompressed(
+		Matrix<uint8_t>& height,
+		Matrix<uint8_t>& meta,
+		QSize size,
+		QIODevice& device){
 	BinaryReader reader(&device);
 
     const int sizeX = size.width();
     const int sizeY = size.height();
-
-
 
 	height.resize(sizeX, sizeY);
 	meta.resize(sizeX, sizeY);
@@ -55,8 +58,41 @@ bool _decode(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize size, QIODevi
 			height.setData(iCol, iRow, dataHeight[iCol]);
 			meta.setData(iCol, iRow, dataMeta[iCol]);
 		}
-//		std::copy(dataHeight.data(), dataHeight.data() + sizeX, height.data() + (iRow * sizeX));
-//		std::copy(dataMeta.data(), dataMeta.data() + sizeX, meta.data() + (iRow * sizeX));
+	}
+	qDebug() << "_decode size" << height.size() << meta.size();
+
+	return true;
+}
+
+bool _decodeRaw(
+		Matrix<uint8_t>& height,
+		Matrix<uint8_t>& meta,
+		QSize size,
+		QIODevice& device){
+	BinaryReader reader(&device);
+
+	const int sizeX = size.width();
+	const int sizeY = size.height();
+
+	height.resize(sizeX, sizeY);
+	meta.resize(sizeX, sizeY);
+
+	qDebug() << "sizeX" << sizeX << "sizeY" << sizeY << "size" << height.size();
+
+	std::vector<uint8_t> dataHeight(sizeX);
+	dataHeight.resize(sizeX);
+	std::vector<uint8_t> dataMeta(sizeX);
+	dataMeta.resize(sizeX);
+
+
+	for(int iRow = 0; iRow < sizeY; iRow++){
+		reader.tryReadArray(dataHeight, sizeX);
+		reader.tryReadArray(dataMeta, sizeX);
+
+		for(int iCol = 0; iCol < sizeX; iCol++){
+			height.setData(iCol, iRow, dataHeight[iCol]);
+			meta.setData(iCol, iRow, dataMeta[iCol]);
+		}
 	}
 	qDebug() << "_decode size" << height.size() << meta.size();
 
@@ -112,14 +148,59 @@ bool _readPalette(vangers::Palette & palette, const QDir& fileDir, const QSettin
 	return true;
 }
 
-bool _readData(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize& size, const QDir& fileDir, const QSettings& settings){
+
+bool _decodeFlood(std::vector<uint32_t>& flood, int64_t offset, int32_t size, QIODevice& device){
+	flood.resize(size);
+	QByteArray data = device.readAll();
+	int64_t expectedFileSize = offset + (size * sizeof(int32_t));
+
+	if(expectedFileSize != data.size()){
+		qDebug() << "Invalid vpr file size, expected:"
+				 << expectedFileSize
+				 << ", actual:"
+				 << data.size();
+
+		return false;
+	}
+
+	QBuffer buffer(&data);
+	if(!buffer.open(QBuffer::ReadOnly)){
+		return false;
+	}
+
+	buffer.seek(offset);
+
+	BinaryReader reader(&buffer);
+	return reader.tryReadArray(flood, size);
+}
+
+bool _readData(
+		Matrix<uint8_t>& height,
+		Matrix<uint8_t>& meta,
+		std::vector<uint32_t>& flood,
+		QSize& size,
+		const QDir& fileDir,
+		const QSettings& settings){
 	QString levelBaseName = settings.value("Storage/File Name").toString();
 
-	QString vmcFileName = fileDir.filePath(levelBaseName + ".vmc");
+	bool isCompressed = settings.value("Storage/Compressed Format Using").toString().trimmed() == "1";
+	int mapPowerX = settings.value("Global Parameters/Map Power X").toInt();
+	int mapPowerY = settings.value("Global Parameters/Map Power Y").toInt();
+	int geoNetPower = settings.value("Global Parameters/GeoNet Power").toInt();
+	int sectionSizePower = settings.value("Global Parameters/Section Size Power").toInt();
+	int minSquarePower  = settings.value("Global Parameters/Minimal Square Power").toInt();
+
+	int sizeX = 1 << mapPowerX;
+	int sizeY = 1 << mapPowerY;
+
+	size.setWidth(sizeX);
+	size.setHeight(sizeY);
+
+	QString vmcFileName = fileDir.filePath(levelBaseName + (isCompressed ? ".vmc" : ".vmp"));
 	QFileInfo vmcFileInfo = vmcFileName;
 
 	if(!vmcFileInfo.exists()){
-		qWarning() << "VMC file doesn't exsit" << vmcFileName;
+		qWarning() << "VMP/VMC file doesn't exsit" << vmcFileName;
 		return false;
 	}
 
@@ -129,16 +210,35 @@ bool _readData(Matrix<uint8_t>& height, Matrix<uint8_t>& meta, QSize& size, cons
 		return false;
 	}
 
-	int mapPowerX = settings.value("Global Parameters/Map Power X").toInt();
-	int mapPowerY = settings.value("Global Parameters/Map Power Y").toInt();
-
-	int sizeX = 1 << mapPowerX;
-	int sizeY = 1 << mapPowerY;
-
-	size.setWidth(sizeX);
-	size.setHeight(sizeY);
-	_decode(height, meta, size, vmcFile);
+	if(isCompressed)
+		_decodeCompressed(height, meta, size, vmcFile);
+	else
+		_decodeRaw(height, meta, size, vmcFile);
 	vmcFile.close();
+
+
+	int floodSize = sizeY >> sectionSizePower;
+	int netSize = (sizeX * sizeY) >> (2 * geoNetPower);
+
+	int64_t floodOffset = (2 * 4 + (1 + 4 + 4) * 4 + 2 * netSize + 2 * geoNetPower * 4 + 2 * floodSize * geoNetPower * 4);
+
+	QString vprFileName = fileDir.filePath(levelBaseName + ".vpr");
+	QFileInfo vprFileInfo(vmcFileInfo);
+	
+	flood.resize(floodSize);
+	std::fill(flood.begin(), flood.end(), 0);
+	
+	if(vprFileInfo.exists()) {
+		QFile vprFile(vprFileName);
+		if(vprFile.open(QFile::ReadOnly)) {
+			_decodeFlood(flood, floodOffset, floodSize, vprFile);
+		} else {
+			qWarning() << "Cannot open file for reading" << vprFileName;
+		}
+	} else {
+		qWarning() << "VPR file doesn't exsit" << vprFileName;
+	}
+
 
 	qDebug() << "_readData size" << height.size() << meta.size();
 	return true;
@@ -159,7 +259,7 @@ bool VmapReader::read(Vmap& vmap, QFile &iniFile)
 	}
 
 	QSize size;
-	if(!_readData(vmap.height(), vmap.meta(), size, fileDir, settings)){
+	if(!_readData(vmap.height(), vmap.meta(), vmap.flood(), size, fileDir, settings)){
 		return false;
 	}
 	vmap.setSize(size);

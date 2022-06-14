@@ -26,6 +26,9 @@ public:
 	const Matrix<uint8_t> &metaConst() const;
 	Matrix<uint8_t>& meta();
 
+	const std::vector<uint32_t> &floodConst() const;
+	std::vector<uint32_t>& flood();
+
 	vangers::Palette& palette();
 	const vangers::Palette& paletteConst() const;
 	const std::vector<std::pair<int, int>>& terrainColorOffsetsConst() const;
@@ -38,10 +41,11 @@ public:
 	void setPalette(const vangers::Palette &palette);
 
 private:
-		QSize _size;
+	QSize _size;
 
-		Matrix<uint8_t> _height;
-		Matrix<uint8_t> _meta;
+	Matrix<uint8_t> _height;
+	Matrix<uint8_t> _meta;
+	std::vector<uint32_t> _flood;
 
 	vangers::Palette _palette;
 	std::vector<std::pair<int, int>> _terrainColorOffsets;

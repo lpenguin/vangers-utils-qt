@@ -29,6 +29,16 @@ Matrix<uint8_t> &Vmap::meta()
 	return _meta;
 }
 
+const std::vector<uint32_t>& Vmap::floodConst() const
+{
+	return _flood;
+}
+
+std::vector<uint32_t>& Vmap::flood()
+{
+	return _flood;
+}
+
 
 void Vmap::setPalette(const vangers::Palette &palette)
 {
