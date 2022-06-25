@@ -1,3 +1,5 @@
+import qbs.FileInfo;
+
 Library {
     name: "vangers-utils-core"
 
@@ -9,7 +11,7 @@ Library {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [product.sourceDirectory + "/src"]
+        cpp.includePaths: ["src"]
     }
 
     cpp.cxxLanguageVersion: "c++20"
@@ -19,6 +21,7 @@ Library {
     install: !singleBinary
 
     files: [
+        "src/vangers/core/error/error.h",
         "src/vangers/core/palette/palette.h",
         "src/vangers/core/palette/palette.cpp",
         "src/vangers/core/binaryio.h",

@@ -20,7 +20,7 @@ Project {
     }
 
     SubProject {
-        filePath: "vangers-utils-model2vmap/vangers-utils-model2vmap.qbs"
+        filePath: "model2vmap/model2vmap.qbs"
     }
 }
 
