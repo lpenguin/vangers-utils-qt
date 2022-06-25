@@ -1,4 +1,5 @@
 vangers-utils-qt.pro.user
 /*.qbs.user
-/build
+/build*
 /VangersUtils
+CMakeLists.txt.user

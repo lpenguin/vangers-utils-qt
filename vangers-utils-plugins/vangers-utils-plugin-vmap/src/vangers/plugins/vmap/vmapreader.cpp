@@ -10,7 +10,7 @@
 #include <vector>
 
 #include <splay/splay.h>
-#include <vangers/core//binaryio.h>
+#include <vangers/core/binaryio.h>
 
 using namespace vangers::plugins::vmap;
 using namespace vangers::core::binario;

@@ -32,7 +32,7 @@ DynamicLibrary {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [product.sourceDirectory + "/src"]
+        cpp.includePaths: ["src"]
     }
 
     cpp.cxxLanguageVersion: "c++20"
@@ -65,6 +65,9 @@ DynamicLibrary {
         "src/vangers/plugins/vmap/vmapiniwriter.h",
         "src/vangers/plugins/vmap/vmapmeta.cpp",
         "src/vangers/plugins/vmap/vmapmeta.h",
+        "src/vangers/plugins/vmap/vmapparams.h",
+        "src/vangers/plugins/vmap/vmapparamsreader.cpp",
+        "src/vangers/plugins/vmap/vmapparamsreader.h",
         "src/vangers/plugins/vmap/vmapreader.cpp",
         "src/vangers/plugins/vmap/vmapreader.h",
         "src/vangers/plugins/vmap/vmapviewer.ui",
@@ -76,5 +79,7 @@ DynamicLibrary {
         "src/vangers/plugins/vmap/vmapvoxwriter.h",
         "src/vangers/plugins/vmap/imagegraphicsview.cpp",
         "src/vangers/plugins/vmap/imagegraphicsview.h",
+        "src/vangers/plugins/vmap/vprwriter.cpp",
+        "src/vangers/plugins/vmap/vprwriter.h",
     ]
 }

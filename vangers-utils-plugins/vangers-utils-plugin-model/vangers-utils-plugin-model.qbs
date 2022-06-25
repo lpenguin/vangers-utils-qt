@@ -23,7 +23,7 @@ DynamicLibrary {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [product.sourceDirectory + "/src"]
+        cpp.includePaths: ["src"]
     }
 
 

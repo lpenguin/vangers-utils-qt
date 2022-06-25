@@ -8,7 +8,7 @@
 #include <QFile>
 #include <QSharedPointer>
 
-#include <vangers/core//plugin/resourceaccess.h>
+#include <vangers/core/plugin/resourceaccess.h>
 
 
 namespace vangers::plugins::image {

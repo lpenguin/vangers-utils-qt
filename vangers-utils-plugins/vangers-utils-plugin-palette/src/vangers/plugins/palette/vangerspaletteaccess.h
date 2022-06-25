@@ -1,8 +1,8 @@
 #ifndef VANGERSPALETTEACCESS_H
 #define VANGERSPALETTEACCESS_H
 
-#include <vangers/core//plugin/resourceaccess.h>
-#include <vangers/core//palette/palette.h>
+#include <vangers/core/plugin/resourceaccess.h>
+#include <vangers/core/palette/palette.h>
 #include <vangers/plugins/image/image.h>
 
 #include <QSharedPointer>

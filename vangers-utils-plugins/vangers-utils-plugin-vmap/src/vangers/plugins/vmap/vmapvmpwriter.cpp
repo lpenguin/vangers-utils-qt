@@ -15,7 +15,6 @@ void VmapVmpWriter::write(const Vmap& vmap, QIODevice& device)
 	const int height = vmap.size().height();
 	const int width = vmap.size().width();
 
-	qDebug() << width << height;
 	for(int iRow = 0; iRow < height; iRow++){
 		for(int iCol = 0; iCol < width; iCol++){
 			writer.write<uint8_t>(heightData[iRow * width + iCol]);
