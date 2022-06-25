@@ -2,6 +2,7 @@
 #define OBJREADER_H
 
 #include <QTextStream>
+#include <vangers/core/error/error.h>
 
 #include "obj.h"
 
@@ -24,13 +25,13 @@ namespace obj {
 	public:
 		ObjStreamReader(QTextStream& stream);
 		LineType readNext();
-		bool readObject(QString& name);
-		bool readGroup(QString& name);
-		bool readUseMaterial(QString& name);
-		bool readUseMaterialLib(QString& name);
-		bool readVertex(Vector3F64& v);
-		bool readNormal(Vector3F64& v);
-		bool readFace(Face& face);
+		vangers::core::error::Result readObject(QString& name);
+		vangers::core::error::Result readGroup(QString& name);
+		vangers::core::error::Result readUseMaterial(QString& name);
+		vangers::core::error::Result readUseMaterialLib(QString& name);
+		vangers::core::error::Result readVertex(Vector3F64& v);
+		vangers::core::error::Result readNormal(Vector3F64& v);
+		vangers::core::error::Result readFace(Face& face);
 	private:
 		QStringList _contents;
 		int32_t _currentLine;
@@ -49,7 +50,7 @@ namespace obj {
 	class ObjReader
 	{
 	public:
-		bool read(ObjectCollection& objCol, QIODevice& device);
+		vangers::core::error::Result read(ObjectCollection& objCol, QIODevice& device);
 	};
 
 

@@ -2,6 +2,7 @@
 
 #include <QSet>
 using namespace obj;
+using namespace vangers::core::error;
 
 const QRegExp ObjStreamReader::REGEXP_START_OBJECT(R"(o\s+(.+))");
 const QRegExp ObjStreamReader::REGEXP_START_GROUP(R"(g\s+(.+))");
@@ -15,7 +16,7 @@ const QRegExp ObjStreamReader::REGEXP_USE_MATERIAL(R"(usemtl\s+(.*))");
 
 bool assignVertices(ObjectCollection& col, const QList<Vector3F64>& vertices, const QList<Vector3F64>& normals);
 
-bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
+vangers::core::error::Result ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 {
 	QTextStream stream(&device);
 	ObjStreamReader reader(stream);
@@ -31,8 +32,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 		case LineType::UseMaterialLib:
 			{
 				QString mtl;
-				if(!reader.readUseMaterialLib(mtl)){
-					return false;
+				Result res = reader.readUseMaterialLib(mtl);
+				if(!res){
+					return res;
 				}
 				objCol.useMaterialLibraries.append(mtl);
 			}
@@ -42,8 +44,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 		case LineType::StartObject:
 			{
 				Object obj = {};
-				if(!reader.readObject(obj.name)){
-					return false;
+				Result res = reader.readObject(obj.name);
+				if(!res){
+					return res;
 				}
 				objCol.objects.append(obj);
 			}
@@ -52,8 +55,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 		case LineType::Vertex:
 			{
 				Vector3F64 v;
-				if(!reader.readVertex(v)){
-					return false;
+				Result res = reader.readVertex(v);
+				if(!res){
+					return res;
 				}
 				vertices.append(v);
 			}
@@ -62,8 +66,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 		case LineType::Normal:
 			{
 				Vector3F64 n;
-				if(!reader.readNormal(n)){
-					return false;
+				Result res = reader.readNormal(n);
+				if(!res){
+					return res;
 				}
 				normals.append(n);
 			}
@@ -71,11 +76,12 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 
 		case LineType::StartGroup:
 		{
-			if(objCol.objects.size() == 0) return false;
+			if(objCol.objects.size() == 0) return Error{"Unexpected StartGroup"};
 
 			Group group = {};
-			if(!reader.readGroup(group.name)){
-				return false;
+			Result res = reader.readGroup(group.name);
+			if(!res){
+				return res;
 			}
 			objCol.objects.last().groups.append(group);
 		}
@@ -83,11 +89,12 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 
 		case LineType::UseMaterial:
 		{
-			if(objCol.objects.size() == 0) return false;
+			if(objCol.objects.size() == 0) return Error{"Unexpected UseMaterial"};
 
 			QString material;
-			if(!reader.readUseMaterial(material)){
-				return false;
+			Result res = reader.readUseMaterial(material);
+			if(!res){
+				return res;
 			}
 
 			Object& obj = objCol.objects.last();
@@ -103,7 +110,7 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 
 		case LineType::Face:
 		{
-			if(objCol.objects.size() == 0) return false;
+			if(objCol.objects.size() == 0) return Error{"Unexpected Face"};
 
 			Object& obj = objCol.objects.last();
 
@@ -113,8 +120,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 			Group& group = obj.groups.last();
 
 			Face face = {};
-			if(!reader.readFace(face)){
-				return false;
+			Result res = reader.readFace(face);
+			if(!res){
+				return res;
 			}
 			group.faces.append(face);
 			break;
@@ -126,9 +134,9 @@ bool ObjReader::read(ObjectCollection& objCol, QIODevice& device)
 	}
 
 	if(!assignVertices(objCol, vertices, normals)){
-		return false;
+		return Error{"Error in vertices assignment"};
 	}
-	return true;
+	return {};
 }
 
 
@@ -162,56 +170,56 @@ LineType ObjStreamReader::readNext()
 	return LineType::Unknown;
 }
 
-bool ObjStreamReader::readObject(QString& name)
+vangers::core::error::Result ObjStreamReader::readObject(QString& name)
 {
 	QRegExp r = REGEXP_START_OBJECT;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid StartObject line: " + _contents[_currentLine]};
 	}
 
 	name = r.cap(1);
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readGroup(QString& name)
+vangers::core::error::Result ObjStreamReader::readGroup(QString& name)
 {
 	QRegExp r = REGEXP_START_GROUP;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid StartGroup line: " + _contents[_currentLine]};
 	}
 
 	name = r.cap(1);
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readUseMaterial(QString& name)
+vangers::core::error::Result ObjStreamReader::readUseMaterial(QString& name)
 {
 	QRegExp r = REGEXP_USE_MATERIAL;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid UseMaterial line: " + _contents[_currentLine]};
 	}
 
 	name = r.cap(1);
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readUseMaterialLib(QString& name)
+vangers::core::error::Result ObjStreamReader::readUseMaterialLib(QString& name)
 {
 	QRegExp r = REGEXP_USE_MATERIAL_LIB;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid UseMaterial line: " + _contents[_currentLine]};
 	}
 
 	name = r.cap(1);
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readVertex(Vector3F64& v)
+vangers::core::error::Result ObjStreamReader::readVertex(Vector3F64& v)
 {
 	const QString& line = _contents[_currentLine];
 	QRegExp r = REGEXP_VERTEX;
 	if(r.indexIn(line) < 0){
-		return false;
+		return Error{"Invalid Vertex line: " + _contents[_currentLine]};
 	}
 
 	int cc = r.captureCount();
@@ -220,24 +228,24 @@ bool ObjStreamReader::readVertex(Vector3F64& v)
 
 	v.x = r.cap(1).toDouble(&ok);
 	if(!ok)
-		return false;
+		return Error{"Invalid Vertex line: " + _contents[_currentLine]};
 
 	v.y = r.cap(2).toDouble(&ok);
 	if(!ok)
-		return false;
+		return Error{"Invalid Vertex line: " + _contents[_currentLine]};
 
 	v.z = r.cap(3).toDouble(&ok);
 	if(!ok)
-		return false;
+		return Error{"Invalid Vertex line: " + _contents[_currentLine]};
 
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readNormal(Vector3F64& v)
+vangers::core::error::Result ObjStreamReader::readNormal(Vector3F64& v)
 {
 	QRegExp r = REGEXP_NORMAL;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid Normal line: " + _contents[_currentLine]};
 	}
 
 	int cc = r.captureCount();
@@ -245,31 +253,30 @@ bool ObjStreamReader::readNormal(Vector3F64& v)
 	bool ok = true;
 
 	v.x = r.cap(1).toDouble(&ok);
-	if(!ok) return false;
-
+	if(!ok) return Error{"Invalid Normal line: " + _contents[_currentLine]};
 	v.y = r.cap(2).toDouble(&ok);
-	if(!ok) return false;
+	if(!ok) return Error{"Invalid Normal line: " + _contents[_currentLine]};
 
 	v.z = r.cap(3).toDouble(&ok);
-	if(!ok) return false;
+	if(!ok) return Error{"Invalid Normal line: " + _contents[_currentLine]};
 
-	return true;
+	return {};
 }
 
-bool ObjStreamReader::readFace(Face& face)
+vangers::core::error::Result ObjStreamReader::readFace(Face& face)
 {
 	face.indices.clear();
 
 	QRegExp r = REGEXP_FACE;
 	if(r.indexIn(_contents[_currentLine]) < 0){
-		return false;
+		return Error{"Invalid Face line: " + _contents[_currentLine]};
 	}
 
 	QString faceStr = r.cap(1);
 	QStringList faceStrs = faceStr.split(QRegExp(R"(\s+)"));
 	for(const QString& faceIndStr: faceStrs){
 		QRegExp rf = REGEXP_FACE_INDEX;
-		if(rf.indexIn(faceIndStr) < 0) return false;
+		if(rf.indexIn(faceIndStr) < 0) return Error{"Invalid Face line: " + _contents[_currentLine]};
 
 		FaceIndex index {};
 
@@ -287,7 +294,7 @@ bool ObjStreamReader::readFace(Face& face)
 		face.indices.append(index);
 	}
 
-	return true;
+	return {};
 }
 
 bool assignVertices(ObjectCollection& col, const QList<Vector3F64>& vertices, const QList<Vector3F64>& normals){

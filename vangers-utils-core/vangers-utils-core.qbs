@@ -19,6 +19,7 @@ Library {
     install: !singleBinary
 
     files: [
+        "src/vangers/core/error/error.h",
         "src/vangers/core/palette/palette.h",
         "src/vangers/core/palette/palette.cpp",
         "src/vangers/core/binaryio.h",

@@ -50,9 +50,16 @@ QtApplication {
     ]
 
     files: [
+        "src/vangers/model2vmap/guiconverter.cpp",
+        "src/vangers/model2vmap/guiconverter.h",
         "src/vangers/model2vmap/heightmapfrommesh.cpp",
         "src/vangers/model2vmap/heightmapfrommesh.h",
+        "src/vangers/model2vmap/cliconverter.cpp",
+        "src/vangers/model2vmap/cliconverter.h",
         "src/vangers/model2vmap/main.cpp",
+        "src/vangers/model2vmap/mainwindow.cpp",
+        "src/vangers/model2vmap/mainwindow.h",
+        "src/vangers/model2vmap/mainwindow.ui",
     ]
 
     install: true
