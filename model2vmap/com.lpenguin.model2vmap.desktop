@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=model2vmap
+GenericName=model2vmap
+Comment=model2vmap
+TryExec=model2vmap
+Exec=model2vmap %F
+Terminal=false
+Type=Application
+Categories=Graphics;2DGraphics;
+StartupNotify=true
+Icon=model2vmap
+X-Desktop-File-Install-Version=0.1
