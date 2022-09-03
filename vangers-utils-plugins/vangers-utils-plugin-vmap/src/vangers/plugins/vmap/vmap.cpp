@@ -10,6 +10,11 @@ QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, 
 	return image;
 }
 
+QSharedPointer<QImage> imageFromDataGrayscale(const uint8_t* data, int sizeX, int sizeY){
+	QSharedPointer<QImage> image = QSharedPointer<QImage>::create(data, sizeX, sizeY, sizeX, QImage::Format_Grayscale8);
+	return image;
+}
+
 QSharedPointer<QImage> imageFromDataRed(const uint8_t* data, int sizeX, int sizeY){
 	uint8_t* newData = new uint8_t[sizeof(uint32_t) * sizeX * sizeY];
 	for(int i = 0; i < sizeX * sizeY; i++){

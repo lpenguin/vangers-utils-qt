@@ -10,6 +10,7 @@
 
 
 QSharedPointer<QImage> imageFromData(const uint8_t* data, int sizeX, int sizeY, const vangers::core::palette::Palette& palette);
+QSharedPointer<QImage> imageFromDataGrayscale(const uint8_t* data, int sizeX, int sizeY);
 QSharedPointer<QImage> imageFromDataRed(const uint8_t* data, int sizeX, int sizeY);
 
 namespace vangers::plugins::vmap {

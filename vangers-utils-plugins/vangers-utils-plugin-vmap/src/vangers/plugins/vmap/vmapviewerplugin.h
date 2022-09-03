@@ -33,7 +33,7 @@ namespace vangers::plugins::vmap {
 		};
 
 		QList<vangers::core::plugin::ResourceType> supportedExportTypes() const {
-			return {LevelType};
+			return {LevelType, VoxType};
 		};
 
 		vangers::core::plugin::ResourceViewer *makeResourceViewer(QWidget *parent);

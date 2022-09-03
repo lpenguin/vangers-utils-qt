@@ -16,9 +16,6 @@ using namespace vangers::plugins::palette;
 
 void VmapIniWriter::write(const Vmap &vmap, QString filename, Level level)
 {
-	const uint8_t selectedTerrainIndex = 1;
-
-
 	QSettings settings(filename, QSettings::IniFormat);
 	QDir baseDir(QFileInfo(filename).absoluteDir());
 	QString heightFilename = baseDir.filePath("height.png");
@@ -37,31 +34,17 @@ void VmapIniWriter::write(const Vmap &vmap, QString filename, Level level)
 
 	Palette palette = Palette::grayscale();
 
-//	TerrainImageLayer terrainLayer = new TerrainImageLayer();
-//	HeightImageLayer heightLayer = new HeightImageLayer();
+	TerrainImageLayer terrainLayer = new TerrainImageLayer();
+	HeightImageLayer heightLayer = new HeightImageLayer();
 	Matrix<uint8_t> terrainData(sizeX, sizeY);
 	Matrix<uint8_t> heightData(sizeX, sizeY);
-//	terrainLayer.fillData(vmap, level, terrainData);
-//	heightLayer.fillData(vmap, level, heightData);
+	terrainLayer.fillData(vmap, level, terrainData);
+	heightLayer.fillData(vmap, level, heightData);
 
-	for(int iY = 0; iY < sizeY; iY++){
-		uint8_t prevHeight = 0;
 
-		for(int iX = 0; iX < sizeX; iX++){
-			uint8_t terrainIndex = terrainData.getData(iX, iY);
-			uint8_t height;
-			if(terrainIndex == selectedTerrainIndex){
-				height = heightData.getData(iX, iY);
-				prevHeight = height;
-			} else {
-				height = 0;
-			}
-			heightData.setData(iX, iY, height);
-		}
-	}
 
-	auto height = imageFromDataRed(heightData.data(), sizeX, sizeY);
-	auto meta = imageFromData(vmap.metaConst().data(), sizeX, sizeY, palette);
+	auto height = imageFromDataGrayscale(heightData.data(), sizeX, sizeY);
+	auto meta = terrainLayer.getImage(vmap, level);//imageFromData(terrainData.data(), sizeX, sizeY, vmap.paletteConst());
 
 	height->save(heightFilename);
 	meta->save(metaFilename);

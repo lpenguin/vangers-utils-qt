@@ -6,11 +6,25 @@
 
 namespace vangers::plugins::vmap {
 
-class VmapVoxWriter
-{
-public:
-	void write(const Vmap &resource, QString filename);
-};
+	struct VmapVoxWriterSettings{
+		bool hollow;
+		int32_t hollowSize;
+		int32_t indexColorShift;
+		bool compressChunks;
+		bool flipX;
+		int32_t voxSizeX;
+		int32_t voxSizeY;
+		int32_t chunkSizeX;
+		int32_t chunkSizeY;
+
+		static VmapVoxWriterSettings makeDefault();
+	};
+
+	class VmapVoxWriter
+	{
+	public:
+		void write(const Vmap &resource, QString filename, const VmapVoxWriterSettings& settings);
+	};
 
 }
 #endif // VMAPVOXWRITER_H

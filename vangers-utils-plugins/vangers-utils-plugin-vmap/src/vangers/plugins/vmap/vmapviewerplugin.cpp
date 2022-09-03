@@ -158,7 +158,10 @@ void VmapViewer::exportResource(const QString &filename, const ResourceType & ty
 		writer.write(*_vmap, filename, getLevel());
 	} else if(type.name == VmapViewerPlugin::VoxType.name){
 		VmapVoxWriter writer;
-		writer.write(*_vmap, filename);
+		auto settings = VmapVoxWriterSettings::makeDefault();
+		settings.voxSizeX = 512;
+		settings.voxSizeY = 512;
+		writer.write(*_vmap, filename, settings);
 	}
 
 }

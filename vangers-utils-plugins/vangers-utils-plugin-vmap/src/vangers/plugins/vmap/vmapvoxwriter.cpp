@@ -52,24 +52,40 @@ void getHeights(
 	}
 }
 
-void VmapVoxWriter::write(const Vmap& vmap, QString filename)
+VmapVoxWriterSettings VmapVoxWriterSettings::makeDefault()
+{
+	return {
+		.hollow = true,
+		.hollowSize = 32,
+		.indexColorShift = 24,
+		.compressChunks = false,
+		.flipX = true,
+		.voxSizeX = 2048,
+		.voxSizeY = 2048,
+		.chunkSizeX = 128,
+		.chunkSizeY = 128,
+	};
+}
+
+
+void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWriterSettings& settings)
 {
 	const QSet<uint8_t> excludedTerrainIndices = {};
-	const bool hollow = true;
-	const int8_t hollowSize = 32;
-	const uint8_t colorIndexShift = 24;
-	const bool compressChunks = false;
-	const bool flipX = true;
+	const bool hollow = settings.hollow; //true
+	const int8_t hollowSize = settings.hollowSize; // 32
+	const uint8_t colorIndexShift = settings.indexColorShift; // 24;
+	const bool compressChunks = settings.compressChunks;// false;
+	const bool flipX = settings.flipX; // true;
 
 	int sizeX = vmap.size().width();
 	int sizeY = vmap.size().height();
 	const int sizeZ = 256;
 
-	const int32_t voxSizeX = qMin(2048, sizeX);
-	const int32_t voxSizeY = qMin(2048, sizeY);
+	const int32_t voxSizeX = qMin(settings.voxSizeX/*2048*/, sizeX);
+	const int32_t voxSizeY = qMin(settings.voxSizeY/*2048*/, sizeY);
 
-	const int32_t chunkSizeX = 128;
-	const int32_t chunkSizeY = 128;
+	const int32_t chunkSizeX = settings.chunkSizeX; //128;
+	const int32_t chunkSizeY = settings.chunkSizeY; //128;
 
 
 	auto palette = vangers::core::palette::Palette::grayscale();
