@@ -50,6 +50,5 @@ DynamicLibrary {
         "src/vangers/plugins/image/paletteview.cpp",
         "src/vangers/plugins/image/qimagewidget.h",
         "src/vangers/plugins/image/qimagewidget.cpp",
-        "src/vangers/plugins/image/palettes.qrc",
     ]
 }

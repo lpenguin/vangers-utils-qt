@@ -80,6 +80,7 @@ void Palette::store(const Palette& palette, QIODevice& device)
 
 QStringList Palette::paletteNames()
 {
+	Q_INIT_RESOURCE(palettes);
     QStringList result = QDir(":/palettes/pal").entryList();
     result << "~fire";
 
