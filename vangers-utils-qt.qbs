@@ -22,5 +22,9 @@ Project {
     SubProject {
         filePath: "model2vmap/model2vmap.qbs"
     }
+
+    SubProject {
+        filePath: "vlc2json/vlc2json.qbs"
+    }
 }
 
