@@ -21,7 +21,7 @@
 #include "layer/deltaimagelayer.h"
 #include "layer/heightimagelayer.h"
 #include "layer/floodlayer.h"
-
+#include "voxwritersettingsdialog.h"
 
 
 using namespace vangers::core::plugin;
@@ -161,7 +161,13 @@ void VmapViewer::exportResource(const QString &filename, const ResourceType & ty
 		auto settings = VmapVoxWriterSettings::makeDefault();
 		settings.voxSizeX = 512;
 		settings.voxSizeY = 512;
-		writer.write(*_vmap, filename, settings);
+		VoxWriterSettingsDialog settingsDialog(this);
+		int result = settingsDialog.exec();
+		if(result == QDialog::Accepted){
+			settings = settingsDialog.getSettings();
+			writer.write(*_vmap, filename, settings);
+		}
+
 	}
 
 }

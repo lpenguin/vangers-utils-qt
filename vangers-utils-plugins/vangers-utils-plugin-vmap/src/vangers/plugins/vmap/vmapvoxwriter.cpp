@@ -32,10 +32,11 @@ void getHeights(
 		const Matrix<uint8_t>& meta,
 		int32_t x,
 		int32_t y,
+        float heightScale,
 		uint8_t& downHeight){
 	VmapMeta xMeta = VmapMeta::fromMeta(meta.getData(x, y));
 	if(!xMeta.isDoubleLevel()){
-		downHeight = height.getData(x, y);
+		downHeight = height.getData(x, y) * heightScale;
 	} else {
 		uint32_t downX = x & ~1;
 		uint32_t upX = y | 1;
@@ -45,7 +46,7 @@ void getHeights(
 
 //		uint8_t downC = downMeta.terrain() + 1;
 //		uint8_t upC = upMeta.terrain() + 1;
-		downHeight = height.getData(downX, y);
+		downHeight = height.getData(downX, y)  * heightScale;
 //		upHeight = height.getData(upX, y);
 
 //		delta = (downMeta.delta() << 2) + upMeta.delta();
@@ -64,6 +65,7 @@ VmapVoxWriterSettings VmapVoxWriterSettings::makeDefault()
 		.voxSizeY = 2048,
 		.chunkSizeX = 128,
 		.chunkSizeY = 128,
+		.heightScale = 1.0f,
 	};
 }
 
@@ -79,7 +81,6 @@ void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWrite
 
 	int sizeX = vmap.size().width();
 	int sizeY = vmap.size().height();
-	const int sizeZ = 256;
 
 	const int32_t voxSizeX = qMin(settings.voxSizeX/*2048*/, sizeX);
 	const int32_t voxSizeY = qMin(settings.voxSizeY/*2048*/, sizeY);
@@ -159,24 +160,28 @@ void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWrite
 							getHeights(height, meta,
 									   qMax(0, realIX - 1),
 									   realIY,
+							           settings.heightScale,
 									   heighbourDownHeights[0]);
 
 							getHeights(height, meta,
 									   qMin(sizeX - 1, realIX + 1),
 									   realIY,
+							           settings.heightScale,
 									   heighbourDownHeights[1]);
 
 							getHeights(height, meta,
 									   realIX,
 									   qMax(0, realIY - 1),
+							           settings.heightScale,
 									   heighbourDownHeights[2]);
 
 							getHeights(height, meta,
 									   realIX,
 									   qMin(sizeY - 1, realIY + 1),
+							           settings.heightScale,
 									   heighbourDownHeights[3]);
 
-							uint8_t heighbourDownHeightMin = 255;
+							uint8_t heighbourDownHeightMin = 255 * settings.heightScale;
 							for(int i = 0; i < 4; i++){
 								heighbourDownHeightMin = qMin(
 															 heighbourDownHeightMin,
@@ -189,8 +194,13 @@ void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWrite
 								if(excludedTerrainIndices.contains(xMeta.terrain())) {
 									continue;
 								}
-								uint8_t h = height.getData(realIX, realIY);
-								uint8_t c = xMeta.terrain() + 1 + colorIndexShift;
+								uint8_t h = height.getData(realIX, realIY) * settings.heightScale;
+								uint8_t c = xMeta.terrain(); // + 1 + colorIndexShift;
+								if(settings.indexColorMapping.contains(c)){
+									c = settings.indexColorMapping.at(c) + 1;
+								} else {
+									c = c + settings.indexColorShift + 1;
+								}
 
 								heighbourDownHeightMin = qMin(
 															 heighbourDownHeightMin,
@@ -221,13 +231,26 @@ void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWrite
 								VmapMeta downMeta = VmapMeta::fromMeta(meta.getData(downX, realIY));
 								VmapMeta upMeta = VmapMeta::fromMeta(meta.getData(upX, realIY));
 
-								uint8_t downC = downMeta.terrain() + 1 + colorIndexShift;
-								uint8_t upC = upMeta.terrain() + 1 + colorIndexShift;
-								uint8_t downHeight = height.getData(downX, realIY);
-								uint8_t upHeight = height.getData(upX, realIY);
+								uint8_t downC = downMeta.terrain();//  + 1 + colorIndexShift;
+								uint8_t upC = upMeta.terrain(); //  + 1 + colorIndexShift;
+								if(settings.indexColorMapping.contains(downC)){
+									downC = settings.indexColorMapping.at(downC) + 1;
+								} else {
+									downC = downC + settings.indexColorShift + 1;
+								}
+
+								if(settings.indexColorMapping.contains(upC)){
+									upC = settings.indexColorMapping.at(upC) + 1;
+								} else {
+									upC = upC + settings.indexColorShift + 1;
+								}
 
 
-								int32_t delta = (downMeta.delta() << 2) + upMeta.delta();
+								uint8_t downHeight = height.getData(downX, realIY) * settings.heightScale;
+								uint8_t upHeight = height.getData(upX, realIY) * settings.heightScale;
+
+
+								int32_t delta = ((downMeta.delta() << 2) + upMeta.delta()) * settings.heightScale;
 
 								heighbourDownHeightMin = qMin(
 															 heighbourDownHeightMin,
@@ -335,9 +358,16 @@ void VmapVoxWriter::write(const Vmap& vmap, QString filename, const VmapVoxWrite
 			vox.paletteOptional.push_back(vox::Palette{});
 			vox::Palette& voxPallette = vox.paletteOptional[0];
 
-			for(int i = 0; i < terrainPalette.size() && i < 255 - colorIndexShift; i++){
+			for(int i = 0; i < terrainPalette.size() /*&& i < 255 - colorIndexShift*/; i++){
 				QRgb color = terrainPalette[i];
-				uint8_t* voxPaletteColor = (uint8_t*)(&voxPallette.colors[i + colorIndexShift]);
+				int32_t indexC;
+				if(settings.indexColorMapping.contains(i)){
+					indexC = settings.indexColorMapping.at(i);
+				} else {
+					indexC = i + settings.indexColorShift;
+				}
+
+				uint8_t* voxPaletteColor = (uint8_t*)(&voxPallette.colors[indexC]);
 				voxPaletteColor[0] = qRed(color);
 				voxPaletteColor[1] = qGreen(color);
 				voxPaletteColor[2] = qBlue(color);

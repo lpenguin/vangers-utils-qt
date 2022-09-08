@@ -16,6 +16,8 @@ namespace vangers::plugins::vmap {
 		int32_t voxSizeY;
 		int32_t chunkSizeX;
 		int32_t chunkSizeY;
+		float heightScale;
+		std::map<int32_t, int32_t> indexColorMapping;
 
 		static VmapVoxWriterSettings makeDefault();
 	};

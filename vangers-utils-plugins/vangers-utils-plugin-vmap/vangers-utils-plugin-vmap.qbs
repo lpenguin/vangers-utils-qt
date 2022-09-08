@@ -79,6 +79,9 @@ DynamicLibrary {
         "src/vangers/plugins/vmap/vmapvoxwriter.h",
         "src/vangers/plugins/vmap/imagegraphicsview.cpp",
         "src/vangers/plugins/vmap/imagegraphicsview.h",
+        "src/vangers/plugins/vmap/voxwritersettingsdialog.cpp",
+        "src/vangers/plugins/vmap/voxwritersettingsdialog.h",
+        "src/vangers/plugins/vmap/voxwritersettingsdialog.ui",
         "src/vangers/plugins/vmap/vprwriter.cpp",
         "src/vangers/plugins/vmap/vprwriter.h",
     ]
