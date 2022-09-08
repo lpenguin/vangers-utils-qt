@@ -9,6 +9,10 @@ Library {
         versionAtLeast: "5.12"
     }
 
+    Depends {
+        name: "nlohmann_json"
+    }
+
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: ["src"]

@@ -1,7 +1,7 @@
 #ifndef VECTORJSONEXT_H
 #define VECTORJSONEXT_H
 
-#include <json.hpp>
+#include <nlohmann/json/json.hpp>
 #include <vangers/core/vector/vector.h>
 
 namespace vangers::core::vector {

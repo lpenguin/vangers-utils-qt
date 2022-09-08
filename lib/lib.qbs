@@ -26,4 +26,7 @@ Project {
     SubProject {
         filePath: "m3d/m3d.qbs"
     }
+    SubProject {
+        filePath: "nlohmann_json/nlohmann_json.qbs"
+    }
 }
