@@ -6,6 +6,10 @@
 #include <QStandardPaths>
 #include <QDebug>
 
+inline void initPaletteResource() { 
+    Q_INIT_RESOURCE(palettes); 
+}
+
 using namespace vangers::core::palette;
 
 const int  FIRE_COLOR_FIRST = 192;
@@ -16,6 +20,8 @@ const int  FIRE_PROCESS_COLOR_MAX = 1 << FIRE_COLOR_BITS;
 const int  WHITE_POINT = 1 << FIRE_COLOR_BITS;
 const int  RED_POINT = WHITE_POINT/3;
 const int  YELLOW_POINT = RED_POINT*2;
+
+
 
 Palette Palette::read(QIODevice &device)
 {
@@ -80,7 +86,7 @@ void Palette::store(const Palette& palette, QIODevice& device)
 
 QStringList Palette::paletteNames()
 {
-	Q_INIT_RESOURCE(palettes);
+	::initPaletteResource();
     QStringList result = QDir(":/palettes/pal").entryList();
     result << "~fire";
 
