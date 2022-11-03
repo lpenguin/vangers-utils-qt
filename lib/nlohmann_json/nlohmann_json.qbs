@@ -3,6 +3,8 @@ import qbs.FileInfo
 StaticLibrary {
     name: "nlohmann_json"
 
+    Depends { name: "cpp" }
+    
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: ["src"]
